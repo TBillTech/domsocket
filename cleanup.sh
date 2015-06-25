@@ -1,0 +1,11 @@
+rm grailsource/cherrypyserver/*~
+rm grailsource/domsocket/*~
+rm grailsource/domsocket/basic_widgets/*~
+rm grailsource/domsocket/messages/*~
+rm grailsource/domsocket/IDE/*~
+rm grailsource/domsocket/tester/*~
+rm grailsource/scripts/*~
+rm grailsource/test/*~
+rm grailsource/tester/*~
+rm grailsource/IDE/*~
+rm *~

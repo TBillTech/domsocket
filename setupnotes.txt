@@ -1,0 +1,42 @@
+//// Basic edison setup at:
+
+http://www.intel.com/support/maker/edison.htm
+
+//// CherryPy setup
+
+Downloaded CherryPy-3.6.0.tar.gz from:
+https://pypi.python.org/pypi/CherryPy/3.6.0
+mv to /root/tmp on Edison
+untar
+python setup.py install
+
+vi /usr/lib/python2.7/site-packages/cherrypy/wsgiserver/wsgiserver2.py
+
+diff -r 080abbbd67ba cherrypy/wsgiserver/wsgiserver2.py
+--- a/cherrypy/wsgiserver/wsgiserver2.py    Thu Mar 06 16:23:42 2014 -0500
++++ b/cherrypy/wsgiserver/wsgiserver2.py    Wed Mar 19 07:32:17 2014 -0700
+@@ -1324,8 +1324,8 @@
+     def __init__(self, server, sock, makefile=CP_fileobject):
+         self.server = server
+         self.socket = sock
+-        self.rfile = makefile(sock._sock, "rb", self.rbufsize)
+-        self.wfile = makefile(sock._sock, "wb", self.wbufsize)
++        self.rfile = makefile(sock, "rb", self.rbufsize)
++        self.wfile = makefile(sock, "wb", self.wbufsize)
+         self.requests_seen = 0
+
+//// ws for python setup
+Download from: https://github.com/Lawouach/WebSocket-for-Python/releases
+Untar and run: 
+python setup.py install
+
+
+//// install slimerjs
+Using instructions online for npm
+For certificate errors ignore, 
+http://darrendev.blogspot.jp/2013/10/slimerjs-getting-it-to-work-with-self.html
+1. slimerjs --createprofile AllowSSL
+2. 
+3. use information from ~/.mozilla/firefox/mvvu6y17.default/cert_override.txt
+4. add to ~/.innophi/slimerjs/a43bly9q.AllowSSL/cert_override.txt 
+
