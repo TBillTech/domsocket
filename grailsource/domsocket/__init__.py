@@ -9,7 +9,7 @@ __all__ = [
     'event',
     'file_finder',
     'messages',
-    'node',
+    'element',
     'node_error',
     'root_factory',
     'temp_conf',
