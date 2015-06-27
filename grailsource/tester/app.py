@@ -3,7 +3,7 @@
 from domsocket.event import Event
 from domsocket.basic_widgets.html_tag import HTMLTag
 from domsocket.basic_widgets.text import Text
-from domsocket.node import Node
+from domsocket.element import Node
 from widgets.login_dialog import LoginDialog
 from widgets.login_button import LoginButton
 

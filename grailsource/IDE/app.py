@@ -4,7 +4,7 @@
 #from basic_widgets.button import Button
 from basic_widgets.paragraph import Paragraph
 #from basic_widgets.text import Text
-from domsocket.node import Node
+from domsocket.element import Node
 # Do an import of the module to ensure picking up the quick options (for
 # the Storm db)
 import ds_controls.ca_login_dialog

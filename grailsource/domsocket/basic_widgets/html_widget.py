@@ -8,7 +8,7 @@ from html_widget_parser import HTMLWidgetParser
 class HTMLWidget(Child):
 
     def __init__(self, html_source, widget_html_id):
-        from domsocket.node import Node
+        from domsocket.element import Node
 
         class HTMLWidgetNode(Node):
 

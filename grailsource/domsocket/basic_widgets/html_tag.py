@@ -6,7 +6,7 @@ from domsocket.child import Child
 class HTMLTag(Child):
 
     def __init__(self, tag, *args, **kw):
-        from domsocket.node import Node
+        from domsocket.element import Node
 
         class HTMLTagNode(Node):
 

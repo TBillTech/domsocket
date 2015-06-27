@@ -10,7 +10,7 @@ from node_error import NodeError
 from messages.append_child_message import AppendChildMessage
 from messages.insert_child_message import InsertChildMessage
 from messages.set_child_message import SetChildMessage
-from node import Node
+from element import Node
 
 
 class TextNode(Node):

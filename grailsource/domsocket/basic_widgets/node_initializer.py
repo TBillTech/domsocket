@@ -11,7 +11,7 @@ class NodeInitializer(object):
         self.index = index
 
     def initialize(self, tag):
-        from domsocket.node import Node
+        from domsocket.element import Node
         Node.__init__(
             self.widget, tag, self.nodeid, self.parent_node, self.ws, self.index)
         return self.widget
