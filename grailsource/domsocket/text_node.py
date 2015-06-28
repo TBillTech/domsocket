@@ -15,7 +15,7 @@ from element import Node
 
 class TextNode(Node):
 
-    def __init__(self, nodeid, parent_node, ws, index, text=''):
+    def called_init(self, nodeid, parent_node, ws, index, text=''):
         object.__setattr__(self, 'tag', 'text')
         object.__setattr__(self, 'text', text)
         object.__setattr__(self, '_ws', ws)
@@ -25,6 +25,8 @@ class TextNode(Node):
         else:
             msg = InsertChildMessage(self.parent_node, index, self)
         self.send_msg(msg)
+
+        object.__setattr__(self, '_active_on_client', True)
 
     def __setattr__(self, name, value):
         if name != 'text':

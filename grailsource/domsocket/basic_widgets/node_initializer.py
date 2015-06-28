@@ -12,7 +12,7 @@ class NodeInitializer(object):
 
     def initialize(self, tag):
         from domsocket.element import Node
-        Node.__init__(
+        Node.called_init(
             self.widget, tag, self.nodeid, self.parent_node, self.ws, self.index)
         return self.widget
 

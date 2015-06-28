@@ -14,7 +14,7 @@ class SomeText(object):
 class App(Node):
 
     def __init__(self, nodeid, parent_node, ws):
-        super(App, self).__init__('div', nodeid, parent_node, ws, index=None)
+        self.called_init('div', nodeid, parent_node, ws, index=None)
 
         self.first_paragraph_show()
         self.sub_body_show()

@@ -1,17 +1,14 @@
 """Copyright (c) 2015 TBillTech.  All rights reserved."""
 
-from domsocket.child import Child
+from domsocket.element import Node
 
-
-class HTMLTag(Child):
+class HTMLTag(Node):
 
     def __init__(self, tag, *args, **kw):
-        from domsocket.element import Node
-
         class HTMLTagNode(Node):
 
-            def __init__(self, nodeid, parent_node, ws, index, *args, **kw):
-                Node.__init__(self, tag, nodeid, parent_node, ws, index)
+            def called_init(self, nodeid, parent_node, ws, index, *args, **kw):
+                Node.called_init(self, tag, nodeid, parent_node, ws, index)
 
                 self._set_arg(kw)
                 for arg in args:

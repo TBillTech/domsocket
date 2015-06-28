@@ -41,7 +41,6 @@ from messages.remove_message import RemoveMessage
 from messages.remove_child_message import RemoveChildMessage
 from messages.set_child_message import SetChildMessage
 from messages.insert_child_message import InsertChildMessage
-from child import Child
 from event import Event
 
 import logging
@@ -62,8 +61,22 @@ class Node(object):
     The Node class tree heiarchy can efficiently find sub nodes by comparing the id fields of the nodes.  In fact, any Node can easily
     locate and obtain a reference to any other Node via the other Node's id using the document_get_element_by_id method.
     """
+    def __init__(self, node_class, *args, **kw):
+        object.__setattr__(self, '_node_class', node_class)
+        object.__setattr__(self, '_args', args)
+        object.__setattr__(self, '_kw', kw)
+        object.__setattr__(self, '_active_on_client', False)
+        object.__setattr__(self, '_children', list())
 
-    def __init__(self, nodetag, nodeid, parent_node, ws, index):
+    def create_node(self, name, parent_node, index):
+        if self.is_active_on_client():
+            raise AttributeError()
+        new_class = self._node_class(self._node_class, *self._args, **self._kw)
+        new_class.called_init(name, parent_node, parent_node.get_w_s(), index, *self._args, **self._kw)
+        return new_class
+
+    def called_init(self, nodetag, nodeid, parent_node, ws, index):
+        object.__setattr__(self, '_active_on_client', False)
         object.__setattr__(self, 'tag', nodetag)
         object.__setattr__(self, '_children', list())
         object.__setattr__(self, '_ws', ws)
@@ -79,11 +92,17 @@ class Node(object):
         self.send_msg(msg)
 
         self._append_count = 0
+        self._active_on_client = True
+
+    def is_active_on_client(self):
+        return self._active_on_client
 
     def __setattr__(self, name, value):
         if name[0] == '_':
             object.__setattr__(self, name, value)
-            return
+            return 
+        if not self.is_active_on_client():
+            raise NodeError('Attributes, children and events may not be set until the element is active on the client.') 
         try:
             current_value = getattr(self, name)
             try:
@@ -92,23 +111,24 @@ class Node(object):
                 index = len(self._children)
             if current_value == value:
                 return
-            if (isinstance(current_value, Node) and not isinstance(value, Child)) or isinstance(current_value, Event):
-                from text_node import TextNode
-                if isinstance(current_value, TextNode) and isinstance(value, str):
-                    current_value.text = value
-                    return
-                else:
-                    delattr(self, name)
+            from text_node import TextNode
+            from basic_widgets.text import Text
+            if (isinstance(current_value, TextNode) or isinstance(current_value, Text)) and isinstance(value, str):
+                current_value.text = value
+                return
+            delattr(self, name)
         except AttributeError:
             index = len(self._children)
             if name == 'first_child':
                 if isinstance(value, str):
                     from text_node import TextNode
-                    value = Child(TextNode, text=value)
+                    value = Node(TextNode, text=value)
                 if isinstance(value, list):
                     for child_obj in value:
                         self.append_child(child_obj)
                     return
+
+
         if value == None:
             return
         if name == 'id' or name == 'tag':
@@ -117,14 +137,11 @@ class Node(object):
             msg = SetAttributeMessage(self, name, value)
         elif name == 'parent_node':
             raise NodeError('Parent node cannot be changed')
-        elif isinstance(value, Node):
-            raise NodeError(
-                'Setting attributes to node objects is not allowed.  Use a Child object for this purpose.')
         elif isinstance(value, Event):
             msg = AttachEventMessage(self, name, value.arguments)
             value.owner_node = self
             value.name = name
-        elif isinstance(value, Child):
+        elif isinstance(value, Node):
             value = self.set_child(index, value, name)
             msg = None
         else:
@@ -191,9 +208,6 @@ class Node(object):
         while self.child_count() > 0:
             self.remove_child(self.child_count() - 1)
 
-    def set_c_s_s_class(self, class_str):
-        setattr(self, 'class', class_str)
-
     def append_child(self, child_node):
         try:
             child_node = child_node.create_node(
@@ -201,7 +215,7 @@ class Node(object):
         except AttributeError:
             if isinstance(child_node, str):
                 from text_node import TextNode
-                value = Child(TextNode, text=child_node)
+                value = Node(TextNode, text=child_node)
                 child_node = value.create_node(
                     str(self._append_count), self, None)
         self._children.append(child_node)
@@ -235,7 +249,7 @@ class Node(object):
         except AttributeError as e:
             if isinstance(child_node, str):
                 from text_node import TextNode
-                value = Child(TextNode, text=child_node)
+                value = Node(TextNode, text=child_node)
                 child_node = value.create_node(
                     str(self._append_count), self, index)
         self._children.insert(index, child_node)

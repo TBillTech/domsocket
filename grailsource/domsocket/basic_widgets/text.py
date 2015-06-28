@@ -1,9 +1,9 @@
 """Copyright (c) 2015 TBillTech.  All rights reserved."""
 
-from domsocket.child import Child
+from domsocket.element import Node
 
 
-class Text(Child):
+class Text(Node):
 
     def __init__(self, *args, **kw):
         from domsocket.text_node import TextNode
