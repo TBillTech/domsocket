@@ -44,7 +44,7 @@ from messages.insert_child_message import InsertChildMessage
 from event import Event
 
 import logging
-from node_error import NodeError
+from element_error import ElementError
 from messages.message_error import MessageError
 
 
@@ -102,7 +102,7 @@ class Node(object):
             object.__setattr__(self, name, value)
             return 
         if not self.is_active_on_client():
-            raise NodeError('Attributes, children and events may not be set until the element is active on the client.') 
+            raise ElementError('Attributes, children and events may not be set until the element is active on the client.') 
         try:
             current_value = getattr(self, name)
             try:
@@ -136,7 +136,7 @@ class Node(object):
                 'Trying to set %s to %s, which is normally not mutable' % (name, value))
             msg = SetAttributeMessage(self, name, value)
         elif name == 'parent_node':
-            raise NodeError('Parent node cannot be changed')
+            raise ElementError('Parent node cannot be changed')
         elif isinstance(value, Event):
             msg = AttachEventMessage(self, name, value.arguments)
             value.owner_node = self
@@ -176,15 +176,15 @@ class Node(object):
                 'Trying to delete %s, which is normally not mutable' % (name,))
             msg = RemoveAttributeMessage(self, name)
         elif name == 'parent_node':
-            raise NodeError('Parent node cannot be deleted')
+            raise ElementError('Parent node cannot be deleted')
         elif isinstance(value, Event):
             if len(value):
-                raise NodeError(
+                raise ElementError(
                     'Trying to delete an event = %s from the node, but there are still listeners attached.' % (name,))
             msg = DetachEventMessage(self, name)
         elif isinstance(value, Node):
             if value not in self._children:
-                raise NodeError('Trying to delete a member variable (%s) on self.id = %s, but Node with id=%s is no longer in children list' % (
+                raise ElementError('Trying to delete a member variable (%s) on self.id = %s, but Node with id=%s is no longer in children list' % (
                     name, self.id, value.id))
             self.remove_child(value)
             msg = None
@@ -276,7 +276,7 @@ class Node(object):
         if index == len(self._children):
             return self.append_child(child_node.create_node(name, self, index))
         if index > len(self._children):
-            raise NodeError('Cannot set child at index = %s, since that would create a gap in the child array of len(children)=%s' % (
+            raise ElementError('Cannot set child at index = %s, since that would create a gap in the child array of len(children)=%s' % (
                 index, len(self._children)))
 
         try:
@@ -311,7 +311,7 @@ class Node(object):
                     return child.get_element_by_id(nodeid)
                 except:
                     continue
-        raise NodeError('nodeid could not be found')
+        raise ElementError('nodeid could not be found')
 
     def get_element_by_partial_id(self, partial_nodeid):
         try:
@@ -324,7 +324,7 @@ class Node(object):
                 return child.get_element_by_partial_id(partial_nodeid)
             except:
                 continue
-        raise NodeError('partial nodeid could not be found')
+        raise ElementError('partial nodeid could not be found')
 
     def get_element_by_text(self, text):
         try:
@@ -337,7 +337,7 @@ class Node(object):
                 return child.get_element_by_text(text)
             except:
                 continue
-        raise NodeError('partial nodeid could not be found')
+        raise ElementError('partial nodeid could not be found')
 
     def document_get_element_by_id(self, nodeid):
         return self.get_w_s().app.get_element_by_id(nodeid)

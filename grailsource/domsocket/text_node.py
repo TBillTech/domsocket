@@ -6,7 +6,7 @@ Text Elements must be handled specially because they do not have id properties i
 Copyright (c) 2015 TBillTech.  All rights reserved.
 """
 
-from node_error import NodeError
+from element_error import ElementError
 from messages.append_child_message import AppendChildMessage
 from messages.insert_child_message import InsertChildMessage
 from messages.set_child_message import SetChildMessage
@@ -30,7 +30,7 @@ class TextNode(Node):
 
     def __setattr__(self, name, value):
         if name != 'text':
-            raise NodeError('Only the text field of the Text Node can be modified') # pragma: no cover
+            raise ElementError('Only the text field of the Text Node can be modified') # pragma: no cover
         object.__setattr__(self, name, value)
         msg = SetChildMessage(self.parent_node, 
                               self.parent_node.child_index(self), 
