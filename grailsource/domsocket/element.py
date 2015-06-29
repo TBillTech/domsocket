@@ -42,6 +42,7 @@ from messages.remove_child_message import RemoveChildMessage
 from messages.set_child_message import SetChildMessage
 from messages.insert_child_message import InsertChildMessage
 from event import Event
+from text_node import TextNode
 
 import logging
 from element_error import ElementError
@@ -111,9 +112,7 @@ class Node(object):
                 index = len(self._children)
             if current_value == value:
                 return
-            from text_node import TextNode
-            from basic_widgets.text import Text
-            if (isinstance(current_value, TextNode) or isinstance(current_value, Text)) and isinstance(value, str):
+            if isinstance(current_value, TextNode) and isinstance(value, str):
                 current_value.text = value
                 return
             delattr(self, name)
@@ -121,7 +120,6 @@ class Node(object):
             index = len(self._children)
             if name == 'first_child':
                 if isinstance(value, str):
-                    from text_node import TextNode
                     value = Node(TextNode, text=value)
                 if isinstance(value, list):
                     for child_obj in value:
@@ -214,7 +212,6 @@ class Node(object):
                 str(self._append_count), self, None)
         except AttributeError:
             if isinstance(child_node, str):
-                from text_node import TextNode
                 value = Node(TextNode, text=child_node)
                 child_node = value.create_node(
                     str(self._append_count), self, None)
@@ -248,7 +245,6 @@ class Node(object):
                 str(self._append_count), self, index)
         except AttributeError as e:
             if isinstance(child_node, str):
-                from text_node import TextNode
                 value = Node(TextNode, text=child_node)
                 child_node = value.create_node(
                     str(self._append_count), self, index)

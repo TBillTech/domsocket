@@ -1,19 +1,31 @@
 """
-The DOMSocket Text Node class is a special case of the Node class because it is based upon the javascript Text Element.
+The DOMSocket Text Node class is a special case of the Node class because it is based upon the javascript Text Node.
 
-Text Elements must be handled specially because they do not have id properties in the DOM.
+Text Nodes must be handled specially because they are not Elements.
 
 Copyright (c) 2015 TBillTech.  All rights reserved.
 """
 
-from element_error import ElementError
+import json
 from messages.append_child_message import AppendChildMessage
 from messages.insert_child_message import InsertChildMessage
 from messages.set_child_message import SetChildMessage
-from element import Node
 
+from element_error import ElementError
 
-class TextNode(Node):
+class TextNode(object):
+
+    def __init__(self, cls, *args, **kw):
+        object.__setattr__(self, '_args', args)
+        object.__setattr__(self, '_kw', kw)
+        object.__setattr__(self, '_active_on_client', False)
+
+    def create_node(self, name, parent_node, index):
+        if self.is_active_on_client():
+            raise AttributeError()
+        new_class = TextNode(TextNode, *self._args, **self._kw)
+        new_class.called_init(name, parent_node, parent_node.get_w_s(), index, *self._args, **self._kw)
+        return new_class
 
     def called_init(self, nodeid, parent_node, ws, index, text=''):
         object.__setattr__(self, 'tag', 'text')
@@ -28,6 +40,9 @@ class TextNode(Node):
 
         object.__setattr__(self, '_active_on_client', True)
 
+    def is_active_on_client(self):
+        return self._active_on_client
+
     def __setattr__(self, name, value):
         if name != 'text':
             raise ElementError('Only the text field of the Text Node can be modified') # pragma: no cover
@@ -41,3 +56,7 @@ class TextNode(Node):
         if isinstance(other, str):
             return self.text == other
         return self.text == other.text
+
+    def send_msg(self, msg):
+        self._ws.send(msg.jsonstring(), False)
+
