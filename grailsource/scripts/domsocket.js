@@ -24,45 +24,45 @@ with(domsocket)
       delete wsInfoObjs[ws];
   };
 
-  wsInfoAddListener = function(ws, theNode, eventName, theListener)
+  wsInfoAddListener = function(ws, theElement, eventName, theListener)
   {
     var wsInfo = wsInfoObjs[ws];
-    if(!(theNode.id in wsInfo.events))
+    if(!(theElement.id in wsInfo.events))
     {
-      wsInfo.events[theNode.id] = new Object();
+      wsInfo.events[theElement.id] = new Object();
     }
-    var nodeEvents = wsInfo.events[theNode.id];
+    var nodeEvents = wsInfo.events[theElement.id];
     if(eventName in nodeEvents)
-      throw new Error(eventName + " is already defined for node " + theNode.id);
+      throw new Error(eventName + " is already defined for node " + theElement.id);
     nodeEvents[eventName] = theListener;
-    theNode.addEventListener(theListener.eventName, theListener);
+    theElement.addEventListener(theListener.eventName, theListener);
   };
 
-  wsInfoGetListener = function(ws, theNode, eventName)
+  wsInfoGetListener = function(ws, theElement, eventName)
   {
     var wsInfo = wsInfoObjs[ws];
-    if(!(theNode.id in wsInfo.events))
+    if(!(theElement.id in wsInfo.events))
     {
-      throw new Error(theNode.id + " is not defined.");
+      throw new Error(theElement.id + " is not defined.");
     }
-    var nodeEvents = wsInfo.events[theNode.id];
+    var nodeEvents = wsInfo.events[theElement.id];
     if(!(eventName in nodeEvents))
-      throw new Error(eventName + " is not defined for node " + theNode.id);
+      throw new Error(eventName + " is not defined for node " + theElement.id);
     return nodeEvents[eventName];
   };
 
-  wsInfoRemoveListener = function(ws, theNode, eventName)
+  wsInfoRemoveListener = function(ws, theElement, eventName)
   {
     var wsInfo = wsInfoObjs[ws];
-    if(!(theNode.id in wsInfo.events))
+    if(!(theElement.id in wsInfo.events))
     {
-      throw new Error(theNode.id + " is not defined.");
+      throw new Error(theElement.id + " is not defined.");
     }
-    var nodeEvents = wsInfo.events[theNode.id];
+    var nodeEvents = wsInfo.events[theElement.id];
     if(eventName in nodeEvents)
     {
       var theListener = nodeEvents[eventName];
-      theNode.removeEventListener(theListener.eventName, theListener);
+      theElement.removeEventListener(theListener.eventName, theListener);
       delete nodeEvents[eventName];
     }
   };
@@ -70,59 +70,59 @@ with(domsocket)
   wsInfoRemoveAllListeners = function(ws)
   {
     var wsInfo = wsInfoObjs[ws];
-    for(var theNodeId in wsInfo.events)
+    for(var theElementId in wsInfo.events)
     {
-      var nodeEvents = wsInfo.events[theNodeId];
+      var nodeEvents = wsInfo.events[theElementId];
       for(var eventName in nodeEvents)
       {
         var theListener = nodeEvents[eventName];
-        theNode.removeEventListener(theListener);
+        theElement.removeEventListener(theListener);
       }
     }
     delete wsInfo.events;
   };
 
-  wsInfoAddNode = function(ws, theNode)
+  wsInfoAddElement = function(ws, theElement)
   {
     var wsInfo = wsInfoObjs[ws];
-    if(!(theNode.id in wsInfo.nodeids))
+    if(!(theElement.id in wsInfo.nodeids))
     {
-      wsInfo.nodeids[theNode.id] = theNode;
+      wsInfo.nodeids[theElement.id] = theElement;
     }
   };
 
-  wsInfoRemoveNode = function(ws, theNode)
+  wsInfoRemoveElement = function(ws, theElement)
   {
     var wsInfo = wsInfoObjs[ws];
-    if(!(theNode.id in wsInfo.nodeids))
+    if(!(theElement.id in wsInfo.nodeids))
     {
-      throw new Error(theNode.id + " is not defined.");
+      throw new Error(theElement.id + " is not defined.");
     }
-    delete wsInfo.nodeids[theNode.id];
+    delete wsInfo.nodeids[theElement.id];
   };
 
-  wsInfoRemoveAllNodes = function(ws)
+  wsInfoRemoveAllElements = function(ws)
   {
     var wsInfo = wsInfoObjs[ws];
-    for(var theNodeId in wsInfo.nodeids)
+    for(var theElementId in wsInfo.nodeids)
     {
-      if(!(wsInfoOtherOwners(theNodeId, ws)))
+      if(!(wsInfoOtherOwners(theElementId, ws)))
       {
-        var theNode = document.getElementById(msg.id);
-        theNode.parentNode.removeChild(theNode);
+        var theElement = document.getElementById(msg.id);
+        theElement.parentNode.removeChild(theElement);
       }
     }
     delete wsInfo.nodeids;
   };
 
-  wsInfoOtherOwners = function(theNodeId, notws)
+  wsInfoOtherOwners = function(theElementId, notws)
   {
     for(var ws in wsInfoObjs)
     {
       if(ws == notws)
         continue;
       alert(ws == notws);
-      if(theNodeId in wsInfoObjs[ws].nodeids)
+      if(theElementId in wsInfoObjs[ws].nodeids)
         return true;
     }
     return false;
@@ -148,7 +148,7 @@ with(domsocket)
         if(child.parentNode !== parent)
           throw new Error("child parentnode is wrong: parent(" + child.parentNode.id + ")!=msg(" + msg.parentId + ")");
       }
-      wsInfoAddNode(ws, child);
+      wsInfoAddElement(ws, child);
     }
     else
     {
@@ -188,7 +188,7 @@ with(domsocket)
         parent.appendChild(child);
       else
         parent.insertBefore(child, parent.childNodes[msg.index])
-      wsInfoAddNode(ws, child);
+      wsInfoAddElement(ws, child);
     }
     else
     {
@@ -207,7 +207,7 @@ with(domsocket)
     var child = parent.childNodes[msg.index];
     if(!(wsInfoOtherOwners(child.id, ws)))
     {
-      wsInfoRemoveNode(ws, child);
+      wsInfoRemoveElement(ws, child);
       parent.removeChild(child);
       child.id = "";
     }
@@ -222,43 +222,43 @@ with(domsocket)
 
   SetAttribute = function(msg)
   {
-    var theNode = document.getElementById(msg.id);
-    if(theNode.getAttribute(msg.name) instanceof Function)
+    var theElement = document.getElementById(msg.id);
+    if(theElement.getAttribute(msg.name) instanceof Function)
     {
-      theNode.getAttribute(msg.name)(msg.value);
+      theElement.getAttribute(msg.name)(msg.value);
     }
     else if(msg.name === "value")
     {
-      theNode.value = msg.value;
+      theElement.value = msg.value;
     }
     else
     {
-      theNode.setAttribute(msg.name, msg.value);
+      theElement.setAttribute(msg.name, msg.value);
     }
     return msg.value;
   };
 
   GetAttribute = function(msg)
   {
-    var theNode = document.getElementById(msg.id);
-    if(theNode.getAttribute(msg.name) instanceof Function)
+    var theElement = document.getElementById(msg.id);
+    if(theElement.getAttribute(msg.name) instanceof Function)
     {
-      return theNode.getAttribute(msg.name)();
+      return theElement.getAttribute(msg.name)();
     }
     else if(msg.name === "value")
     {
-      return theNode.value;
+      return theElement.value;
     }
     else
     {
-      return theNode.getAttribute(msg.name);
+      return theElement.getAttribute(msg.name);
     }
   };
 
   RemoveAttribute = function(msg)
   {
-    var theNode = document.getElementById(msg.id);
-    theNode.removeAttribute(msg.name);
+    var theElement = document.getElementById(msg.id);
+    theElement.removeAttribute(msg.name);
   };
 
   HandleEvent = function(event)
@@ -288,7 +288,7 @@ with(domsocket)
  
   AttachEvent = function(msg, ws)
   {
-    var theNode = document.getElementById(msg.id);
+    var theElement = document.getElementById(msg.id);
     // if(debug)
     // {
     //   for(var i=0; i < EventListeners.length; i++)
@@ -314,14 +314,14 @@ with(domsocket)
     theListener.handleEvent = HandleEvent;
     theListener.ws = ws;
     //EventListeners.push(theListener);
-    wsInfoAddListener(ws, theNode, msg.name, theListener);
-    //theNode.addEventListener(theListener.eventName, theListener);
+    wsInfoAddListener(ws, theElement, msg.name, theListener);
+    //theElement.addEventListener(theListener.eventName, theListener);
   };
 
   DetachEvent = function(msg, ws)
   {
-    var theNode = document.getElementById(msg.id);
-    wsInfoRemoveListener(ws, theNode, msg.name);
+    var theElement = document.getElementById(msg.id);
+    wsInfoRemoveListener(ws, theElement, msg.name);
     // for(var i=0; i < EventListeners.length; i++)
     // {
     //   var aListener = EventListeners[i];
@@ -329,7 +329,7 @@ with(domsocket)
     //     if(aListener.eventName === msg.name)
     //       if(aListener.ws === ws)
     //       {
-    //         theNode.removeEventListener(aListener);
+    //         theElement.removeEventListener(aListener);
     //         EventListeners.splice(i,1);
     //         return;       
     //       }
@@ -339,8 +339,8 @@ with(domsocket)
 
   UpdateEvent = function(msg, ws)
   {
-    var theNode = document.getElementById(msg.id);
-    var theListener = wsInfoGetListener(ws, theNode, msg.name);
+    var theElement = document.getElementById(msg.id);
+    var theListener = wsInfoGetListener(ws, theElement, msg.name);
     if(msg.hasOwnProperty("attributeArgs"))
     {
       theListener.attributeArgs = msg.attributeArgs;
@@ -349,7 +349,7 @@ with(domsocket)
     {
       theListener.removeAttribute("attributeArgs");
     }
-    // var theNode = document.getElementById(msg.id);
+    // var theElement = document.getElementById(msg.id);
     // for(var i=0; i < EventListeners.length; i++)
     // {
     //   var aListener = EventListeners[i];
@@ -379,7 +379,7 @@ with(domsocket)
     //   var aListener = EventListeners[i];
     //   if(aListener.ws === ws)
     //   {
-    //     theNode.removeEventListener(aListener);
+    //     theElement.removeEventListener(aListener);
     //     EventListeners.splice(i,1);
     //     return;       
     //   }
@@ -456,7 +456,7 @@ with(domsocket)
       ws.onclose = function()
       { 
         DetachAllEvents(this);
-        DropAllNodeIds(this);
+        DropAllElementIds(this);
         RemovewsInfo(this);
         //alert("Connection to server has been lost..."); 
       };
