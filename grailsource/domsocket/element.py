@@ -186,6 +186,7 @@ class Element(Node):
         except ValueError:
             index = child_node
             child_node = self._children[index]
+        self._children[index].stop_observations()
         msg = RemoveMessage(child_node)
         del self._children[index]
         self.send_msg(msg)
@@ -196,23 +197,15 @@ class Element(Node):
         except ValueError:
             pass
         try:
-            child_node = child_node.create_node(
-                str(self._append_count), self, index)
-        except AttributeError as e:
-            if isinstance(child_node, str):
-                value = TextNode(text=child_node)
-                child_node = value.create_node(
-                    str(self._append_count), self, index)
+            child_node = child_node.create_node(str(self._append_count), self, index)
+        except AttributeError:
+            pass
         self._children.insert(index, child_node)
-        # this is not a real count, but just an anti-name collision value
         self._append_count += 1
         return child_node
 
     def __len__(self):
         return len(self._children)
-
-    def child_count(self):
-        return len(self)
 
     def get_child(self, index):
         return self._children[index]
@@ -221,23 +214,13 @@ class Element(Node):
         return self._children.index(child_node)
 
     def set_child(self, index, child_node, name):
-        if index == None:
-            index = len(self._children)
         if index == len(self._children):
             return self.append_child(child_node.create_node(name, self, index))
         if index > len(self._children):
-            raise ElementError('Cannot set child at index = %s, since that would create a gap in the child array of len(children)=%s' % (
-                index, len(self._children)))
+            raise ElementError('Cannot set child at index = %s, since that would create a gap in the '\
+                               'child array of len(children)=%s' % (index, len(self._children))) # pragma: no cover
 
-        try:
-            former_child = self.get_child(index)
-        except IndexError:
-            former_child = index
-            index = self.child_index(former_child)
-
-        if isinstance(child_node, str) and isinstance(former_child, TextNode):
-            former_child.text = child_node
-            return former_child
+        former_child = self.get_child(index)
 
         self.remove_child(former_child)
         child_node = self.insert_child(
@@ -250,44 +233,15 @@ class Element(Node):
         self._ws.send(msg.jsonstring(), False)
 
     def get_element_by_id(self, nodeid):
-        try:
-            if nodeid == self.id:
-                return self
-        except:
-            pass
+        if nodeid == self.id:
+            return self
         if nodeid[:len(self.id)] == self.id:
             for child in self._children:
                 try:
                     return child.get_element_by_id(nodeid)
                 except:
                     continue
-        raise ElementError('nodeid could not be found')
-
-    def get_element_by_partial_id(self, partial_nodeid):
-        try:
-            if nodeid[len(self.id) - len(partial_nodeid):] == partial_nodeid:
-                return self
-        except:
-            pass
-        for child in self._children:
-            try:
-                return child.get_element_by_partial_id(partial_nodeid)
-            except:
-                continue
-        raise ElementError('partial nodeid could not be found')
-
-    def get_element_by_text(self, text):
-        try:
-            if self.text == text:
-                return self
-        except:
-            pass
-        for child in self._children:
-            try:
-                return child.get_element_by_text(text)
-            except:
-                continue
-        raise ElementError('partial nodeid could not be found')
+        raise ElementError('nodeid %s could not be found' % (nodeid,))
 
     def document_get_element_by_id(self, nodeid):
         return self.get_w_s().app.get_element_by_id(nodeid)
@@ -298,22 +252,17 @@ class Element(Node):
     def process_msg(self, ws, msg):
         if msg['type'] == 'event':
             node = self.get_element_by_id(msg['nodeid'])
-            if not node:
-                raise MessageError(
-                    'node with nodeid = %s could not be found' % (msg['nodeid'],))
             try:
                 onevent = getattr(node, msg['eventName'])
-            except AttributeError:
-                raise MessageError('Event handler %s is not defined in node class %s with nodeid %s' % (
-                    msg['eventName'], node.__class__.__name__, msg['nodeid']))
+            except AttributeError: # pragma: no cover
+                raise MessageError('Event handler %s is not defined in node class %s with nodeid %s'\
+                                   % (msg['eventName'], node.__class__.__name__, msg['nodeid'])) # pragma: no cover
             onevent(msg)
-        elif msg['type'] == 'exception':
-            #self.logger.error('Exception raise from GUI: %s' % (msg))
-            #self.logger.error('Exception raised from GUI: %s\n_original message: %s' % (msg['err'],msg['rootmessage']))
-            raise MessageError('Exception raised from GUI: %s\n_original message: %s\n_g_u_i Stack: %s' % (
-                msg['message'], msg['original'], msg['stack']))
-        else:
-            raise MessageError('Event type %s not defined' % (msg['type']))
+        elif msg['type'] == 'exception': # pragma: no cover
+            raise MessageError('Exception raised from GUI: %s\noriginal message: %s\n GUI Stack: %s'\
+                               % (msg['message'], msg['original'], msg['stack'])) # pragma: no cover
+        else: # pragma: no cover
+            raise MessageError('Event type %s not defined' % (msg['type'])) # pragma: no cover
 
     def closed(self, code, reason):
         pass
