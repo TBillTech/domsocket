@@ -2,15 +2,17 @@
 
 from domsocket.event import Event
 from domsocket.basic_widgets.html_tag import HTMLTag
-from domsocket.element import Node
+from domsocket.element import Element
 from widgets.login_dialog import LoginDialog
 from widgets.login_button import LoginButton
+from domsocket.text_node import TextNode
+from domsocket.element import Element
 
 class SomeText(object):
     def __init__(self, text):
         self.text = text
 
-class App(Node):
+class App(Element):
 
     def __init__(self, nodeid, parent_node, ws):
         self.called_init('div', nodeid, parent_node, ws, index=None)
@@ -22,18 +24,18 @@ class App(Node):
         
     def first_paragraph_show(self):
         first_paragraph_kwargs = dict()
-        first_paragraph_kwargs['first_child'] = 'Hello World!'
+        first_paragraph_kwargs['text_node'] = Element(TextNode, 'Hello World!')
         first_paragraph_kwargs['class'] = 'first'
         first_paragraph_kwargs['toremove'] = 'remove_this'
         self.first_paragraph = HTMLTag('p', first_paragraph_kwargs)
         del self.first_paragraph.toremove
-        self.first_paragraph.first_child = SomeText('Hello World!')
-        self.first_paragraph.first_child = 'Hello World! -- changed!'
+        self.first_paragraph.text_node = SomeText('Hello World!')
+        self.first_paragraph.text_node = 'Hello World! -- changed!'
 
     def sub_body_show(self):
         sub_body_kwargs = dict()
         sub_body_kwargs['class'] = 'sub_body_class'
-        sub_body_kwargs['first_child'] = self.sub_paragraph_child()
+        sub_body_kwargs['subp_child'] = self.sub_paragraph_child()
         sub_body_kwargs['sub_body_divA'] = self.sub_body_divA_child()
         sub_body_kwargs['sub_body_divB'] = self.sub_body_divA_child()
         self.sub_body = HTMLTag('body', sub_body_kwargs)
@@ -43,7 +45,7 @@ class App(Node):
         del self.sub_body.sub_body_divB
 
     def sub_paragraph_child(self):
-        text_child = 'Hello World! -- from the sub paragraph'
+        text_child = Element(TextNode, 'Hello World! -- from the sub paragraph')
         return HTMLTag('p', text_child)
     
     def sub_body_divA_child(self):

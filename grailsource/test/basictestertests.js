@@ -23,7 +23,7 @@ function first_paragraph_test(id) {
 function sub_body_test(id) {
     assert_equal_nocase(get_tag_of(id), 'body');
     assert_equal(get_attribute_of(id,'class'), 'sub_body_class');
-    sub_paragraph_test(id+'.first_child');
+    sub_paragraph_test(id+'.subp_child');
     sub_body_divA_test(id+'.sub_body_divA');
     assert(!has_id(id+'.sub_body_divB'));
 } 

@@ -1,14 +1,14 @@
 """Copyright (c) 2015 TBillTech.  All rights reserved."""
 
-from domsocket.element import Node
+from domsocket.element import Element
 
-class HTMLTag(Node):
+class HTMLTag(Element):
 
     def __init__(self, tag, *args, **kw):
-        class HTMLTagNode(Node):
+        class HTMLTagElement(Element):
 
             def called_init(self, nodeid, parent_node, ws, index, *args, **kw):
-                Node.called_init(self, tag, nodeid, parent_node, ws, index)
+                Element.called_init(self, tag, nodeid, parent_node, ws, index)
 
                 self._set_arg(kw)
                 for arg in args:
@@ -40,4 +40,4 @@ class HTMLTag(Node):
             def _set_not_iterable_arg(self, arg):
                 self.append_child(arg)
 
-        super(HTMLTag, self).__init__(HTMLTagNode, *args, **kw)
+        super(HTMLTag, self).__init__(HTMLTagElement, *args, **kw)

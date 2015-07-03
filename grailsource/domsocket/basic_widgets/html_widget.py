@@ -1,18 +1,18 @@
 """Copyright (c) 2015 TBillTech.  All rights reserved."""
 
-from domsocket.element import Node
-from node_initializer import NodeInitializer
+from domsocket.element import Element
+from widget_initializer import WidgetInitializer
 from html_widget_parser import HTMLWidgetParser
 
 
-class HTMLWidget(Node):
+class HTMLWidget(Element):
 
     def __init__(self, html_source, widget_html_id):
-        class HTMLWidgetNode(Node):
+        class HTMLWidgetElement(Element):
 
             def called_init(self, nodeid, parent_node, ws, index):
-                node_init = NodeInitializer(self, nodeid, parent_node, ws, index)
+                node_init = WidgetInitializer(self, nodeid, parent_node, ws, index)
 
                 HTMLWidgetParser(html_source, widget_html_id, node_init)
 
-        super(HTMLWidget, self).__init__(HTMLWidgetNode)
+        super(HTMLWidget, self).__init__(HTMLWidgetElement)

@@ -1,25 +1,25 @@
 """Copyright (c) 2015 TBillTech.  All rights reserved.
 
 Description:
-  domsocket base Node class, Text class, and EventCapture class implemented for python.
+  domsocket base Element class, Text class, and EventCapture class implemented for python.
 
 domsocket is a pattern designed to simplify dealing with GUI application client/server interactions.  
 Instead of defining back-end services and painstakingly modifying client/server interfaces whenever code changes are needed, 
 the domsocket pattern keeps a model of the GUI tree and automatically updates individual attributes of elements in the tree as they change.
 
-Normally, a domsocket application starts up and bootstraps without even a div section in the web page.  Typically, the application Node is a
+Normally, a domsocket application starts up and bootstraps without even a div section in the web page.  Typically, the application Element is a
 div tag, and appends itself to the end of the body tree.  However, if the correct div tag already exists with the correct application
 id, the domsocket application will transparently use it.
 
-The Node class is the first pillar of the domsocket pattern.  The Node class constructor requires a node tag, the node id, and the parent node.
+The Element class is the first pillar of the domsocket pattern.  The Element class constructor requires a node tag, the node id, and the parent node.
 These values are used to construct the tag in the GUI as the child of the proper DOM element, and used to subsequencly identify and
-interact with the new DOM element.  The Node class atomatically intercepts attempts to set member variables of the Node class, 
+interact with the new DOM element.  The Element class atomatically intercepts attempts to set member variables of the Element class, 
 and forwards changes across the web socket to the GUI DOM element attribute that corresponds with the member variable name that was modified.
 
 Forwarded changes include adding children to the element, and adding event handlers.
 
 Event handling is controlled by the second pillar of the domsocket pattern:  The EventCapture object.  The EventCapture object sets up a
-corresponding event listener on the corresponding DOM element of the Node attribute where the EventCapture object is assigned.  This
+corresponding event listener on the corresponding DOM element of the Element attribute where the EventCapture object is assigned.  This
 allows for seamlessly and transparently setting up and triggering event handlers from within the server side code without needing to
 create explicit event handling within the GUI.
 
@@ -43,24 +43,25 @@ from messages.set_child_message import SetChildMessage
 from messages.insert_child_message import InsertChildMessage
 from event import Event
 from text_node import TextNode
+from node import Node
 
 import logging
 from element_error import ElementError
 from messages.message_error import MessageError
 
 
-class Node(object):
+class Element(Node):
 
-    """The Node class is the basis for all domsocket Gui elements.  The Node class constructor requires a tag, a nodeid, and the parent_node.
-    These arguments allow the Node constructor to immediately add the mirror representation of the object into the DOM as an element
-    with the proper tag and as a child of the proper parent.  The id permits the Node class to find it's mirror element and modify/update
+    """The Element class is the basis for all domsocket Gui elements.  The Element class constructor requires a tag, a nodeid, and the parent_node.
+    These arguments allow the Element constructor to immediately add the mirror representation of the object into the DOM as an element
+    with the proper tag and as a child of the proper parent.  The id permits the Element class to find it's mirror element and modify/update
     it as the program executes.
 
-    The Node class automatically tries to mirror any property update in the GUI DOM.  The exception to this rule is private variables
+    The Element class automatically tries to mirror any property update in the GUI DOM.  The exception to this rule is private variables
     with leading underscores, which are never mirrored in the DOM.
 
-    The Node class tree heiarchy can efficiently find sub nodes by comparing the id fields of the nodes.  In fact, any Node can easily
-    locate and obtain a reference to any other Node via the other Node's id using the document_get_element_by_id method.
+    The Element class tree heiarchy can efficiently find sub nodes by comparing the id fields of the nodes.  In fact, any Element can easily
+    locate and obtain a reference to any other Element via the other Element's id using the document_get_element_by_id method.
     """
     def __init__(self, node_class, *args, **kw):
         object.__setattr__(self, '_node_class', node_class)
@@ -103,7 +104,7 @@ class Node(object):
             object.__setattr__(self, name, value)
             return 
         if not self.is_active_on_client():
-            raise ElementError('Attributes, children and events may not be set until the element is active on the client.') 
+            raise ElementError('Attributes, children and events may not be set until the element is active on the client.') # pragma: no cover 
         try:
             current_value = getattr(self, name)
             try:
@@ -120,7 +121,7 @@ class Node(object):
             index = len(self._children)
             if name == 'first_child':
                 if isinstance(value, str):
-                    value = Node(TextNode, text=value)
+                    value = Element(TextNode, text=value)
                 if isinstance(value, list):
                     for child_obj in value:
                         self.append_child(child_obj)
@@ -148,8 +149,6 @@ class Node(object):
         object.__setattr__(self, name, value)
 
     def __eq__(self, other):
-        if not isinstance(other, Node):
-            return False
         for name in self.__dict__:
             if name[0] != '_':
                 try:
@@ -212,7 +211,7 @@ class Node(object):
                 str(self._append_count), self, None)
         except AttributeError:
             if isinstance(child_node, str):
-                value = Node(TextNode, text=child_node)
+                value = Element(TextNode, text=child_node)
                 child_node = value.create_node(
                     str(self._append_count), self, None)
         self._children.append(child_node)
@@ -245,7 +244,7 @@ class Node(object):
                 str(self._append_count), self, index)
         except AttributeError as e:
             if isinstance(child_node, str):
-                value = Node(TextNode, text=child_node)
+                value = Element(TextNode, text=child_node)
                 child_node = value.create_node(
                     str(self._append_count), self, index)
         self._children.insert(index, child_node)

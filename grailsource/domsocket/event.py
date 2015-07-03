@@ -4,7 +4,7 @@ Copyright (c) 2015 TBillTech.  All rights reserved.
 See more information on the node class in the doc of node.py.
 
 Event handling is controlled by the second pillar of the REDOWL pattern:  The EventCapture object.  The EventCapture object sets up a
-corresponding event listener on the corresponding DOM element of the Node attribute where the EventCapture object is assigned.  This
+corresponding event listener on the corresponding DOM element of the Element attribute where the EventCapture object is assigned.  This
 allows for seamlessly and transparently setting up and triggering event handlers from within the server side code without needing to
 create explicit event handling within the GUI.
 
@@ -23,10 +23,10 @@ import logging
 class Event(object):
 
     """ The Event class encapsulates handling GUI events.  Whenever it is desireable to trap and act on an event that occurs
-    in the web GUI, a new Event object should be created and assigned to the variable of the Node with the name that exactly
+    in the web GUI, a new Event object should be created and assigned to the variable of the Element with the name that exactly
     corresponds to the name of the event in the GUI.  
 
-    Here is an example: suppose we have a button Node assigned to the local variable 'my_button'.  
+    Here is an example: suppose we have a button Element assigned to the local variable 'my_button'.  
     The click event in the GUI for this button could be captured by this code:
         my_button.click = Event()
     Consequently, whenever there is a click of the button in the GUI, the __call__ method of the Event class assigned 
@@ -36,29 +36,29 @@ class Event(object):
     and calls the listener back using the listener's callback method.  A listener registers/deregisters with the Event class 
     by using the add_listener and remove_listener methods.
 
-    Here is an example, again using the my_button Node: suppose we have a SpecialList Node called 'my_special_list' that wants to get 
+    Here is an example, again using the my_button Element: suppose we have a SpecialList Element called 'my_special_list' that wants to get 
     a callback method callback when my_button is clicked in the GUI.  For example, suppose the SpecialList has an on_my_button_click method:
 
-    class SpecialList(Node):
+    class SpecialList(Element):
         ...
         def on_my_button_click(self, my_button, msg):
             #Do something useful with self and my_button, and optionally access the info in msg
 
-    Now, the my_special_list Node can register with the my_button.click Event object like so:
+    Now, the my_special_list Element can register with the my_button.click Event object like so:
         my_button.click.add_listener(my_special_list, on_my_button_click)
     Consequently, whenever there is a click of the button in the GUI, the on_my_button_click method will get called up.
 
     The msg passed into the callback has the following properties:
     msg.type # This always == "event"
-    msg.nodeid # This is the id of the Node that initiated the event
+    msg.nodeid # This is the id of the Element that initiated the event
     msg.event_name # This is the name of the event property, such as 'click' from the my_button example above
     msg.event # This is a JSON -> python loads version of the actual javascript event
     msg.attribute_args # This is an array of data structures with additional information passed back with the event handler
 
     An element from the attribute_args data structure has the following elements:
-    attribute_arg.id # This is the id of the Node from which the attribute was read
+    attribute_arg.id # This is the id of the Element from which the attribute was read
     attribute_arg.name # This is the name of the attribute read
-    attribute_arg.value # This is the value of the attribute of the Node at the time the event was handled
+    attribute_arg.value # This is the value of the attribute of the Element at the time the event was handled
 
     Before iterating over the listeners, the Event object will iterate through the attribute_arg list and update the state of
     the corresponding attributes in the server version of the GUI tree.  This ensures that when the callback is called on the

@@ -1,7 +1,7 @@
 """Copyright (c) 2015 TBillTech.  All rights reserved."""
 
 
-class NodeInitializer(object):
+class WidgetInitializer(object):
 
     def __init__(self, widget, nodeid, parent_node, ws, index):
         self.widget = widget
@@ -11,8 +11,8 @@ class NodeInitializer(object):
         self.index = index
 
     def initialize(self, tag):
-        from domsocket.element import Node
-        Node.called_init(
+        from domsocket.element import Element
+        Element.called_init(
             self.widget, tag, self.nodeid, self.parent_node, self.ws, self.index)
         return self.widget
 
