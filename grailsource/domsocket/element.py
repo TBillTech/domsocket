@@ -119,14 +119,6 @@ class Element(Node):
             delattr(self, name)
         except AttributeError:
             index = len(self._children)
-            if name == 'first_child':
-                if isinstance(value, str):
-                    value = Element(TextNode, text=value)
-                if isinstance(value, list):
-                    for child_obj in value:
-                        self.append_child(child_obj)
-                    return
-
 
         if value == None:
             return
@@ -181,12 +173,10 @@ class Element(Node):
             msg = DetachEventMessage(self, name)
         elif isinstance(value, Node):
             if value not in self._children:
-                raise ElementError('Trying to delete a member variable (%s) on self.id = %s, but Node with id=%s is no longer in children list' % (
-                    name, self.id, value.id))
+                raise ElementError('Trying to delete a member variable (%s) on self.id = %s, but Node with id=%s '\
+                                   'is no longer in children list' % (name, self.id, value.id))
             self.remove_child(value)
             msg = None
-            if not len(self._children) and name == 'first_child':
-                return  # delattr already accomplished by remove_child
         else:
             msg = RemoveAttributeMessage(self, name)
         self.send_msg(msg)
@@ -195,7 +185,7 @@ class Element(Node):
     def __del__(self):
         to_del = list()
         for name in self.__dict__:
-            if name[0] != '_' and name != 'parent_node':
+            if name[0] != '_' and name != 'parent_node' and name != 'id' and name != 'tag':
                 to_del.append(name)
         for name in to_del:
             try:
@@ -217,7 +207,6 @@ class Element(Node):
         self._children.append(child_node)
         # this is not a real count, but just an anti-name collision value
         self._append_count += 1
-        object.__setattr__(self, 'first_child', self._children[0])
         return child_node
 
     def remove_child(self, child_node):
@@ -229,10 +218,6 @@ class Element(Node):
         msg = RemoveMessage(child_node)
         del self._children[index]
         self.send_msg(msg)
-        if len(self._children):
-            object.__setattr__(self, 'first_child', self._children[0])
-        else:
-            object.__delattr__(self, 'first_child')
 
     def insert_child(self, index, child_node):
         try:
@@ -250,7 +235,6 @@ class Element(Node):
         self._children.insert(index, child_node)
         # this is not a real count, but just an anti-name collision value
         self._append_count += 1
-        object.__setattr__(self, 'first_child', self._children[0])
         return child_node
 
     def __len__(self):
