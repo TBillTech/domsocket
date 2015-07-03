@@ -12,8 +12,7 @@ class WidgetInitializer(object):
 
     def initialize(self, tag):
         from domsocket.element import Element
-        Element.called_init(
-            self.widget, tag, self.nodeid, self.parent_node, self.ws, self.index)
+        Element.show(self.widget, tag, self.nodeid, self.parent_node, self.ws, self.index)
         return self.widget
 
     def add_helper_property(self, id, sub_node):

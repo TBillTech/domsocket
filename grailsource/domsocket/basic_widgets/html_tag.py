@@ -8,8 +8,15 @@ class HTMLTag(Element):
         super(HTMLTag, self).__init__(tag, *args, **kw)
         object.__setattr__(self, '_node_class', HTMLTag)
 
-    def called_init(self, nodeid, parent_node, ws, index, *args, **kw):
-        Element.called_init(self, self.tag, nodeid, parent_node, ws, index)
+    def create_node(self, name, parent_node, index):
+        if self.is_active_on_client():
+            raise AttributeError()
+        new_class = self._node_class(self.tag, *self._args, **self._kw)
+        new_class.show(name, parent_node, parent_node.get_w_s(), index, *self._args, **self._kw)
+        return new_class
+
+    def show(self, nodeid, parent_node, ws, index, *args, **kw):
+        super(HTMLTag,self).show(self.tag, nodeid, parent_node, ws, index)
 
         self._set_arg(kw)
         for arg in args:

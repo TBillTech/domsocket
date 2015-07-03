@@ -15,7 +15,7 @@ class SomeText(object):
 class App(Element):
 
     def __init__(self, nodeid, parent_node, ws):
-        self.called_init('div', nodeid, parent_node, ws, index=None)
+        self.show('div', nodeid, parent_node, ws, index=None)
 
         self.first_paragraph_show()
         self.sub_body_show()

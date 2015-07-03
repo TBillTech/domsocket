@@ -24,7 +24,7 @@ class TextNode(Node):
     def create_node(self, name, parent_node, index):
         object.__setattr__(self, '_ws', parent_node.get_w_s())
         object.__setattr__(self, 'parent_node', parent_node)
-        self.activate(index)    
+        self.show(index)    
         return self
 
     def is_active_on_client(self):
@@ -49,7 +49,7 @@ class TextNode(Node):
     def send_msg(self, msg):
         self._ws.send(msg.jsonstring(), False)
 
-    def activate(self, index): 
+    def show(self, index): 
         if self.is_active_on_client():
             raise AttributeError()
 

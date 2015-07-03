@@ -71,14 +71,7 @@ class Element(Node):
         object.__setattr__(self, '_active_on_client', False)
         object.__setattr__(self, '_children', list())
 
-    def create_node(self, name, parent_node, index):
-        if self.is_active_on_client():
-            raise AttributeError()
-        new_class = self._node_class(self.tag, *self._args, **self._kw)
-        new_class.called_init(name, parent_node, parent_node.get_w_s(), index, *self._args, **self._kw)
-        return new_class
-
-    def called_init(self, nodetag, nodeid, parent_node, ws, index):
+    def show(self, nodetag, nodeid, parent_node, ws, index):
         object.__setattr__(self, '_active_on_client', False)
         object.__setattr__(self, 'tag', nodetag)
         object.__setattr__(self, '_children', list())
