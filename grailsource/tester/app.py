@@ -6,7 +6,7 @@ from domsocket.element import Element
 from widgets.login_dialog import LoginDialog
 from widgets.login_button import LoginButton
 from domsocket.text_node import TextNode
-from domsocket.element import Element
+from domsocket.element_error import ElementError
 
 class SomeText(object):
     def __init__(self, text):
@@ -26,11 +26,35 @@ class App(Element):
         first_paragraph_kwargs = dict()
         first_paragraph_kwargs['text_node'] = Element(TextNode, 'Hello World!')
         first_paragraph_kwargs['class'] = 'first'
+        first_paragraph_kwargs['useful'] = 'true'
         first_paragraph_kwargs['toremove'] = 'remove_this'
         self.first_paragraph = HTMLTag('p', first_paragraph_kwargs)
         del self.first_paragraph.toremove
         self.first_paragraph.text_node = SomeText('Hello World!')
         self.first_paragraph.text_node = 'Hello World! -- changed!'
+        try:
+            self.first_paragraph.useful = None
+            raise ElementError('attribute useful should not be allowed to set to None!')
+        except ElementError:
+            pass
+        try:
+            self.first_paragraph.id = 'wrong.name'
+            raise ElementError('Should not be allowed to modify id!')
+        except ElementError:
+            pass
+        self.first_paragraph._toremove = 'hidden data'
+        del self.first_paragraph._toremove
+        try:
+            if self.first_paragraph._toremove == 'hidden data':
+                pass
+            raise ElementError('Could not remove hidden data _toremove')
+        except AttributeError:
+            pass
+        try:
+            del self.first_paragraph.id
+            raise ElementError('Should not be allowed to delete id!')
+        except ElementError:
+            pass
 
     def sub_body_show(self):
         sub_body_kwargs = dict()
@@ -64,6 +88,11 @@ class App(Element):
         self.login._loginButton.click = login_event
         self.login._loginButton.click.add_listener(self, App.login)
         self.login._loginButton.click.add_argument(self.login._password, 'value')
+        try:
+            del self.login._loginButton.click
+            raise ElementError('Should not be allowed to delete Events with listeners still attached.')
+        except ElementError:
+            pass
     
     def login(self, theLoginButton, msg):
         authenticated = self.authenticate()

@@ -51,6 +51,7 @@ from messages.message_error import MessageError
 
 
 class Element(Node):
+    immutable_names = set(['tag', 'id', 'parent_node', '_ws', '_active_on_client', '_children'])
 
     """The Element class is the basis for all domsocket Gui elements.  The Element class constructor requires a tag, a nodeid, and the parent_node.
     These arguments allow the Element constructor to immediately add the mirror representation of the object into the DOM as an element
@@ -94,15 +95,21 @@ class Element(Node):
         self.send_msg(msg)
 
         self._append_count = 0
-        self._active_on_client = True
+        object.__setattr__(self, '_active_on_client',  True)
 
     def is_active_on_client(self):
         return self._active_on_client
 
     def __setattr__(self, name, value):
+        if value == None:
+            raise ElementError('attributes and children may not be set to None.  Use del to remove them.')
+        if name in self.immutable_names:
+            raise ElementError('%s is immutable and may not be changed' % (name,))
+
         if name[0] == '_':
             object.__setattr__(self, name, value)
             return 
+
         if not self.is_active_on_client():
             raise ElementError('Attributes, children and events may not be set until the element is active on the client.') # pragma: no cover 
         try:
@@ -120,15 +127,7 @@ class Element(Node):
         except AttributeError:
             index = len(self._children)
 
-        if value == None:
-            return
-        if name == 'id' or name == 'tag':
-            logging.get_logger('PIapp').warning(
-                'Trying to set %s to %s, which is normally not mutable' % (name, value))
-            msg = SetAttributeMessage(self, name, value)
-        elif name == 'parent_node':
-            raise ElementError('Parent node cannot be changed')
-        elif isinstance(value, Event):
+        if isinstance(value, Event):
             msg = AttachEventMessage(self, name, value.arguments)
             value.owner_node = self
             value.name = name
@@ -140,41 +139,19 @@ class Element(Node):
         self.send_msg(msg)
         object.__setattr__(self, name, value)
 
-    def __eq__(self, other):
-        for name in self.__dict__:
-            if name[0] != '_':
-                try:
-                    if other.getattr(other, name) != self.getattr(self, name):
-                        return False
-                except:
-                    return False
-        try:
-            if self._children != other._children:
-                return False
-        except:
-            return False
-        return True
-
     def __delattr__(self, name):
         if name[0] == '_':
             object.__delattr__(self, name)
             return
         value = getattr(self, name)
-        if name == 'id' or name == 'tag':
-            logging.get_logger('PIapp').warning(
-                'Trying to delete %s, which is normally not mutable' % (name,))
-            msg = RemoveAttributeMessage(self, name)
-        elif name == 'parent_node':
-            raise ElementError('Parent node cannot be deleted')
+        if name in self.immutable_names:
+            raise ElementError('%s is immutable, and may not be deleted' % (name,))
         elif isinstance(value, Event):
             if len(value):
-                raise ElementError(
-                    'Trying to delete an event = %s from the node, but there are still listeners attached.' % (name,))
+                raise ElementError('Trying to delete an event = %s from the node, '\
+                                   'but there are still listeners attached.' % (name,))
             msg = DetachEventMessage(self, name)
         elif isinstance(value, Node):
-            if value not in self._children:
-                raise ElementError('Trying to delete a member variable (%s) on self.id = %s, but Node with id=%s '\
-                                   'is no longer in children list' % (name, self.id, value.id))
             self.remove_child(value)
             msg = None
         else:
@@ -185,7 +162,7 @@ class Element(Node):
     def __del__(self):
         to_del = list()
         for name in self.__dict__:
-            if name[0] != '_' and name != 'parent_node' and name != 'id' and name != 'tag':
+            if name[0] != '_' and name not in self.immutable_names:
                 to_del.append(name)
         for name in to_del:
             try:

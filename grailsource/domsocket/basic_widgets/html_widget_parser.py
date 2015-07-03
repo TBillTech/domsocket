@@ -6,7 +6,7 @@ from html_tag import HTMLTag
 import logging
 from HTMLParser import HTMLParser
 from domsocket.text_node import TextNode
-
+from domsocket.element import Element
 
 class HTMLImporterException(Exception):
     pass
@@ -182,7 +182,7 @@ class HTMLWidgetParser(HTMLParser):
 
     def process_data(self, data):
         if self.use_child_data():
-            child_text = TextNode(data)
+            child_text = Element(TextNode, data)
             cur_parent = self.get_top_widget()
             cur_parent.append_child(child_text)
 
