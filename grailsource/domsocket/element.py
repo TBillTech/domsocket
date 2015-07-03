@@ -64,8 +64,7 @@ class Element(Node):
     The Element class tree heiarchy can efficiently find sub nodes by comparing the id fields of the nodes.  In fact, any Element can easily
     locate and obtain a reference to any other Element via the other Element's id using the document_get_element_by_id method.
     """
-    def __init__(self, tag, *args, **kw):
-        object.__setattr__(self, 'tag', tag)
+    def __init__(self, *args, **kw):
         object.__setattr__(self, '_args', args)
         object.__setattr__(self, '_kw', kw)
         object.__setattr__(self, '_active_on_client', False)

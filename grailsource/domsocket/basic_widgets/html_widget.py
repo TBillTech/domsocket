@@ -10,7 +10,7 @@ class HTMLWidget(Element):
     def __init__(self, html_source, widget_html_id):
         object.__setattr__(self, '_html_source', html_source)
         object.__setattr__(self, '_widget_html_id', widget_html_id)
-        super(HTMLWidget, self).__init__('widget')
+        super(HTMLWidget, self).__init__()
 
     def create_node(self, name, parent_node, index):
         if self.is_active_on_client():

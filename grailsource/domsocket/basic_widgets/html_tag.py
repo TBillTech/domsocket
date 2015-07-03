@@ -5,21 +5,20 @@ from domsocket.element import Element
 class HTMLTag(Element):
 
     def __init__(self, tag, *args, **kw):
-        super(HTMLTag, self).__init__(tag, *args, **kw)
-        object.__setattr__(self, '_node_class', HTMLTag)
+        super(HTMLTag, self).__init__(*args, **kw)
+        object.__setattr__(self, 'tag', tag)
 
     def create_node(self, name, parent_node, index):
         if self.is_active_on_client():
             raise AttributeError()
-        new_class = self._node_class(self.tag, *self._args, **self._kw)
-        new_class.show(name, parent_node, parent_node.get_w_s(), index, *self._args, **self._kw)
-        return new_class
+        self.show(name, parent_node, index)
+        return self
 
-    def show(self, nodeid, parent_node, ws, index, *args, **kw):
-        super(HTMLTag,self).show(self.tag, nodeid, parent_node, ws, index)
+    def show(self, nodeid, parent_node, index):
+        super(HTMLTag,self).show(self.tag, nodeid, parent_node, parent_node.get_w_s(), index)
 
-        self._set_arg(kw)
-        for arg in args:
+        self._set_arg(self._kw)
+        for arg in self._args:
             self._set_arg(arg)
 
     def _set_arg(self, arg):
