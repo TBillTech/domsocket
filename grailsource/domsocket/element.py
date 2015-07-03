@@ -151,9 +151,6 @@ class Element(Node):
         self.send_msg(msg)
         object.__delattr__(self, name)
 
-    def __del__(self):
-        self.stop_observations()
-
     def stop_observations(self):
         for child in self._children:
             child.stop_observations()
