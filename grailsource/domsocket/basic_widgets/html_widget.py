@@ -15,4 +15,5 @@ class HTMLWidget(Element):
 
                 HTMLWidgetParser(html_source, widget_html_id, node_init)
 
-        super(HTMLWidget, self).__init__(HTMLWidgetElement)
+        super(HTMLWidget, self).__init__()
+        object.__setattr__(self, '_node_class', HTMLWidgetElement)

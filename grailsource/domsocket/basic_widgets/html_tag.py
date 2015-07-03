@@ -40,4 +40,5 @@ class HTMLTag(Element):
             def _set_not_iterable_arg(self, arg):
                 self.append_child(arg)
 
-        super(HTMLTag, self).__init__(HTMLTagElement, *args, **kw)
+        super(HTMLTag, self).__init__(*args, **kw)
+        object.__setattr__(self, '_node_class', HTMLTagElement)
