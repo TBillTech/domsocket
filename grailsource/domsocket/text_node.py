@@ -16,21 +16,18 @@ from node import Node
 
 class TextNode(Node):
 
-    def __init__(self, *args, **kw):
-        object.__setattr__(self, '_args', args)
-        object.__setattr__(self, '_kw', kw)
+    def __init__(self, text=''):
+        object.__setattr__(self, 'text', text)
         object.__setattr__(self, '_active_on_client', False)
 
     def create_node(self, name, parent_node, index):
         if self.is_active_on_client():
             raise AttributeError()
-        new_class = TextNode(*self._args, **self._kw)
-        new_class.called_init(name, parent_node, parent_node.get_w_s(), index, *self._args, **self._kw)
-        return new_class
+        self.called_init(name, parent_node, parent_node.get_w_s(), index)
+        return self
 
-    def called_init(self, nodeid, parent_node, ws, index, text=''):
+    def called_init(self, nodeid, parent_node, ws, index):
         object.__setattr__(self, 'tag', 'text')
-        object.__setattr__(self, 'text', text)
         object.__setattr__(self, '_ws', ws)
         object.__setattr__(self, 'parent_node', parent_node)
         if index == None:
@@ -52,17 +49,6 @@ class TextNode(Node):
                               self.parent_node.child_index(self), 
                               self)
         self.send_msg(msg)
-
-    def __getattribute__(self, name):
-        try:
-            return object.__getattribute__(self, name)
-        except AttributeError:
-            if name == 'text':
-                if self._args:
-                    return self._args[0]
-                elif 'text' in self._kw:
-                    return self._kw['text']
-            raise
 
     def stop_observations(self):
         pass # pragma: no cover
