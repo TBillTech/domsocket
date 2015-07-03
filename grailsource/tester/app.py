@@ -24,13 +24,13 @@ class App(Element):
         
     def first_paragraph_show(self):
         first_paragraph_kwargs = dict()
-        first_paragraph_kwargs['text_node'] = Element(TextNode, 'Hello World!')
+        first_paragraph_kwargs['text_node'] = TextNode('Hello World!')
         first_paragraph_kwargs['class'] = 'first'
         first_paragraph_kwargs['useful'] = 'true'
         first_paragraph_kwargs['toremove'] = 'remove_this'
         self.first_paragraph = HTMLTag('p', first_paragraph_kwargs)
         del self.first_paragraph.toremove
-        self.first_paragraph.text_node = SomeText('Hello World!')
+        self.first_paragraph.text_node = TextNode('Hello World!')
         self.first_paragraph.text_node = 'Hello World! -- changed!'
         try:
             self.first_paragraph.useful = None
@@ -69,7 +69,7 @@ class App(Element):
         del self.sub_body.sub_body_divB
 
     def sub_paragraph_child(self):
-        text_child = Element(TextNode, 'Hello World! -- from the sub paragraph')
+        text_child = TextNode('Hello World! -- from the sub paragraph')
         return HTMLTag('p', text_child)
     
     def sub_body_divA_child(self):

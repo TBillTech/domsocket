@@ -12,10 +12,11 @@ from messages.insert_child_message import InsertChildMessage
 from messages.set_child_message import SetChildMessage
 
 from element_error import ElementError
+from node import Node
 
-class TextNode(object):
+class TextNode(Node):
 
-    def __init__(self, cls, *args, **kw):
+    def __init__(self, *args, **kw):
         object.__setattr__(self, '_args', args)
         object.__setattr__(self, '_kw', kw)
         object.__setattr__(self, '_active_on_client', False)
@@ -23,7 +24,7 @@ class TextNode(object):
     def create_node(self, name, parent_node, index):
         if self.is_active_on_client():
             raise AttributeError()
-        new_class = TextNode(TextNode, *self._args, **self._kw)
+        new_class = TextNode(*self._args, **self._kw)
         new_class.called_init(name, parent_node, parent_node.get_w_s(), index, *self._args, **self._kw)
         return new_class
 
@@ -52,7 +53,23 @@ class TextNode(object):
                               self)
         self.send_msg(msg)
 
+    def __getattribute__(self, name):
+        try:
+            return object.__getattribute__(self, name)
+        except AttributeError:
+            if name == 'text':
+                if self._args:
+                    return self._args[0]
+                elif 'text' in self._kw:
+                    return self._kw['text']
+            raise
+
+    def stop_observations(self):
+        pass # pragma: no cover
+
     def __eq__(self, other):
+        if other is None:
+            return False
         if isinstance(other, str):
             return self.text == other
         return self.text == other.text

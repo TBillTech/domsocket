@@ -160,17 +160,11 @@ class Element(Node):
         object.__delattr__(self, name)
 
     def __del__(self):
-        to_del = list()
-        for name in self.__dict__:
-            if name[0] != '_' and name not in self.immutable_names:
-                to_del.append(name)
-        for name in to_del:
-            try:
-                self.__delattr__(name)
-            except AttributeError:
-                pass
-        while self.child_count() > 0:
-            self.remove_child(self.child_count() - 1)
+        self.stop_observations()
+
+    def stop_observations(self):
+        for child in self._children:
+            child.stop_observations()
 
     def append_child(self, child_node):
         try:
@@ -178,7 +172,7 @@ class Element(Node):
                 str(self._append_count), self, None)
         except AttributeError:
             if isinstance(child_node, str):
-                value = Element(TextNode, text=child_node)
+                value = TextNode(text=child_node)
                 child_node = value.create_node(
                     str(self._append_count), self, None)
         self._children.append(child_node)
@@ -206,7 +200,7 @@ class Element(Node):
                 str(self._append_count), self, index)
         except AttributeError as e:
             if isinstance(child_node, str):
-                value = Element(TextNode, text=child_node)
+                value = TextNode(text=child_node)
                 child_node = value.create_node(
                     str(self._append_count), self, index)
         self._children.insert(index, child_node)
