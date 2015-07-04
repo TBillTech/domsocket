@@ -32,14 +32,12 @@ in a domsocket application.
 """
 
 import json
-from messages.append_child_message import AppendChildMessage
 from messages.attach_event_message import AttachEventMessage
 from messages.set_attribute_message import SetAttributeMessage
 from messages.remove_attribute_message import RemoveAttributeMessage
 from messages.detach_event_message import DetachEventMessage
 from messages.remove_message import RemoveMessage
 from messages.remove_child_message import RemoveChildMessage
-from messages.set_child_message import SetChildMessage
 from messages.insert_child_message import InsertChildMessage
 from event import Event
 from text_node import TextNode

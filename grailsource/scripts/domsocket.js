@@ -222,17 +222,6 @@ with(domsocket)
       return false;
   };
 
-  SetChild = function(msg, ws)
-  {
-    if(msg.childTag !== "text")
-    {
-	RemoveChild(msg, ws);
-	InsertChild(msg, ws);
-    }
-    else
-	SetTextNode(msg, ws);
-  };
-
   InsertChild = function(msg, ws)
   {
     if(msg.childTag !== "text")
@@ -383,7 +372,7 @@ with(domsocket)
 
   UpdateEvent = function(msg, ws)
   {
-      var theElement = document.getElementById(msg.id);
+     var theElement = document.getElementById(msg.id);
       var theListener = wsInfoGetListener(ws, theElement, msg.name);
       if(msg.hasOwnProperty("attributeArgs"))
 	  theListener.attributeArgs = msg.attributeArgs;
@@ -396,11 +385,8 @@ with(domsocket)
     wsInfoRemoveAllListeners(ws);
   };
 
-  wsOnMessageHandlers.appendChild = InsertChild;
-  wsOnMessageHandlers.setChild = SetChild;
   wsOnMessageHandlers.insertChild = InsertChild;
   wsOnMessageHandlers.removeChild = RemoveChild;
-  wsOnMessageHandlers.appendTextNode = InsertTextNode;
   wsOnMessageHandlers.setTextNode = SetTextNode;
   wsOnMessageHandlers.insertTextNode = InsertTextNode;
   wsOnMessageHandlers.setAttribute = SetAttribute;
