@@ -6,11 +6,11 @@ import sys
 
 class InsertTextNodeMessage(Message):
 
-    def __init__(self, parent_node, index, node):
-        self.index = self.get_index(parent_node, index)
+    def __init__(self, text_node, index):
+        self.index = self.get_index(text_node.parent_node, index)
         self.msg_dict = {'type': 'insertTextNode', 
-                         'childTag': node.tag, 
-                         'parentId': parent_node.id, 
+                         'childTag': text_node.tag, 
+                         'parentId': text_node.parent_node.id, 
                          'index': self.index,
-                         'text': node.text }
+                         'text': text_node.text }
 

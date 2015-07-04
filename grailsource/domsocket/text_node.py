@@ -10,7 +10,6 @@ import json
 from messages.insert_text_node_message import InsertTextNodeMessage
 from messages.set_text_node_message import SetTextNodeMessage
 
-from element_error import ElementError
 from node import Node
 
 class TextNode(Node):
@@ -34,7 +33,7 @@ class TextNode(Node):
 
     def __setattr__(self, name, value):
         if name != 'text':
-            raise ElementError('Only the text field of the Text Node can be modified') # pragma: no cover
+            raise AttributeError('Only the text field of the Text Node can be modified') # pragma: no cover
         object.__setattr__(self, 'text', value)
         self.update()
 
@@ -52,16 +51,14 @@ class TextNode(Node):
         if self.is_active_on_client():
             raise AttributeError()
 
-        msg = InsertTextNodeMessage(self.parent_node, index, self)
+        msg = InsertTextNodeMessage(self, index)
         self.send_msg(msg)
 
         self.set_active_on_client()
        
     def update(self):
         if self.is_active_on_client():
-            msg = SetTextNodeMessage(self.parent_node, 
-                                  self.parent_node.child_index(self), 
-                                  self)
+            msg = SetTextNodeMessage(self)
             self.send_msg(msg)
         
 

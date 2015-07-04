@@ -224,13 +224,9 @@ with(domsocket)
 
   InsertChild = function(msg, ws)
   {
-    if(msg.childTag !== "text")
-    {
-	var child = CreateChild(msg);
-	wsInfoAddElement(ws, child);
-    }
-    else
-	InsertTextNode(msg, ws);
+      var child = CreateChild(msg);
+      AdoptChild(msg, child);
+      wsInfoAddElement(ws, child);
   };
 
   CreateChild = function(msg)
@@ -241,7 +237,6 @@ with(domsocket)
       else
         child.tagName = msg.childTag;
       child.id = msg.childId;
-      AdoptChild(msg, child);
       return child;
   };
 

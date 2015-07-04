@@ -5,29 +5,31 @@ Description:
 
 domsocket is a pattern designed to simplify dealing with GUI application client/server interactions.  
 Instead of defining back-end services and painstakingly modifying client/server interfaces whenever code changes are needed, 
-the domsocket pattern keeps a model of the GUI tree and automatically updates individual attributes of elements in the tree as they change.
+the domsocket pattern keeps a model of the GUI tree and automatically updates individual attributes of elements in the tree 
+as they change.
 
-Normally, a domsocket application starts up and bootstraps without even a div section in the web page.  Typically, the application Element is a
-div tag, and appends itself to the end of the body tree.  However, if the correct div tag already exists with the correct application
-id, the domsocket application will transparently use it.
+Normally, a domsocket application starts up and bootstraps without even a div section in the web page.  
+Typically, the application Element is a div tag, and appends itself to the end of the body tree.  
+However, if the correct div tag already exists with the correct application id, 
+the domsocket application will transparently use it.
 
-The Element class is the first pillar of the domsocket pattern.  The Element class constructor requires a node tag, the node id, and the parent node.
-These values are used to construct the tag in the GUI as the child of the proper DOM element, and used to subsequencly identify and
-interact with the new DOM element.  The Element class atomatically intercepts attempts to set member variables of the Element class, 
-and forwards changes across the web socket to the GUI DOM element attribute that corresponds with the member variable name that was modified.
+The Element class is the first pillar of the domsocket pattern.  
+The Element class is used to construct the GUI and proper DOM elements, and is also used to subsequently identify and
+interact with the DOM elements.  The Element class atomatically intercepts attempts to set member variables of 
+the Element class, and forwards changes across the web socket to the GUI DOM element attribute that corresponds with 
+the member variable name that was modified.
 
-Forwarded changes include adding children to the element, and adding event handlers.
+Forwarded changes include controlling children elements, attributes, and event handlers.
 
-Event handling is controlled by the second pillar of the domsocket pattern:  The EventCapture object.  The EventCapture object sets up a
-corresponding event listener on the corresponding DOM element of the Element attribute where the EventCapture object is assigned.  This
-allows for seamlessly and transparently setting up and triggering event handlers from within the server side code without needing to
-create explicit event handling within the GUI.
+Event handling is controlled by the second pillar of the domsocket pattern:  The EventCapture object.  
+The EventCapture object sets up a corresponding event listener on the corresponding DOM element of the Element 
+attribute where the EventCapture object is assigned.  This allows for seamlessly and transparently setting up and 
+triggering event handlers from within the server side code without needing to create explicit event handling within the GUI.
 
-Putting it all together, the domsocket pattern permits the programmer to write a web application that semantically is a single simple
+Putting it all together, the domsocket pattern permits the programmer to write a web application that semantically is a simple
 GUI application.  With domsocket, the programmer is not forced to implement communication code for interfacing the back end and the
 front end pieces of the application across the IP network.  The communication link is abstracted away and does not explicitly appear
 in a domsocket application.
-
 
 """
 
@@ -49,19 +51,16 @@ from messages.message_error import MessageError
 
 
 class Element(Node):
+    """The Element class is the basis for all domsocket Gui elements. 
+
+    The Element class automatically tries to mirror any property update in the GUI DOM.  
+    The exception to this rule is private variables with leading underscores, which are never mirrored in the DOM.
+
+    The Element class tree heiarchy can efficiently find sub nodes by comparing the id fields of the nodes.
+    """
+
     immutable_names = set(['tag', 'id', 'parent_node', '_ws', '_active_on_client', '_children'])
 
-    """The Element class is the basis for all domsocket Gui elements.  The Element class constructor requires a tag, a nodeid, and the parent_node.
-    These arguments allow the Element constructor to immediately add the mirror representation of the object into the DOM as an element
-    with the proper tag and as a child of the proper parent.  The id permits the Element class to find it's mirror element and modify/update
-    it as the program executes.
-
-    The Element class automatically tries to mirror any property update in the GUI DOM.  The exception to this rule is private variables
-    with leading underscores, which are never mirrored in the DOM.
-
-    The Element class tree heiarchy can efficiently find sub nodes by comparing the id fields of the nodes.  In fact, any Element can easily
-    locate and obtain a reference to any other Element via the other Element's id using the document_get_element_by_id method.
-    """
     def __init__(self, *args, **kw):
         object.__setattr__(self, '_args', args)
         object.__setattr__(self, '_kw', kw)
@@ -74,15 +73,19 @@ class Element(Node):
         object.__setattr__(self, '_children', list())
         object.__setattr__(self, '_ws', ws)
         object.__setattr__(self, 'parent_node', parent_node)
-        if self.parent_node == None:
-            object.__setattr__(self, 'id', nodeid)
-        else:
-            object.__setattr__(self, 'id', self.parent_node.id + '.' + nodeid)
+        object.__setattr__(self, 'id', self.get_nodeid(nodeid))
+        object.__setattr__(self, '_append_count',  0)
+
         msg = InsertChildMessage(self.parent_node, index, self)
         self.send_msg(msg)
 
-        self._append_count = 0
         object.__setattr__(self, '_active_on_client',  True)
+
+    def get_nodeid(self, nodeid):
+        try:
+            return self.parent_node.id + '.' + nodeid
+        except AttributeError:
+            return nodeid
 
     def is_active_on_client(self):
         return self._active_on_client

@@ -4,10 +4,11 @@ from message import Message
 
 class SetTextNodeMessage(Message):
 
-    def __init__(self, parent_node, index, node):
+    def __init__(self, text_node):
+        index = text_node.parent_node.child_index(text_node)
         self.msg_dict = {'type': 'setTextNode', 
-                         'childTag': node.tag, 
-                         'parentId': parent_node.id, 
+                         'childTag': text_node.tag, 
+                         'parentId': text_node.parent_node.id, 
                          'index': index,
-                         'text': node.text }
+                         'text': text_node.text }
             
