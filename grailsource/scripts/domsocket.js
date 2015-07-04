@@ -1,28 +1,127 @@
 // --------------------------------------------- Begin domsocket namespace -------------------------------------------------
 var domsocket = domsocket = domsocket || {}
-// Put all the DOM websocket login into the domsocket namespace
+
 with(domsocket)
 {
   var EventListeners = new Array();
   var debug = true;
   var wsInfoObjs = new Object();
 
-  AddwsInfo = function(ws)
+  Bootstrap = function(web_socket_url, nodeid) 
   {
-    // wsInfo prototype:
+    if ("WebSocket" in window) {
+      BootstrapDomSocket(web_socket_url, nodeid);  
+    } else { 
+      alert("This web browser lacks WebSocket capabilities.  Please run the with a web browser that supports WebSockets."); 
+    }
+  };
+
+  BootstrapDomSocket = function(web_socket_url, nodeid)
+  {
+      var ws = NewWebSocket(web_socket_url);
+      ws.onopen = function() { WSOnOpen(ws, nodeid); };
+      ws.onmessage = function (evt) { WSOnMessage(ws, evt); };
+      ws.onclose = function() { WSOnClose(ws); };
+      ws.onerror = function(evt) { WSOnError(ws, evt); }; 
+  };
+
+  NewwsInfo = function(ws)
+  { 
     wsInfo = new Object();
     wsInfo.ws = ws;
     wsInfo.events = new Object();
     wsInfo.nodeids = new Object();
-    wsInfoObjs[ws] = wsInfo;
+    return wsInfo
   };
 
-  RemovewsInfo = function(ws)
+  NewWebSocket = function(web_socket_url)
   {
-    // wsInfo prototype:
+    var ws = new WebSocket(web_socket_url);
+    wsInfoObjs[ws] = NewwsInfo(ws);
+    return ws;
+  };
+
+  DeleteWebSocket = function(ws)
+  {
     if(ws in wsInfoObjs)
       delete wsInfoObjs[ws];
   };
+
+  WSOnOpen = function(ws, nodeid)
+  {
+      var msg = new Object();
+      msg.type = "event";
+      msg.nodeid = nodeid;
+      msg.eventName = "init";
+      ws.send(JSON.stringify(msg)); ws.send("flush");
+  };
+
+  WSOnMessage = function(ws, evt)
+  { 
+      try
+      {
+          var msg = JSON.parse(evt.data);
+          switch(msg.type)
+          {
+            case "appendChild":
+              AppendChild(msg, ws);
+              break;
+            case "setChild":
+              SetChild(msg, ws);
+              break;
+            case "insertChild":
+              InsertChild(msg, ws);
+              break;
+            case "removeChild":
+              RemoveChild(msg, ws);
+              break;
+            case "setAttribute":
+              SetAttribute(msg);
+              break;
+            case "removeAttribute":
+              RemoveAttribute(msg);
+              break;
+            case "attachEvent":
+              AttachEvent(msg, ws);
+              break; 
+            case "detachEvent":
+              DetachEvent(msg, ws);
+              break; 
+            case "updateEvent":
+              UpdateEvent(msg, ws);
+              break; 
+          }
+      }
+      catch(err)
+      {
+          var msg = new Object();
+          msg.type = "exception";
+          if(err.hasOwnProperty("message"))
+            msg.message = err.message;
+          else if(err.hasOwnProperty("description"))
+            msg.message = err.description;
+          else
+            msg.message = err.stringify();
+          msg.stack = "Unknown stack";
+          if(err.hasOwnProperty("stack"))
+            msg.stack = err.stack;
+          msg.original = evt.data;
+          ws.send(JSON.stringify(msg)); ws.send("flush");
+      }
+  };
+
+  WSOnClose = function(ws)
+  {
+      DetachAllEvents(ws);
+      DropAllElementIds(ws);
+      DeleteWebSocket(ws);
+  };
+
+  WSOnError = function(ws, evt)
+  { 
+      alert("Error communicating with server... closing down web socket and logging out.");
+      ws.onclose();
+  };     
 
   wsInfoAddListener = function(ws, theElement, eventName, theListener)
   {
@@ -268,7 +367,6 @@ with(domsocket)
     msg.type = "event";
     msg.nodeid = theListener.nodeid;
     msg.eventName = theListener.eventName;
-    //msg.event = JSON.stringify(event);
     if(theListener.hasOwnProperty("attributeArgs"))
     {
       var results = new Array();
@@ -289,21 +387,6 @@ with(domsocket)
   AttachEvent = function(msg, ws)
   {
     var theElement = document.getElementById(msg.id);
-    // if(debug)
-    // {
-    //   for(var i=0; i < EventListeners.length; i++)
-    //   {
-    //     var aListener = EventListeners[i];
-    //     if(aListener.nodeid === msg.id)
-    //       if(aListener.eventName === msg.name)
-    //         if(aListener.ws === ws)
-    //         {
-    //           throw new Error("Trying to attach an event, but the event listenter already exists");
-    //         }
-    //   }
-    // }
-
-    // Attach and detach events are actually implemented using add and remove EventListeners
     var theListener = new Object();
     theListener.nodeid = msg.id;
     theListener.eventName = msg.name;
@@ -313,28 +396,13 @@ with(domsocket)
     }
     theListener.handleEvent = HandleEvent;
     theListener.ws = ws;
-    //EventListeners.push(theListener);
     wsInfoAddListener(ws, theElement, msg.name, theListener);
-    //theElement.addEventListener(theListener.eventName, theListener);
   };
 
   DetachEvent = function(msg, ws)
   {
     var theElement = document.getElementById(msg.id);
     wsInfoRemoveListener(ws, theElement, msg.name);
-    // for(var i=0; i < EventListeners.length; i++)
-    // {
-    //   var aListener = EventListeners[i];
-    //   if(aListener.nodeid === msg.id)
-    //     if(aListener.eventName === msg.name)
-    //       if(aListener.ws === ws)
-    //       {
-    //         theElement.removeEventListener(aListener);
-    //         EventListeners.splice(i,1);
-    //         return;       
-    //       }
-    // }
-    // throw new Error("Could not find the event listenter to detach it");
   };
 
   UpdateEvent = function(msg, ws)
@@ -349,128 +417,13 @@ with(domsocket)
     {
       theListener.removeAttribute("attributeArgs");
     }
-    // var theElement = document.getElementById(msg.id);
-    // for(var i=0; i < EventListeners.length; i++)
-    // {
-    //   var aListener = EventListeners[i];
-    //   if(aListener.nodeid === msg.id)
-    //     if(aListener.eventName === msg.name)
-    //       if(aListener.ws === ws)
-    //       {
-    //         if(msg.hasOwnProperty("attributeArgs"))
-    //         {
-    //           aListener.attributeArgs = msg.attributeArgs;
-    //         }
-    //         else if(aListener.hasOwnProperty("attributeArgs"))
-    //         {
-    //           aListener.removeAttribute("attributeArgs");
-    //         }
-    //         return;       
-    //       }
-    // }
-    // throw new Error("Could not find the event listenter to update it");
   };
 
   DetachAllEvents = function(msg, ws)
   {
     wsInfoRemoveAllListeners(ws);
-    // for(var i=EventListeners.length-1; i >= 0; i--)
-    // {
-    //   var aListener = EventListeners[i];
-    //   if(aListener.ws === ws)
-    //   {
-    //     theElement.removeEventListener(aListener);
-    //     EventListeners.splice(i,1);
-    //     return;       
-    //   }
-    // }
   };
 
-  Bootstrap = function(web_socket_url, nodeid)
-  {
-    if ("WebSocket" in window)
-    {
-      var ws = new WebSocket(web_socket_url);
-      AddwsInfo(ws);
-      ws.onopen = function()
-      {
-        var msg = new Object();
-        msg.type = "event";
-        msg.nodeid = nodeid;
-        msg.eventName = "init";
-        this.send(JSON.stringify(msg)); this.send("flush");
-      };
-      ws.onmessage = function (evt) 
-      { 
-        try
-        {
-          var msg = JSON.parse(evt.data);
-          switch(msg.type)
-          {
-            case "appendChild":
-              AppendChild(msg, this);
-              break;
-            case "setChild":
-              SetChild(msg, this);
-              break;
-            case "insertChild":
-              InsertChild(msg, this);
-              break;
-            case "removeChild":
-              RemoveChild(msg, this);
-              break;
-            case "setAttribute":
-              SetAttribute(msg);
-              break;
-            case "removeAttribute":
-              RemoveAttribute(msg);
-              break;
-            case "attachEvent":
-              AttachEvent(msg, this);
-              break; 
-            case "detachEvent":
-              DetachEvent(msg, this);
-              break; 
-            case "updateEvent":
-              UpdateEvent(msg, this);
-              break; 
-          }
-        }
-        catch(err)
-        {
-          var msg = new Object();
-          msg.type = "exception";
-          if(err.hasOwnProperty("message"))
-            msg.message = err.message;
-          else if(err.hasOwnProperty("description"))
-            msg.message = err.description;
-          else
-            msg.message = err.stringify();
-          msg.stack = "Unknown stack";
-          if(err.hasOwnProperty("stack"))
-            msg.stack = err.stack;
-          msg.original = evt.data;
-          this.send(JSON.stringify(msg)); this.send("flush");
-        }
-      };
-      ws.onclose = function()
-      { 
-        DetachAllEvents(this);
-        DropAllElementIds(this);
-        RemovewsInfo(this);
-        //alert("Connection to server has been lost..."); 
-      };
-      ws.onerror = function(evt) 
-      { 
-        alert("Error communicating with server... closing down socket and logging out.");
-        this.onclose();
-      }; 
-    }
-    else
-    {
-      alert("This web browser lacks WebSocket capabilities.  Please run the with a web browser that supports WebSockets.");
-    }
-  };
 };
 // --------------------------------------------- end domsocket namespace -------------------------------------------------
 
