@@ -9,11 +9,10 @@ with(domsocket)
 
   Bootstrap = function(web_socket_url, nodeid) 
   {
-    if ("WebSocket" in window) {
-      BootstrapDomSocket(web_socket_url, nodeid);  
-    } else { 
-      alert("This web browser lacks WebSocket capabilities.  Please run the with a web browser that supports WebSockets."); 
-    }
+      if ("WebSocket" in window) 
+	  BootstrapDomSocket(web_socket_url, nodeid);  
+      else  
+	  alert("This web browser lacks WebSocket capabilities.  Please run the with a web browser that supports WebSockets.");
   };
 
   BootstrapDomSocket = function(web_socket_url, nodeid)
@@ -22,29 +21,30 @@ with(domsocket)
       ws.onopen = function() { WSOnOpen(ws, nodeid); };
       ws.onmessage = function (evt) { WSOnMessage(ws, evt); };
       ws.onclose = function() { WSOnClose(ws); };
-      ws.onerror = function(evt) { WSOnError(ws, evt); }; 
+      ws.onerror = function(evt) { WSOnError(ws, evt); };
+      ws.sendmsg = function(msg) { WSSendMsg(ws, msg); };
   };
 
   NewwsInfo = function(ws)
   { 
-    wsInfo = new Object();
-    wsInfo.ws = ws;
-    wsInfo.events = new Object();
-    wsInfo.nodeids = new Object();
-    return wsInfo
+      wsInfo = new Object();
+      wsInfo.ws = ws;
+      wsInfo.events = new Object();
+      wsInfo.nodeids = new Object();
+      return wsInfo
   };
 
   NewWebSocket = function(web_socket_url)
   {
-    var ws = new WebSocket(web_socket_url);
-    wsInfoObjs[ws] = NewwsInfo(ws);
-    return ws;
+      var ws = new WebSocket(web_socket_url);
+      wsInfoObjs[ws] = NewwsInfo(ws);
+      return ws;
   };
 
   DeleteWebSocket = function(ws)
   {
-    if(ws in wsInfoObjs)
-      delete wsInfoObjs[ws];
+      if(ws in wsInfoObjs)
+	  delete wsInfoObjs[ws];
   };
 
   WSOnOpen = function(ws, nodeid)
@@ -53,60 +53,22 @@ with(domsocket)
       msg.type = "event";
       msg.nodeid = nodeid;
       msg.eventName = "init";
-      ws.send(JSON.stringify(msg)); ws.send("flush");
+      ws.sendmsg(msg);
   };
 
+  var wsOnMessageHandlers = new Object();
   WSOnMessage = function(ws, evt)
   { 
       try
       {
           var msg = JSON.parse(evt.data);
-          switch(msg.type)
-          {
-            case "appendChild":
-              AppendChild(msg, ws);
-              break;
-            case "setChild":
-              SetChild(msg, ws);
-              break;
-            case "insertChild":
-              InsertChild(msg, ws);
-              break;
-            case "removeChild":
-              RemoveChild(msg, ws);
-              break;
-            case "setAttribute":
-              SetAttribute(msg);
-              break;
-            case "removeAttribute":
-              RemoveAttribute(msg);
-              break;
-            case "attachEvent":
-              AttachEvent(msg, ws);
-              break; 
-            case "detachEvent":
-              DetachEvent(msg, ws);
-              break; 
-            case "updateEvent":
-              UpdateEvent(msg, ws);
-              break; 
-          }
+          wsOnMessageHandlers[msg.type](msg, ws);
       }
       catch(err)
       {
-          var msg = new Object();
-          msg.type = "exception";
-          if(err.hasOwnProperty("message"))
-            msg.message = err.message;
-          else if(err.hasOwnProperty("description"))
-            msg.message = err.description;
-          else
-            msg.message = err.stringify();
-          msg.stack = "Unknown stack";
-          if(err.hasOwnProperty("stack"))
-            msg.stack = err.stack;
-          msg.original = evt.data;
-          ws.send(JSON.stringify(msg)); ws.send("flush");
+	  var errmsg = NewErrorMessage(err);
+          errmsg.original = evt.data;
+	  ws.sendmsg(errmsg);
       }
   };
 
@@ -122,6 +84,36 @@ with(domsocket)
       alert("Error communicating with server... closing down web socket and logging out.");
       ws.onclose();
   };     
+
+  WSSendMsg = function(ws, msg)
+  {
+      ws.send(JSON.stringify(msg)); ws.send("flush");      
+  };
+
+  NewErrorMessage = function(err)
+  {
+      var msg = new Object();
+      msg.type = "exception";
+      msg.message = GetBestErrorString(err);
+      msg.stack = GetErrorStack(err);
+      return msg;
+  }; 
+
+  GetBestErrorString = function(err)
+  {
+      if(err.hasOwnProperty("message"))
+          return err.message;
+      else if(err.hasOwnProperty("description"))
+          return err.description;
+      return err.stringify();      
+  };
+
+  GetErrorStack = function(err)
+  {
+      if(err.hasOwnProperty("stack"))
+          return err.stack;
+      return "Unknown stack";
+  };
 
   wsInfoAddListener = function(ws, theElement, eventName, theListener)
   {
@@ -312,14 +304,7 @@ with(domsocket)
     }
   };
 
-  AccessAttribute = function(msg)
-  {
-    if(msg.hasOwnProperty("value"))
-      return SetAttribute(msg);
-    return GetAttribute(msg);
-  };
-
-  SetAttribute = function(msg)
+  SetAttribute = function(msg, ws)
   {
     var theElement = document.getElementById(msg.id);
     if(theElement.getAttribute(msg.name) instanceof Function)
@@ -354,7 +339,7 @@ with(domsocket)
     }
   };
 
-  RemoveAttribute = function(msg)
+  RemoveAttribute = function(msg, ws)
   {
     var theElement = document.getElementById(msg.id);
     theElement.removeAttribute(msg.name);
@@ -376,7 +361,7 @@ with(domsocket)
         var result = new Object();
         result.id = attributeArg.id;
         result.name = attributeArg.name;
-        result.value = AccessAttribute(attributeArg);
+        result.value = GetAttribute(attributeArg);
         results.push(result);
       }
       msg.attributeArgs = results;
@@ -424,6 +409,15 @@ with(domsocket)
     wsInfoRemoveAllListeners(ws);
   };
 
+  wsOnMessageHandlers.appendChild = AppendChild;
+  wsOnMessageHandlers.setChild = SetChild;
+  wsOnMessageHandlers.insertChild = InsertChild;
+  wsOnMessageHandlers.removeChild = RemoveChild;
+  wsOnMessageHandlers.setAttribute = SetAttribute;
+  wsOnMessageHandlers.removeAttribute = RemoveAttribute;
+  wsOnMessageHandlers.attachEvent = AttachEvent;
+  wsOnMessageHandlers.detachEvent = DetachEvent;
+  wsOnMessageHandlers.updateEvent = UpdateEvent;
 };
 // --------------------------------------------- end domsocket namespace -------------------------------------------------
 
