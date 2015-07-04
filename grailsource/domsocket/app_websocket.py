@@ -2,7 +2,6 @@
 
 import logging
 import json
-from messages.append_child_message import AppendChildMessage
 from ws4py.websocket import WebSocket
 import imp
 import os

@@ -80,10 +80,7 @@ class Element(Node):
             object.__setattr__(self, 'id', nodeid)
         else:
             object.__setattr__(self, 'id', self.parent_node.id + '.' + nodeid)
-        if index == None:
-            msg = AppendChildMessage(self.parent_node, self)
-        else:
-            msg = InsertChildMessage(self.parent_node, index, self)
+        msg = InsertChildMessage(self.parent_node, index, self)
         self.send_msg(msg)
 
         self._append_count = 0

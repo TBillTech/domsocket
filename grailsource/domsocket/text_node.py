@@ -7,9 +7,8 @@ Copyright (c) 2015 TBillTech.  All rights reserved.
 """
 
 import json
-from messages.append_child_message import AppendChildMessage
-from messages.insert_child_message import InsertChildMessage
-from messages.set_child_message import SetChildMessage
+from messages.insert_text_node_message import InsertTextNodeMessage
+from messages.set_text_node_message import SetTextNodeMessage
 
 from element_error import ElementError
 from node import Node
@@ -53,17 +52,14 @@ class TextNode(Node):
         if self.is_active_on_client():
             raise AttributeError()
 
-        if index == None:
-            msg = AppendChildMessage(self.parent_node, self)
-        else:
-            msg = InsertChildMessage(self.parent_node, index, self)
+        msg = InsertTextNodeMessage(self.parent_node, index, self)
         self.send_msg(msg)
 
         self.set_active_on_client()
        
     def update(self):
         if self.is_active_on_client():
-            msg = SetChildMessage(self.parent_node, 
+            msg = SetTextNodeMessage(self.parent_node, 
                                   self.parent_node.child_index(self), 
                                   self)
             self.send_msg(msg)

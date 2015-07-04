@@ -2,13 +2,12 @@
 
 from message import Message
 
-class SetChildMessage(Message):
+class SetTextNodeMessage(Message):
 
     def __init__(self, parent_node, index, node):
-        from domsocket.text_node import TextNode
-        self.msg_dict = {'type': 'setChild', 
+        self.msg_dict = {'type': 'setTextNode', 
                          'childTag': node.tag, 
                          'parentId': parent_node.id, 
                          'index': index,
-                         'childId': node.id }
+                         'text': node.text }
             

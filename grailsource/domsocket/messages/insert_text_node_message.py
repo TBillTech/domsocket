@@ -4,13 +4,13 @@ from message import Message
 import sys
 
 
-class InsertChildMessage(Message):
+class InsertTextNodeMessage(Message):
 
     def __init__(self, parent_node, index, node):
         self.index = self.get_index(parent_node, index)
-        self.parent_id = self.get_parent_id(parent_node) 
-        self.msg_dict = {'type': 'insertChild', 
+        self.msg_dict = {'type': 'insertTextNode', 
                          'childTag': node.tag, 
-                         'parentId': self.parent_id, 
+                         'parentId': parent_node.id, 
                          'index': self.index,
-                         'childId': node.id }
+                         'text': node.text }
+
