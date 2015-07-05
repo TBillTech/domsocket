@@ -44,6 +44,7 @@ from messages.insert_child_message import InsertChildMessage
 from event import Event
 from text_node import TextNode
 from node import Node
+from operator import index
 
 import logging
 from element_error import ElementError
@@ -69,7 +70,7 @@ class Element(Node):
         object.__setattr__(self, '_active_on_client', False)
         object.__setattr__(self, '_children', list())
 
-    def show_element(self, nodetag, nodeid, parentNode, ws, index):
+    def show_element(self, nodetag, nodeid, parentNode, ws, child_index):
         object.__setattr__(self, '_active_on_client', False)
         object.__setattr__(self, 'tag', nodetag)
         object.__setattr__(self, '_children', list())
@@ -78,7 +79,7 @@ class Element(Node):
         object.__setattr__(self, 'id', self._element_get_id(nodeid))
         object.__setattr__(self, '_append_count',  0)
 
-        msg = InsertChildMessage(self.parentNode, index, self)
+        msg = InsertChildMessage(self.parentNode, child_index, self)
         self.send_msg(msg)
 
         object.__setattr__(self, '_active_on_client',  True)
@@ -98,9 +99,9 @@ class Element(Node):
         try:
             current_value = getattr(self, name)
             try:
-                index = self.child_index(current_value)
+                child_index = index(current_value)
             except ValueError:
-                index = len(self._children)
+                child_index = len(self._children)
             if current_value == value:
                 return
             if isinstance(current_value, TextNode) and isinstance(value, str):
@@ -108,14 +109,14 @@ class Element(Node):
                 return
             delattr(self, name)
         except AttributeError:
-            index = len(self._children)
+            child_index = len(self._children)
 
         if isinstance(value, Event):
             msg = AttachEventMessage(self, name, value.arguments)
             value.owner_node = self
             value.name = name
         elif isinstance(value, Node):
-            value = self.set_child(index, value, name)
+            value = self.set_child(child_index, value, name)
             msg = None
         else:
             msg = SetAttributeMessage(self, name, value)
@@ -145,18 +146,16 @@ class Element(Node):
     def __len__(self):
         return len(self._children)
 
-    def get_child(self, index):
-        return self._children[index]
+    def get_child(self, child_index):
+        return self._children[child_index]
 
     def append_child(self, child_node):
         try:
-            child_node = child_node.create_node(
-                str(self._append_count), self, None)
+            child_node = child_node.create_node(str(self._append_count), self, None)
         except AttributeError:
             if isinstance(child_node, str):
                 value = TextNode(text=child_node)
-                child_node = value.create_node(
-                    str(self._append_count), self, None)
+                child_node = value.create_node(str(self._append_count), self, None)
         self._children.append(child_node)
         # this is not a real count, but just an anti-name collision value
         self._append_count += 1
@@ -164,44 +163,46 @@ class Element(Node):
 
     def remove_child(self, child_node):
         try:
-            index = self._children.index(child_node)
-        except ValueError:
-            index = child_node
-            child_node = self._children[index]
-        self._children[index]._stop_observations()
+            child_index = index(child_node)
+        except (AttributeError, ValueError):
+            child_index = child_node
+        child_node = self._children[child_index]
+        child_node._stop_observations()
         msg = RemoveMessage(child_node)
-        del self._children[index]
+        del self._children[child_index]
         self.send_msg(msg)
 
-    def insert_child(self, index, child_node):
+    def insert_child(self, child_index, child_node):
         try:
-            index = self.child_index(index)
+            child_index = index(child_index)
         except ValueError:
             pass
         try:
-            child_node = child_node.create_node(str(self._append_count), self, index)
+            child_node = child_node.create_node(str(self._append_count), self, child_index)
         except AttributeError:
             pass
-        self._children.insert(index, child_node)
+        self._children.insert(child_index, child_node)
         self._append_count += 1
         return child_node
 
-    def set_child(self, index, child_node, name):
-        if index == len(self._children):
-            return self.append_child(child_node.create_node(name, self, index))
-        if index > len(self._children):
-            raise ElementError('Cannot set child at index = %s, since that would create a gap in the '\
-                               'child array of len(children)=%s' % (index, len(self._children))) # pragma: no cover
+    def set_child(self, child_index, child_node, name):
+        if child_index == len(self._children):
+            return self.append_child(child_node.create_node(name, self, child_index))
+        if child_index > len(self._children):
+            raise ElementError('Cannot set child at child_index = %s, since that would create a gap in the '\
+                               'child array of len(children)=%s' % (child_index, len(self._children))) # pragma: no cover
 
-        former_child = self.get_child(index)
+        former_child = self.get_child(child_index)
 
         self.remove_child(former_child)
-        child_node = self.insert_child(
-            index, child_node.create_node(name, self, index))
+        child_node = self.insert_child(child_index, child_node.create_node(name, self, child_index))
         return child_node
 
     def is_active_on_client(self):
         return self._active_on_client
+
+    def __index__(self):
+        return self.parentNode._get_index_of_child(self)
 
     def _element_get_id(self, nodeid):
         try:
@@ -213,7 +214,7 @@ class Element(Node):
         for child in self._children:
             child._stop_observations()
 
-    def child_index(self, child_node):
+    def _get_index_of_child(self, child_node):
         return self._children.index(child_node)
 
     def send_msg(self, msg):

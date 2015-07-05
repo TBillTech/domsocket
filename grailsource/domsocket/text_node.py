@@ -40,6 +40,9 @@ class TextNode(Node):
     def _stop_observations(self):
         pass # pragma: no cover
 
+    def __index__(self):
+        return self.parentNode._get_index_of_child(self)
+
     def __eq__(self, other):
         other_text = getattr(other, 'text', other)
         return self.text == other_text

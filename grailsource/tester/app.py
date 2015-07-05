@@ -15,7 +15,7 @@ class SomeText(object):
 class App(Element):
 
     def __init__(self, nodeid, parentNode, ws):
-        self.show_element('div', nodeid, parentNode, ws, index=None)
+        self.show_element('div', nodeid, parentNode, ws, child_index=None)
 
         self.first_paragraph_show()
         self.sub_body_show()
@@ -86,7 +86,7 @@ class App(Element):
         login_event = Event()
         login_event.add_argument(self.login._username, 'value')
         self.login._loginButton.click = login_event
-        self.login._loginButton.click.add_listener(self, App.login)
+        self.login._loginButton.click.add_listener(self, App.on_login)
         self.login._loginButton.click.add_argument(self.login._password, 'value')
         try:
             del self.login._loginButton.click
@@ -94,7 +94,7 @@ class App(Element):
         except ElementError:
             pass
     
-    def login(self, theLoginButton, msg):
+    def on_login(self, theLoginButton, msg):
         authenticated = self.authenticate()
         if authenticated:
             try:
@@ -102,7 +102,7 @@ class App(Element):
             except AttributeError:
                 pass
             self.valid = HTMLTag('p', 'username and password is valid')
-            self.login._loginButton.click.remove_listener(self, App.login)
+            self.login._loginButton.click.remove_listener(self, App.on_login)
             del self.login._loginButton.click
             self.login._loginButton.click = Event()
             self.login._loginButton.click.add_listener(self, App.colorize_valid)

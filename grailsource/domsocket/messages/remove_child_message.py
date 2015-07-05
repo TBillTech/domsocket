@@ -9,12 +9,12 @@ Copyright (c) 2015 TBillTech.  All rights reserved.
 """
 
 from message import Message
-
+from operator import index
 
 class RemoveChildMessage(Message):
 
     def __init__(self, parentNode, node):
-        index = parentNode.child_index(node)
+        self.index = index(node)
         self.msg_dict = {'type': 'removeChild', 
                          'parentId': parentNode.id, 
-                         'index': index }
+                         'index': self.index }
