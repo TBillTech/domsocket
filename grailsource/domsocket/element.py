@@ -69,28 +69,19 @@ class Element(Node):
         object.__setattr__(self, '_active_on_client', False)
         object.__setattr__(self, '_children', list())
 
-    def show(self, nodetag, nodeid, parentNode, ws, index):
+    def show_element(self, nodetag, nodeid, parentNode, ws, index):
         object.__setattr__(self, '_active_on_client', False)
         object.__setattr__(self, 'tag', nodetag)
         object.__setattr__(self, '_children', list())
         object.__setattr__(self, '_ws', ws)
         object.__setattr__(self, 'parentNode', parentNode)
-        object.__setattr__(self, 'id', self.get_nodeid(nodeid))
+        object.__setattr__(self, 'id', self._element_get_id(nodeid))
         object.__setattr__(self, '_append_count',  0)
 
         msg = InsertChildMessage(self.parentNode, index, self)
         self.send_msg(msg)
 
         object.__setattr__(self, '_active_on_client',  True)
-
-    def get_nodeid(self, nodeid):
-        try:
-            return self.parentNode.id + '.' + nodeid
-        except AttributeError:
-            return nodeid
-
-    def is_active_on_client(self):
-        return self._active_on_client
 
     def __setattr__(self, name, value):
         if value == None:
@@ -151,9 +142,11 @@ class Element(Node):
         self.send_msg(msg)
         object.__delattr__(self, name)
 
-    def stop_observations(self):
-        for child in self._children:
-            child.stop_observations()
+    def __len__(self):
+        return len(self._children)
+
+    def get_child(self, index):
+        return self._children[index]
 
     def append_child(self, child_node):
         try:
@@ -175,7 +168,7 @@ class Element(Node):
         except ValueError:
             index = child_node
             child_node = self._children[index]
-        self._children[index].stop_observations()
+        self._children[index]._stop_observations()
         msg = RemoveMessage(child_node)
         del self._children[index]
         self.send_msg(msg)
@@ -193,15 +186,6 @@ class Element(Node):
         self._append_count += 1
         return child_node
 
-    def __len__(self):
-        return len(self._children)
-
-    def get_child(self, index):
-        return self._children[index]
-
-    def child_index(self, child_node):
-        return self._children.index(child_node)
-
     def set_child(self, index, child_node, name):
         if index == len(self._children):
             return self.append_child(child_node.create_node(name, self, index))
@@ -215,6 +199,22 @@ class Element(Node):
         child_node = self.insert_child(
             index, child_node.create_node(name, self, index))
         return child_node
+
+    def is_active_on_client(self):
+        return self._active_on_client
+
+    def _element_get_id(self, nodeid):
+        try:
+            return self.parentNode.id + '.' + nodeid
+        except AttributeError:
+            return nodeid
+
+    def _stop_observations(self):
+        for child in self._children:
+            child._stop_observations()
+
+    def child_index(self, child_node):
+        return self._children.index(child_node)
 
     def send_msg(self, msg):
         if not msg:

@@ -22,7 +22,7 @@ class TextNode(Node):
     def create_node(self, name, parentNode, index):
         object.__setattr__(self, '_ws', parentNode.get_w_s())
         object.__setattr__(self, 'parentNode', parentNode)
-        self.show(index)    
+        self.show_text_node(index)    
         return self
 
     def is_active_on_client(self):
@@ -37,7 +37,7 @@ class TextNode(Node):
         object.__setattr__(self, 'text', value)
         self.update()
 
-    def stop_observations(self):
+    def _stop_observations(self):
         pass # pragma: no cover
 
     def __eq__(self, other):
@@ -47,7 +47,7 @@ class TextNode(Node):
     def send_msg(self, msg):
         self._ws.send(msg.jsonstring(), False)
 
-    def show(self, index): 
+    def show_text_node(self, index): 
         if self.is_active_on_client():
             raise AttributeError()
 

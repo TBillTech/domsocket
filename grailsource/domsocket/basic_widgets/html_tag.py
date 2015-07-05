@@ -11,11 +11,11 @@ class HTMLTag(Element):
     def create_node(self, name, parentNode, index):
         if self.is_active_on_client():
             raise AttributeError()
-        self.show(name, parentNode, index)
+        self.show_element(name, parentNode, index)
         return self
 
-    def show(self, nodeid, parentNode, index):
-        super(HTMLTag,self).show(self.tag, nodeid, parentNode, parentNode.get_w_s(), index)
+    def show_element(self, nodeid, parentNode, index):
+        super(HTMLTag,self).show_element(self.tag, nodeid, parentNode, parentNode.get_w_s(), index)
 
         self._set_arg(self._kw)
         for arg in self._args:
