@@ -13,7 +13,8 @@ from message import Message
 
 class RemoveChildMessage(Message):
 
-    def __init__(self, parent_node, node):
-        index = parent_node.child_index(node)
-        self.msg_dict = {
-            'type': 'removeChild', 'parentId': parent_node.id, 'index': index}
+    def __init__(self, parentNode, node):
+        index = parentNode.child_index(node)
+        self.msg_dict = {'type': 'removeChild', 
+                         'parentId': parentNode.id, 
+                         'index': index }

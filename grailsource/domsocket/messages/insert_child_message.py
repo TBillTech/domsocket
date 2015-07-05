@@ -6,9 +6,9 @@ import sys
 
 class InsertChildMessage(Message):
 
-    def __init__(self, parent_node, index, node):
-        self.index = self.get_index(parent_node, index)
-        self.parent_id = self.get_parent_id(parent_node) 
+    def __init__(self, parentNode, index, node):
+        self.index = self.get_index(parentNode, index)
+        self.parent_id = self.get_parent_id(parentNode) 
         self.msg_dict = {'type': 'insertChild', 
                          'childTag': node.tag, 
                          'parentId': self.parent_id, 

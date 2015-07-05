@@ -8,14 +8,14 @@ class HTMLTag(Element):
         super(HTMLTag, self).__init__(*args, **kw)
         object.__setattr__(self, 'tag', tag)
 
-    def create_node(self, name, parent_node, index):
+    def create_node(self, name, parentNode, index):
         if self.is_active_on_client():
             raise AttributeError()
-        self.show(name, parent_node, index)
+        self.show(name, parentNode, index)
         return self
 
-    def show(self, nodeid, parent_node, index):
-        super(HTMLTag,self).show(self.tag, nodeid, parent_node, parent_node.get_w_s(), index)
+    def show(self, nodeid, parentNode, index):
+        super(HTMLTag,self).show(self.tag, nodeid, parentNode, parentNode.get_w_s(), index)
 
         self._set_arg(self._kw)
         for arg in self._args:

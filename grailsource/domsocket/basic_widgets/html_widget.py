@@ -12,11 +12,11 @@ class HTMLWidget(Element):
         object.__setattr__(self, '_widget_html_id', widget_html_id)
         super(HTMLWidget, self).__init__()
 
-    def create_node(self, name, parent_node, index):
+    def create_node(self, name, parentNode, index):
         if self.is_active_on_client():
             raise AttributeError()
 
-        node_init = WidgetInitializer(self, name, parent_node, parent_node.get_w_s(), index)
+        node_init = WidgetInitializer(self, name, parentNode, parentNode.get_w_s(), index)
         HTMLWidgetParser(self._html_source, self._widget_html_id, node_init)
         return self
         

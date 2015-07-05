@@ -19,9 +19,9 @@ class TextNode(Node):
         object.__setattr__(self, 'tag', 'text')
         self.text = text
 
-    def create_node(self, name, parent_node, index):
-        object.__setattr__(self, '_ws', parent_node.get_w_s())
-        object.__setattr__(self, 'parent_node', parent_node)
+    def create_node(self, name, parentNode, index):
+        object.__setattr__(self, '_ws', parentNode.get_w_s())
+        object.__setattr__(self, 'parentNode', parentNode)
         self.show(index)    
         return self
 

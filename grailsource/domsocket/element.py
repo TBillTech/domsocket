@@ -56,10 +56,12 @@ class Element(Node):
     The Element class automatically tries to mirror any property update in the GUI DOM.  
     The exception to this rule is private variables with leading underscores, which are never mirrored in the DOM.
 
-    The Element class tree heiarchy can efficiently find sub nodes by comparing the id fields of the nodes.
+    id, tag, and parentNode are considered immutable once the Element exists on the client, and may not be modified.
+    In addition, these three fields are handled specially when the Element gets shown on the GUI, and are considered
+    fully mirrored.  (This is why the parentNode element is Camel case as opposed to normal python PEP 8).
     """
 
-    immutable_names = set(['tag', 'id', 'parent_node', '_ws', '_active_on_client', '_children'])
+    immutable_names = set(['tag', 'id', 'parentNode', '_ws', '_active_on_client', '_children'])
 
     def __init__(self, *args, **kw):
         object.__setattr__(self, '_args', args)
@@ -67,23 +69,23 @@ class Element(Node):
         object.__setattr__(self, '_active_on_client', False)
         object.__setattr__(self, '_children', list())
 
-    def show(self, nodetag, nodeid, parent_node, ws, index):
+    def show(self, nodetag, nodeid, parentNode, ws, index):
         object.__setattr__(self, '_active_on_client', False)
         object.__setattr__(self, 'tag', nodetag)
         object.__setattr__(self, '_children', list())
         object.__setattr__(self, '_ws', ws)
-        object.__setattr__(self, 'parent_node', parent_node)
+        object.__setattr__(self, 'parentNode', parentNode)
         object.__setattr__(self, 'id', self.get_nodeid(nodeid))
         object.__setattr__(self, '_append_count',  0)
 
-        msg = InsertChildMessage(self.parent_node, index, self)
+        msg = InsertChildMessage(self.parentNode, index, self)
         self.send_msg(msg)
 
         object.__setattr__(self, '_active_on_client',  True)
 
     def get_nodeid(self, nodeid):
         try:
-            return self.parent_node.id + '.' + nodeid
+            return self.parentNode.id + '.' + nodeid
         except AttributeError:
             return nodeid
 

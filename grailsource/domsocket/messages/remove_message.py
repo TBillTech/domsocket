@@ -15,5 +15,5 @@ class RemoveMessage(Message):
 
     def __init__(self, node):
         from remove_child_message import RemoveChildMessage
-        msg = RemoveChildMessage(node.parent_node, node)
+        msg = RemoveChildMessage(node.parentNode, node)
         self.msg_dict = msg.msg_dict
