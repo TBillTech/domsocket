@@ -36,15 +36,14 @@ class HTMLTag(Element):
             setattr(self, key, value)
 
     def _set_not_kw_arg(self, arg):
-        if isinstance(arg, Node):
-            self._set_not_iterable_arg(arg)
-            return
         try:
             self._set_iterable_arg(arg)
         except TypeError:
             self._set_not_iterable_arg(arg)
 
     def _set_iterable_arg(self, arg):
+        if isinstance(arg, Node):
+            raise TypeError("Nodes must be added as whole units")
         for child in arg:
             self._set_arg(child)
 

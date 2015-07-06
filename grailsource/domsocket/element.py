@@ -179,15 +179,14 @@ class Element(Node):
         return child_node
 
     def set_child(self, child_index, child_node, name):
-        if child_index == len(self._children):
-            return self.append_child(child_node.create_node(name, self, child_index))
         if child_index > len(self._children):
             raise ElementError('Cannot set child at child_index = %s, since that would create a gap in the '\
                                'child array of len(children)=%s' % (child_index, len(self._children))) # pragma: no cover
 
-        former_child = self[child_index]
+        if child_index < len(self._children):
+            former_child = self[child_index]
+            self.remove_child(former_child)
 
-        self.remove_child(former_child)
         child_node = self.insert_child(child_index, child_node.create_node(name, self, child_index))
         return child_node
 
