@@ -1,5 +1,6 @@
 """Copyright (c) 2015 TBillTech.  All rights reserved."""
 
+from domsocket.node import Node
 from domsocket.element import Element
 
 class HTMLTag(Element):
@@ -35,6 +36,9 @@ class HTMLTag(Element):
             setattr(self, key, value)
 
     def _set_not_kw_arg(self, arg):
+        if isinstance(arg, Node):
+            self._set_not_iterable_arg(arg)
+            return
         try:
             self._set_iterable_arg(arg)
         except TypeError:
