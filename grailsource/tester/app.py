@@ -7,10 +7,7 @@ from widgets.login_dialog import LoginDialog
 from widgets.login_button import LoginButton
 from domsocket.text_node import TextNode
 from domsocket.element_error import ElementError
-
-class SomeText(object):
-    def __init__(self, text):
-        self.text = text
+from operator import index
 
 class App(Element):
 
@@ -29,9 +26,11 @@ class App(Element):
         first_paragraph_kwargs['useful'] = 'true'
         first_paragraph_kwargs['toremove'] = 'remove_this'
         self.first_paragraph = HTMLTag('p', first_paragraph_kwargs)
+        self.first_paragraph.toremove = 'remove_this_instead'
         del self.first_paragraph.toremove
         self.first_paragraph.text_node = TextNode('Hello World!')
         self.first_paragraph.text_node = 'Hello World! -- changed!'
+        self.first_paragraph.text_node = TextNode('Hello World! -- changed!')
         try:
             self.first_paragraph.useful = None
             raise ElementError('attribute useful should not be allowed to set to None!')
@@ -66,7 +65,11 @@ class App(Element):
         self.sub_body.sub_body_divA.remove_child(1)
         self.sub_body.sub_body_divA.insert_child(2, HTMLTag('span'))
         self.sub_body.sub_body_divA.set_child(3, HTMLTag('li'), 'mylist')
-        del self.sub_body.sub_body_divB
+        del self.sub_body.sub_body_divB 
+        self.sub_body.sub_body_divB = self.sub_body_divA_child()
+        self.sub_body.sub_body_divB = self.sub_body_divA_child()
+        self.sub_body.remove_child(index(self.sub_body.sub_body_divB))
+       
 
     def sub_paragraph_child(self):
         text_child = TextNode('Hello World! -- from the sub paragraph')

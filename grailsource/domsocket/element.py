@@ -95,27 +95,26 @@ class Element(Node):
             return 
 
         if not self.is_active_on_client():
-            raise ElementError('Attributes, children and events may not be set until the element is active on the client.') # pragma: no cover 
-        try:
-            current_value = getattr(self, name)
-            try:
-                child_index = index(current_value)
-            except ValueError:
-                child_index = len(self._children)
-            if current_value == value:
-                return
-            if isinstance(current_value, TextNode) and isinstance(value, str):
-                current_value.text = value
-                return
-            delattr(self, name)
-        except AttributeError:
-            child_index = len(self._children)
+            raise ElementError('Attributes, children and events may not be set until '\
+                               'the element is active on the client.') # pragma: no cover 
+
+        current_value = getattr(self, name, None) 
+        if current_value == value:
+            return
+
+        if isinstance(current_value, TextNode):
+            current_value.text = value
+            return
 
         if isinstance(value, Event):
             msg = AttachEventMessage(self, name, value.arguments)
             value.owner_node = self
             value.name = name
         elif isinstance(value, Node):
+            try:
+                child_index = index(current_value)
+            except TypeError:
+                child_index = len(self._children)
             value = self.set_child(child_index, value, name)
             msg = None
         else:
@@ -162,10 +161,7 @@ class Element(Node):
         return child_node
 
     def remove_child(self, child_node):
-        try:
-            child_index = index(child_node)
-        except (AttributeError, ValueError):
-            child_index = child_node
+        child_index = index(child_node)
         child_node = self._children[child_index]
         child_node._stop_observations()
         msg = RemoveMessage(child_node)
@@ -173,10 +169,7 @@ class Element(Node):
         self.send_msg(msg)
 
     def insert_child(self, child_index, child_node):
-        try:
-            child_index = index(child_index)
-        except ValueError:
-            pass
+        child_index = index(child_index)
         try:
             child_node = child_node.create_node(str(self._append_count), self, child_index)
         except AttributeError:

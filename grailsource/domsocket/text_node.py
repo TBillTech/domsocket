@@ -34,7 +34,7 @@ class TextNode(Node):
     def __setattr__(self, name, value):
         if name != 'text':
             raise AttributeError('Only the text field of the Text Node can be modified') # pragma: no cover
-        object.__setattr__(self, 'text', value)
+        object.__setattr__(self, 'text', str(value))
         self.update()
 
     def _stop_observations(self):
@@ -46,6 +46,9 @@ class TextNode(Node):
     def __eq__(self, other):
         other_text = getattr(other, 'text', other)
         return self.text == other_text
+
+    def __str__(self):
+        return self.text # pragma: no cover
 
     def send_msg(self, msg):
         self._ws.send(msg.jsonstring(), False)
