@@ -64,7 +64,7 @@ class App(Element):
         self.sub_body = HTMLTag('body', sub_body_kwargs)
         self.sub_body.sub_body_divA.remove_child(1)
         self.sub_body.sub_body_divA.insert_child(2, HTMLTag('span'))
-        self.sub_body.sub_body_divA.set_child(3, HTMLTag('li'), 'mylist')
+        self.sub_body.sub_body_divA.set_child(3, HTMLTag('li'))
         del self.sub_body.sub_body_divB 
         self.sub_body.sub_body_divB = self.sub_body_divA_child()
         self.sub_body.sub_body_divB = self.sub_body_divA_child()

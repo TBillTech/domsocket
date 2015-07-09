@@ -171,20 +171,19 @@ class HTMLWidgetParser(HTMLParser):
     def create_sub_widget_with_id(self, child_tag, id):
         cur_parent = self.get_top_widget()
         setattr(cur_parent, id, child_tag)
-        widget = getattr(cur_parent, id)
-        self.node_init.add_helper_property(id, widget)
-        return widget
+        self.node_init.add_helper_property(id, child_tag)
+        return child_tag
 
     def create_sub_widget_anonymous(self, child_tag):
         cur_parent = self.get_top_widget()
-        widget = cur_parent.append_child(child_tag)
-        return widget
+        cur_parent += [child_tag]
+        return child_tag
 
     def process_data(self, data):
         if self.use_child_data():
             child_text = TextNode(data)
             cur_parent = self.get_top_widget()
-            cur_parent.append_child(child_text)
+            cur_parent += [child_text]
 
     def use_child_data(self):
         return self.have_found_first_tag and self.xml_parse_stack

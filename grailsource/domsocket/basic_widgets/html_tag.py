@@ -23,9 +23,6 @@ class HTMLTag(Element):
             self._set_arg(arg)
 
     def _set_arg(self, arg):
-        if isinstance(arg, str):
-            self._set_not_iterable_arg(arg)
-            return
         try:
             self._set_kw_arg(arg)
         except AttributeError:
@@ -44,9 +41,11 @@ class HTMLTag(Element):
     def _set_iterable_arg(self, arg):
         if isinstance(arg, Node):
             raise TypeError("Nodes must be added as whole units")
-        for child in arg:
-            self._set_arg(child)
+        if isinstance(arg, str):
+            self._set_not_iterable_arg(arg)
+        else:
+            for child in arg:
+                self._set_arg(child)
 
     def _set_not_iterable_arg(self, arg):
-        self.append_child(arg)
-
+        self += [arg]

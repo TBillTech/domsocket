@@ -39,7 +39,7 @@ function sub_body_divA_test(id) {
     assert(!has_id(id+'.1'));
     assert_equal_nocase(get_tag_of(id+'.2'), 'p');
     assert_equal_nocase(get_tag_of(id+'.5'), 'span');
-    assert_equal_nocase(get_tag_of(id+'.mylist'), 'li');
+    assert_equal_nocase(get_tag_of(id+'.6'), 'li');
     assert_equal_nocase(get_tag_of(id+'.4'), 'div');
     assert_equal(get_attribute_of(id, 'custom_class'), 'custom_class_info');
     assert_equal(get_attribute_of(id, 'keyword2'), 'keyword2_info');

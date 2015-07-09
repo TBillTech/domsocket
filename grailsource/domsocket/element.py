@@ -77,7 +77,7 @@ class Element(Node):
         object.__setattr__(self, '_ws', ws)
         object.__setattr__(self, 'parentNode', parentNode)
         object.__setattr__(self, 'id', self._element_get_id(nodeid))
-        object.__setattr__(self, '_append_count',  0)
+        object.__setattr__(self, '_serial_no',  0)
 
         msg = InsertChildMessage(self.parentNode, child_index, self)
         self.send_msg(msg)
@@ -148,16 +148,24 @@ class Element(Node):
     def __getitem__(self, child):
         return self._children[child]
 
-    def append_child(self, child_node):
+    def __iadd__(self, child_node_list): 
+        for child_node in child_node_list:
+            try:
+                self._element_append_child_node(child_node)
+            except TypeError: # pragma: no cover
+                raise TypeError('argument to += (append) must be a list of appendable objects like Elements and TextNodes') \
+                    # pragma: no cover
+
+    def _element_append_child_node(self, child_node):
         try:
-            child_node = child_node.create_node(str(self._append_count), self, None)
+            child_node = child_node.create_node(str(self._serial_no), self, None)
         except AttributeError:
             if isinstance(child_node, str):
                 value = TextNode(text=child_node)
-                child_node = value.create_node(str(self._append_count), self, None)
+                child_node = value.create_node(str(self._serial_no), self, None)
         self._children.append(child_node)
         # this is not a real count, but just an anti-name collision value
-        self._append_count += 1
+        self._serial_no += 1
         return child_node
 
     def remove_child(self, child_node):
@@ -171,14 +179,14 @@ class Element(Node):
     def insert_child(self, child_index, child_node):
         child_index = index(child_index)
         try:
-            child_node = child_node.create_node(str(self._append_count), self, child_index)
+            child_node = child_node.create_node(str(self._serial_no), self, child_index)
         except AttributeError:
             pass
         self._children.insert(child_index, child_node)
-        self._append_count += 1
+        self._serial_no += 1
         return child_node
 
-    def set_child(self, child_index, child_node, name):
+    def set_child(self, child_index, child_node, name=None):
         if child_index > len(self._children):
             raise ElementError('Cannot set child at child_index = %s, since that would create a gap in the '\
                                'child array of len(children)=%s' % (child_index, len(self._children))) # pragma: no cover
@@ -190,6 +198,10 @@ class Element(Node):
         child_node = self.insert_child(child_index, child_node.create_node(name, self, child_index))
         return child_node
 
+    def __setitem__(self, sliceobj, child):
+        pass
+            
+
     def is_active_on_client(self):
         return self._active_on_client
 
@@ -197,6 +209,8 @@ class Element(Node):
         return self.parentNode._get_index_of_child(self)
 
     def _element_get_id(self, nodeid):
+        if nodeid is None:
+            nodeid = str(self.parentNode._serial_no)
         try:
             return self.parentNode.id + '.' + nodeid
         except AttributeError:
