@@ -84,6 +84,9 @@ class Element(Node):
 
         object.__setattr__(self, '_active_on_client',  True)
 
+    def is_active_on_client(self):
+        return self._active_on_client
+
     def __setattr__(self, name, value):
         if value == None:
             raise ElementError('attributes and children may not be set to None.  Use del to remove them.')
@@ -135,12 +138,19 @@ class Element(Node):
                                    'but there are still listeners attached.' % (name,))
             msg = DetachEventMessage(self, name)
         elif isinstance(value, Node):
-            self.remove_child(value)
+            del self[value]
             msg = None
         else:
             msg = RemoveAttributeMessage(self, name)
         self.send_msg(msg)
         object.__delattr__(self, name)
+
+    def _remove_element_from_client(self):
+        if self.is_active_on_client():
+            self._stop_observations()
+            msg = RemoveMessage(self)
+            self.send_msg(msg)
+        object.__setattr__(self, '_active_on_client', False)            
 
     def __len__(self):
         return len(self._children)
@@ -168,14 +178,6 @@ class Element(Node):
         self._serial_no += 1
         return child_node
 
-    def remove_child(self, child_node):
-        child_index = index(child_node)
-        child_node = self._children[child_index]
-        child_node._stop_observations()
-        msg = RemoveMessage(child_node)
-        del self._children[child_index]
-        self.send_msg(msg)
-
     def insert_child(self, child_index, child_node):
         child_index = index(child_index)
         try:
@@ -193,17 +195,26 @@ class Element(Node):
 
         if child_index < len(self._children):
             former_child = self[child_index]
-            self.remove_child(former_child)
+            del self[former_child]
 
         child_node = self.insert_child(child_index, child_node.create_node(name, self, child_index))
         return child_node
 
+    def __delitem__(self, sliceobj):
+        slice_list = self._get_slice_children_list(sliceobj)
+        for child_node in slice_list:
+            child_node._remove_element_from_client()
+            
+        del self._children[sliceobj]
+
     def __setitem__(self, sliceobj, child):
         pass
             
-
-    def is_active_on_client(self):
-        return self._active_on_client
+    def _get_slice_children_list(self, sliceobj):
+        slice_list = self._children[sliceobj]
+        if isinstance(slice_list, Node):
+            return [slice_list]
+        return slice_list
 
     def __index__(self):
         return self.parentNode._get_index_of_child(self)
@@ -221,7 +232,12 @@ class Element(Node):
             child._stop_observations()
 
     def _get_index_of_child(self, child_node):
-        return self._children.index(child_node)
+        index = 0
+        for other_child in self._children:
+            if child_node == other_child:
+                return index
+            index += 1
+        raise IndexError('Child Node not found in _children list') # pragma: no cover
 
     def send_msg(self, msg):
         if not msg:

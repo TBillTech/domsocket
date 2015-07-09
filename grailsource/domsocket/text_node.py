@@ -9,6 +9,7 @@ Copyright (c) 2015 TBillTech.  All rights reserved.
 import json
 from messages.insert_text_node_message import InsertTextNodeMessage
 from messages.set_text_node_message import SetTextNodeMessage
+from messages.remove_message import RemoveMessage
 
 from node import Node
 
