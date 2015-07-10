@@ -69,6 +69,7 @@ class Element(Node):
         object.__setattr__(self, '_kw', kw)
         object.__setattr__(self, '_active_on_client', False)
         object.__setattr__(self, '_children', list())
+        object.__setattr__(self, '_nodeid', None)
 
     def show_element(self, nodetag, nodeid, parentNode, ws, child_index):
         object.__setattr__(self, '_active_on_client', False)
@@ -118,12 +119,17 @@ class Element(Node):
                 child_index = index(current_value)
             except TypeError:
                 child_index = len(self._children)
-            value = self.set_child(child_index, value, name)
+            value._set_nodeid(name)
+            #value = self[child_index] = [value]
+            value = self._element_set_child_node(child_index, value)
             msg = None
         else:
             msg = SetAttributeMessage(self, name, value)
         self.send_msg(msg)
         object.__setattr__(self, name, value)
+
+    def _set_nodeid(self, name):
+        self._nodeid = name
 
     def __delattr__(self, name):
         if name[0] == '_':
@@ -178,7 +184,7 @@ class Element(Node):
         self._serial_no += 1
         return child_node
 
-    def insert_child(self, child_index, child_node):
+    def _element_insert_child_node(self, child_index, child_node):
         child_index = index(child_index)
         try:
             child_node = child_node.create_node(str(self._serial_no), self, child_index)
@@ -188,29 +194,59 @@ class Element(Node):
         self._serial_no += 1
         return child_node
 
-    def set_child(self, child_index, child_node, name=None):
-        if child_index > len(self._children):
-            raise ElementError('Cannot set child at child_index = %s, since that would create a gap in the '\
-                               'child array of len(children)=%s' % (child_index, len(self._children))) # pragma: no cover
-
-        if child_index < len(self._children):
-            former_child = self[child_index]
-            del self[former_child]
-
-        child_node = self.insert_child(child_index, child_node.create_node(name, self, child_index))
-        return child_node
+    def _element_set_child_node(self, sliceobj, child_list):
+        first_index = self._get_first_index_of_slice(sliceobj)
+        self._remove_slice_from_client(sliceobj)
+        
+        if len(self) == sliceobj:
+            sliceobj = index(sliceobj)
+            child_list.create_node(str(self._serial_no), self, sliceobj)
+            self._serial_no += 1
+            self._children.insert(sliceobj, child_list)
+        else:
+            sliceobj = index(sliceobj)
+            child_list.create_node(str(self._serial_no), self, sliceobj)
+            self._serial_no += 1
+            self._children.insert(sliceobj, child_list)
+        return self[sliceobj]
 
     def __delitem__(self, sliceobj):
-        slice_list = self._get_slice_children_list(sliceobj)
-        for child_node in slice_list:
-            child_node._remove_element_from_client()
+        self._remove_slice_from_client(sliceobj)
             
         del self._children[sliceobj]
 
-    def __setitem__(self, sliceobj, child):
-        pass
+    def __setitem__(self, sliceobj, child_list):
+        first_index = self._get_first_index_of_slice(sliceobj)
+        self._remove_slice_from_client(sliceobj)
+
+        if len(self) == sliceobj:
+            self._add_list_to_client(child_list, first_index)
+            self._children.insert(sliceobj, child_list)
+        else:
+            self._add_list_to_client(child_list, first_index)
+            self._children[sliceobj] = child_list
+        return self[sliceobj]
             
+    def _remove_slice_from_client(self, sliceobj):
+        slice_list = self._get_slice_children_list(sliceobj)
+        for child_node in slice_list:
+            child_node._remove_element_from_client()
+
+    def _add_list_to_client(self, child_list, first_index):
+        for child_node in child_list:
+            child_node.create_node(str(self._serial_no), self, first_index)
+            first_index += 1
+            self._serial_no += 1
+
+    def _get_first_index_of_slice(self, sliceobj):
+        try:
+            return index(self._get_slice_children_list(sliceobj)[0])
+        except IndexError:
+            return 0
+
     def _get_slice_children_list(self, sliceobj):
+        if sliceobj == len(self):
+            return list()
         slice_list = self._children[sliceobj]
         if isinstance(slice_list, Node):
             return [slice_list]
@@ -220,6 +256,8 @@ class Element(Node):
         return self.parentNode._get_index_of_child(self)
 
     def _element_get_id(self, nodeid):
+        if self._nodeid:
+            nodeid = self._nodeid
         if nodeid is None:
             nodeid = str(self.parentNode._serial_no)
         try:

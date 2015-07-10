@@ -12,6 +12,7 @@ from operator import index
 class App(Element):
 
     def __init__(self, nodeid, parentNode, ws):
+        self._nodeid = nodeid
         self.show_element('div', nodeid, parentNode, ws, child_index=None)
 
         self.first_paragraph_show()
@@ -63,8 +64,8 @@ class App(Element):
         sub_body_kwargs['sub_body_divB'] = self.sub_body_divA_child()
         self.sub_body = HTMLTag('body', sub_body_kwargs)
         del self.sub_body.sub_body_divA[1:2]
-        self.sub_body.sub_body_divA.insert_child(2, HTMLTag('span'))
-        self.sub_body.sub_body_divA.set_child(3, HTMLTag('li'))
+        self.sub_body.sub_body_divA[2:2] = [HTMLTag('span')]
+        self.sub_body.sub_body_divA[3] = [HTMLTag('li')]
         del self.sub_body.sub_body_divB 
         self.sub_body.sub_body_divB = self.sub_body_divA_child()
         self.sub_body.sub_body_divB = self.sub_body_divA_child()

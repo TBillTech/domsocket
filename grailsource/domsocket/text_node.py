@@ -38,6 +38,9 @@ class TextNode(Node):
         object.__setattr__(self, 'text', str(value))
         self.update()
 
+    def _set_nodeid(self, name):
+        pass
+
     def _stop_observations(self):
         pass # pragma: no cover
 
