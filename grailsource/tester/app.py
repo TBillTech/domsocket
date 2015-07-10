@@ -30,7 +30,7 @@ class App(Element):
         self.first_paragraph.toremove = 'remove_this_instead'
         del self.first_paragraph.toremove
         self.first_paragraph.text_node = TextNode('Hello World!')
-        self.first_paragraph.text_node = 'Hello World! -- changed!'
+        self.first_paragraph.text_node.text = 'Hello World! -- changed!'
         self.first_paragraph.text_node = TextNode('Hello World! -- changed!')
         try:
             self.first_paragraph.useful = None
@@ -105,13 +105,13 @@ class App(Element):
                 del self.invalid
             except AttributeError:
                 pass
-            self.valid = HTMLTag('p', 'username and password is valid')
+            self.valid = HTMLTag('p', TextNode('username and password is valid'))
             self.login._loginButton.click.remove_listener(self, App.on_login)
             del self.login._loginButton.click
             self.login._loginButton.click = Event()
             self.login._loginButton.click.add_listener(self, App.colorize_valid)
         else:
-            self.invalid = HTMLTag('p', 'username and/or password is invalid')
+            self.invalid = HTMLTag('p', TextNode('username and/or password is invalid'))
             self.login._loginButton.click.remove_argument(self.login._password, 'value')
 
     def authenticate(self):

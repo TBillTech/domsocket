@@ -11,7 +11,7 @@ class HTMLTag(Element):
 
     def create_node(self, name, parentNode, index):
         if self.is_active_on_client():
-            raise AttributeError()
+            raise AttributeError() # pragma: no cover
         self.show_element(name, parentNode, index)
         return self
 
@@ -41,11 +41,8 @@ class HTMLTag(Element):
     def _set_iterable_arg(self, arg):
         if isinstance(arg, Node):
             raise TypeError("Nodes must be added as whole units")
-        if isinstance(arg, str):
-            self._set_not_iterable_arg(arg)
-        else:
-            for child in arg:
-                self._set_arg(child)
+        for child in arg:
+            self._set_arg(child)
 
     def _set_not_iterable_arg(self, arg):
         self += [arg]

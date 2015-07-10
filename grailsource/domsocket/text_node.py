@@ -59,7 +59,7 @@ class TextNode(Node):
 
     def show_text_node(self, index): 
         if self.is_active_on_client():
-            raise AttributeError()
+            raise AttributeError() # pragma: no cover
 
         msg = InsertTextNodeMessage(self, index)
         self.send_msg(msg)

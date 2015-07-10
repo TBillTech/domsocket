@@ -106,10 +106,6 @@ class Element(Node):
         if current_value == value:
             return
 
-        if isinstance(current_value, TextNode):
-            current_value.text = value
-            return
-
         if isinstance(value, Event):
             msg = AttachEventMessage(self, name, value.arguments)
             value.owner_node = self
@@ -172,12 +168,7 @@ class Element(Node):
                     # pragma: no cover
 
     def _element_append_child_node(self, child_node):
-        try:
-            child_node.create_node(str(self._serial_no), self, None)
-        except AttributeError:
-            if isinstance(child_node, str):
-                child_node = TextNode(text=child_node)
-                child_node.create_node(str(self._serial_no), self, None)
+        child_node.create_node(str(self._serial_no), self, None)
         self._children.append(child_node)
         self._serial_no += 1
 
