@@ -173,15 +173,13 @@ class Element(Node):
 
     def _element_append_child_node(self, child_node):
         try:
-            child_node = child_node.create_node(str(self._serial_no), self, None)
+            child_node.create_node(str(self._serial_no), self, None)
         except AttributeError:
             if isinstance(child_node, str):
-                value = TextNode(text=child_node)
-                child_node = value.create_node(str(self._serial_no), self, None)
+                child_node = TextNode(text=child_node)
+                child_node.create_node(str(self._serial_no), self, None)
         self._children.append(child_node)
-        # this is not a real count, but just an anti-name collision value
         self._serial_no += 1
-        return child_node
 
     def __delitem__(self, sliceobj):
         self._remove_slice_from_client(sliceobj)
