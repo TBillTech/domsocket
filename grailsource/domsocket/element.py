@@ -189,15 +189,12 @@ class Element(Node):
         del self._children[sliceobj]
 
     def __setitem__(self, sliceobj, child_list):
-        first_index = self._get_first_index_of_slice(sliceobj)
         self._remove_slice_from_client(sliceobj)
+        self._add_list_to_client(sliceobj, child_list)
 
         if isinstance(sliceobj, int):
-            child_list[0].create_node(str(self._serial_no), self, sliceobj)
-            self._serial_no += 1
-            self._children.insert(sliceobj, child_list[0])
+            self._children[sliceobj:sliceobj+1] = child_list
         else:
-            self._add_list_to_client(child_list, first_index)
             self._children[sliceobj] = child_list
         return self[sliceobj]
             
@@ -206,7 +203,9 @@ class Element(Node):
         for child_node in slice_list:
             child_node._remove_element_from_client()
 
-    def _add_list_to_client(self, child_list, first_index):
+    def _add_list_to_client(self, first_index, child_list):
+        if not isinstance(first_index, int):
+            first_index = self._get_first_index_of_slice(first_index)
         for child_node in child_list:
             child_node.create_node(str(self._serial_no), self, first_index)
             first_index += 1
@@ -219,8 +218,6 @@ class Element(Node):
             return 0
 
     def _get_slice_children_list(self, sliceobj):
-        if sliceobj == len(self):
-            return list()
         slice_list = self._children[sliceobj]
         if isinstance(slice_list, Node):
             return [slice_list]
@@ -232,8 +229,6 @@ class Element(Node):
     def _element_get_id(self, nodeid):
         if self._nodeid:
             nodeid = self._nodeid
-        if nodeid is None:
-            nodeid = str(self.parentNode._serial_no)
         try:
             return self.parentNode.id + '.' + nodeid
         except AttributeError:
