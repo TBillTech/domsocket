@@ -120,8 +120,7 @@ class Element(Node):
             except TypeError:
                 child_index = len(self._children)
             value._set_nodeid(name)
-            #value = self[child_index] = [value]
-            value = self._element_set_child_node(child_index, value)
+            self[child_index] = [value]
             msg = None
         else:
             msg = SetAttributeMessage(self, name, value)
@@ -184,32 +183,6 @@ class Element(Node):
         self._serial_no += 1
         return child_node
 
-    def _element_insert_child_node(self, child_index, child_node):
-        child_index = index(child_index)
-        try:
-            child_node = child_node.create_node(str(self._serial_no), self, child_index)
-        except AttributeError:
-            pass
-        self._children.insert(child_index, child_node)
-        self._serial_no += 1
-        return child_node
-
-    def _element_set_child_node(self, sliceobj, child_list):
-        first_index = self._get_first_index_of_slice(sliceobj)
-        self._remove_slice_from_client(sliceobj)
-        
-        if len(self) == sliceobj:
-            sliceobj = index(sliceobj)
-            child_list.create_node(str(self._serial_no), self, sliceobj)
-            self._serial_no += 1
-            self._children.insert(sliceobj, child_list)
-        else:
-            sliceobj = index(sliceobj)
-            child_list.create_node(str(self._serial_no), self, sliceobj)
-            self._serial_no += 1
-            self._children.insert(sliceobj, child_list)
-        return self[sliceobj]
-
     def __delitem__(self, sliceobj):
         self._remove_slice_from_client(sliceobj)
             
@@ -219,12 +192,22 @@ class Element(Node):
         first_index = self._get_first_index_of_slice(sliceobj)
         self._remove_slice_from_client(sliceobj)
 
-        if len(self) == sliceobj:
-            self._add_list_to_client(child_list, first_index)
-            self._children.insert(sliceobj, child_list)
+        if isinstance(sliceobj, int):
+            if len(self) == sliceobj:
+                child_list[0].create_node(str(self._serial_no), self, sliceobj)
+                self._serial_no += 1
+                self._children.insert(sliceobj, child_list[0])
+            else:
+                child_list[0].create_node(str(self._serial_no), self, sliceobj)
+                self._serial_no += 1
+                self._children.insert(sliceobj, child_list[0])
         else:
-            self._add_list_to_client(child_list, first_index)
-            self._children[sliceobj] = child_list
+            if len(self) == sliceobj:
+                self._add_list_to_client(child_list, first_index)
+                self._children.insert(sliceobj, child_list)
+            else:
+                self._add_list_to_client(child_list, first_index)
+                self._children[sliceobj] = child_list
         return self[sliceobj]
             
     def _remove_slice_from_client(self, sliceobj):
