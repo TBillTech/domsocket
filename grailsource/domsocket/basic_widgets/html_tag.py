@@ -9,14 +9,14 @@ class HTMLTag(Element):
         super(HTMLTag, self).__init__(*args, **kw)
         object.__setattr__(self, 'tag', tag)
 
-    def create_node(self, name, parentNode, index):
+    def dom_insert(self, name, parentNode, index):
         if self.is_active_on_client():
             raise AttributeError() # pragma: no cover
-        self.show_element(name, parentNode, index)
+        self.dom_insert_element(name, parentNode, index)
         return self
 
-    def show_element(self, nodeid, parentNode, index):
-        super(HTMLTag,self).show_element(self.tag, nodeid, parentNode, parentNode._get_ws(), index)
+    def dom_insert_element(self, nodeid, parentNode, index):
+        super(HTMLTag,self).dom_insert_element(self.tag, nodeid, parentNode, parentNode._get_ws(), index)
 
         self._set_arg(self._kw)
         for arg in self._args:

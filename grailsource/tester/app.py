@@ -13,7 +13,7 @@ class App(Element):
 
     def __init__(self, nodeid, parentNode, ws):
         self._nodeid = nodeid
-        self.show_element('div', nodeid, parentNode, ws, child_index=None)
+        self.dom_insert_element('div', nodeid, parentNode, ws, child_index=None)
 
         self.first_paragraph_show()
         self.sub_body_show()

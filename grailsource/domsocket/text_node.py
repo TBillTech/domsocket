@@ -20,7 +20,7 @@ class TextNode(Node):
         object.__setattr__(self, 'tag', 'text')
         self.text = text
 
-    def create_node(self, name, parentNode, index):
+    def dom_insert(self, name, parentNode, index):
         object.__setattr__(self, '_ws', parentNode._get_ws())
         object.__setattr__(self, 'parentNode', parentNode)
         self.show_text_node(index)    

@@ -71,7 +71,7 @@ class Element(Node):
         object.__setattr__(self, '_children', list())
         object.__setattr__(self, '_nodeid', None)
 
-    def show_element(self, nodetag, nodeid, parentNode, ws, child_index):
+    def dom_insert_element(self, nodetag, nodeid, parentNode, ws, child_index):
         object.__setattr__(self, '_active_on_client', False)
         object.__setattr__(self, 'tag', nodetag)
         object.__setattr__(self, '_children', list())
@@ -168,7 +168,7 @@ class Element(Node):
                     # pragma: no cover
 
     def _element_append_child_node(self, child_node):
-        child_node.create_node(str(self._serial_no), self, None)
+        child_node.dom_insert(str(self._serial_no), self, None)
         self._children.append(child_node)
         self._serial_no += 1
 
@@ -196,7 +196,7 @@ class Element(Node):
         if not isinstance(first_index, int):
             first_index = self._get_first_index_of_slice(first_index)
         for child_node in child_list:
-            child_node.create_node(str(self._serial_no), self, first_index)
+            child_node.dom_insert(str(self._serial_no), self, first_index)
             first_index += 1
             self._serial_no += 1
 

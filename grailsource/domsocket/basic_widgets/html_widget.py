@@ -12,7 +12,7 @@ class HTMLWidget(Element):
         object.__setattr__(self, '_widget_html_id', widget_html_id)
         super(HTMLWidget, self).__init__()
 
-    def create_node(self, name, parentNode, index):
+    def dom_insert(self, name, parentNode, index):
         if self.is_active_on_client():
             raise AttributeError() # pragma: no cover
 
