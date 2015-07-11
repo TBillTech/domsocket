@@ -83,24 +83,23 @@ class Event(object):
         self.owner_node = None
         self.name = None
 
-    def construct_argument(self, nodeid, parameter):
+    def construct_argument(self, node, parameter):
         event_argument = dict()
-        event_argument['id'] = nodeid
+        event_argument['id'] = node.id
         event_argument['name'] = parameter
         return event_argument
 
     def add_argument(self, node, parameter):
-        nodeid = node.id
-        event_argument = self.construct_argument(nodeid, parameter)
+        event_argument = self.construct_argument(node, parameter)
         self.arguments.append(event_argument)
-        if self.owner_node:
-            msg = UpdateEventMessage(self.owner_node, self.name, self.arguments)
-            self.owner_node._send_msg_to_client(msg)
+        self.update_event()
 
     def remove_argument(self, node, parameter):
-        nodeid = node.id
-        event_argument = self.construct_argument(nodeid, parameter)
+        event_argument = self.construct_argument(node, parameter)
         self.arguments.remove(event_argument)
+        self.update_event()
+
+    def update_event(self):
         if self.owner_node:
             msg = UpdateEventMessage(self.owner_node, self.name, self.arguments)
             self.owner_node._send_msg_to_client(msg)
@@ -112,19 +111,15 @@ class Event(object):
         self.listeners.remove((listener, listener_callback))
 
     def __call__(self, msg):
-        try:
-            attribute_args = msg['attributeArgs']
-        except KeyError:
-            attribute_args = list()
-        for attribute_arg in attribute_args:
-            the_node = self.owner_node.document_get_element_by_id(attribute_arg['id'])
-            # Don't trigger updating the GUI:  Just directly update the value
-            # in the server tree
-            object.__setattr__(
-                the_node, attribute_arg['name'], attribute_arg['value'])
-        if self.listeners:
-            for (listener, listener_callback) in list(self.listeners):
-                listener_callback(listener, self.owner_node, msg)
+        if 'attributeArgs' in msg:
+            self.update_server_attributes(msg['attributeArgs'])
+        for (listener, listener_callback) in list(self.listeners):
+            listener_callback(listener, self.owner_node, msg)
+
+    def update_server_attributes(self, attributeArgs):
+        for attribute_arg in attributeArgs:
+            node = self.owner_node.document_get_element_by_id(attribute_arg['id'])
+            object.__setattr__(node, attribute_arg['name'], attribute_arg['value'])
 
     def __len__(self):
         return len(self.listeners)
