@@ -21,14 +21,14 @@ class App(Element):
 
         self.login = LoginDialog(App.authenticated)
 
-    def remove_listeners(self):
+    def remove_observers(self):
         # This gets called by the websocket when the app goes away.
-        # It is very important to call remove_listeners on all children that listen for
+        # It is very important to call remove_observers on all children that listen for
         # 0mq events so that the 0mq even handlers will not try to send dead
         # apps information.
         try:
             pass
-            # self.packet_sample_summary.remove_listeners()
+            # self.packet_sample_summary.remove_observers()
         except Exception:
             pass
 

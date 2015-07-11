@@ -4,7 +4,7 @@ Copyright (c) 2015 TBillTech.  All rights reserved.
 See more information on the node class in the doc of node.py.
 
 Event handling is controlled by the second pillar of the REDOWL pattern:  The EventCapture object.  The EventCapture object sets up a
-corresponding event listener on the corresponding DOM element of the Element attribute where the EventCapture object is assigned.  This
+corresponding event observer on the corresponding DOM element of the Element attribute where the EventCapture object is assigned.  This
 allows for seamlessly and transparently setting up and triggering event handlers from within the server side code without needing to
 create explicit event handling within the GUI.
 
@@ -35,9 +35,9 @@ class Event(object):
     Consequently, whenever there is a click of the button in the GUI, the __call__ method of the Event class assigned 
     in the previous line to my_button.click will be called.
 
-    The __call__ method of the Event class iterates through the listeners that have registered with the Event class, 
-    and calls the listener back using the listener's callback method.  A listener registers/deregisters with the Event class 
-    by using the add_listener and remove_listener methods.
+    The __call__ method of the Event class iterates through the observers that have registered with the Event class, 
+    and calls the observer back using the observer's callback method.  A observer registers/deregisters with the Event class 
+    by using the add_observer and remove_observer methods.
 
     Here is an example, again using the my_button Element: suppose we have a SpecialList Element called 'my_special_list' 
     that wants to get a callback method callback when my_button is clicked in the GUI.  For example, suppose the 
@@ -49,7 +49,7 @@ class Event(object):
             #Do something useful with self and my_button, and optionally access the info in msg
 
     Now, the my_special_list Element can register with the my_button.click Event object like so:
-        my_button.click.add_listener(my_special_list, on_my_button_click)
+        my_button.click.add_observer(my_special_list, on_my_button_click)
     Consequently, whenever there is a click of the button in the GUI, the on_my_button_click method will get called up.
 
     The msg passed into the callback has the following properties:
@@ -64,9 +64,9 @@ class Event(object):
     attribute_arg.name # This is the name of the attribute read
     attribute_arg.value # This is the value of the attribute of the Element at the time the event was handled
 
-    Before iterating over the listeners, the Event object will iterate through the attribute_arg list and update the state of
+    Before iterating over the observers, the Event object will iterate through the attribute_arg list and update the state of
     the corresponding attributes in the server version of the GUI tree.  This ensures that when the callback is called on the
-    listener, the state on the server is synchronized with the state in the GUI for all the attributes listed in the attribute_args.
+    observer, the state on the server is synchronized with the state in the GUI for all the attributes listed in the attribute_args.
     This means it is normally not necessary to examine the attribute_arg information in the event handler method.
 
     New and/or existing attribute synchronization elements can be added and/or removed by using the add_argument and 
@@ -79,7 +79,7 @@ class Event(object):
 
     def __init__(self):
         self.arguments = list()
-        self.listeners = set()
+        self.observers = set()
         self.owner_node = None
         self.name = None
 
@@ -104,17 +104,17 @@ class Event(object):
             msg = UpdateEventMessage(self.owner_node, self.name, self.arguments)
             self.owner_node._send_msg_to_client(msg)
 
-    def add_listener(self, listener, listener_callback):
-        self.listeners.add((listener, listener_callback))
+    def add_observer(self, observer, observer_callback):
+        self.observers.add((observer, observer_callback))
 
-    def remove_listener(self, listener, listener_callback):
-        self.listeners.remove((listener, listener_callback))
+    def remove_observer(self, observer, observer_callback):
+        self.observers.remove((observer, observer_callback))
 
     def __call__(self, msg):
         if 'attributeArgs' in msg:
             self.update_server_attributes(msg['attributeArgs'])
-        for (listener, listener_callback) in list(self.listeners):
-            listener_callback(listener, self.owner_node, msg)
+        for (observer, observer_callback) in list(self.observers):
+            observer_callback(observer, self.owner_node, msg)
 
     def update_server_attributes(self, attributeArgs):
         for attribute_arg in attributeArgs:
@@ -122,7 +122,7 @@ class Event(object):
             object.__setattr__(node, attribute_arg['name'], attribute_arg['value'])
 
     def __len__(self):
-        return len(self.listeners)
+        return len(self.observers)
 
     def set_element_attribute(self, element, name):
         self.owner_node = element
@@ -134,7 +134,7 @@ class Event(object):
     def del_element_attribute(self, element, name):
         if len(self):
             raise ElementError('Trying to delete an event = %s from the node, '\
-                               'but there are still listeners attached.' % (name,))
+                               'but there are still observers attached.' % (name,))
         msg = DetachEventMessage(element, name)
         element._send_msg_to_client(msg)
         object.__delattr__(element, name)

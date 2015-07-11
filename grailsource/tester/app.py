@@ -90,11 +90,11 @@ class App(Element):
         login_event = Event()
         login_event.add_argument(self.login._username, 'value')
         self.login._loginButton.click = login_event
-        self.login._loginButton.click.add_listener(self, App.on_login)
+        self.login._loginButton.click.add_observer(self, App.on_login)
         self.login._loginButton.click.add_argument(self.login._password, 'value')
         try:
             del self.login._loginButton.click
-            raise ElementError('Should not be allowed to delete Events with listeners still attached.')
+            raise ElementError('Should not be allowed to delete Events with observers still attached.')
         except ElementError:
             pass
     
@@ -106,10 +106,10 @@ class App(Element):
             except AttributeError:
                 pass
             self.valid = HTMLTag('p', TextNode('username and password is valid'))
-            self.login._loginButton.click.remove_listener(self, App.on_login)
+            self.login._loginButton.click.remove_observer(self, App.on_login)
             del self.login._loginButton.click
             self.login._loginButton.click = Event()
-            self.login._loginButton.click.add_listener(self, App.colorize_valid)
+            self.login._loginButton.click.add_observer(self, App.colorize_valid)
         else:
             self.invalid = HTMLTag('p', TextNode('username and/or password is invalid'))
             self.login._loginButton.click.remove_argument(self.login._password, 'value')
