@@ -86,65 +86,58 @@ class Element(Node):
         object.__setattr__(self, '_active_on_client',  True)
 
     def is_active_on_client(self):
-        return self._active_on_client
+        return getattr(self, '_active_on_client', False)
 
     def __setattr__(self, name, value):
+        if self._is_underscored_name(name):
+            return object.__setattr__(self, name, value)
+
+        if self._value_is_valid(name, value):
+            try:
+                value.set_element_attribute(self, name)
+            except AttributeError:
+                self._set_named_attribute(name, value)
+
+    def _value_is_valid(self, name, value):
         if value == None:
             raise ElementError('attributes and children may not be set to None.  Use del to remove them.')
-        if name in self.immutable_names:
-            raise ElementError('%s is immutable and may not be changed' % (name,))
-
-        if name[0] == '_':
-            object.__setattr__(self, name, value)
-            return 
-
-        if not self.is_active_on_client():
-            raise ElementError('Attributes, children and events may not be set until '\
-                               'the element is active on the client.') # pragma: no cover 
-
         current_value = getattr(self, name, None) 
         if current_value == value:
-            return
+            return False
+        return True
 
-        if isinstance(value, Event):
-            msg = AttachEventMessage(self, name, value.arguments)
-            value.owner_node = self
-            value.name = name
-        elif isinstance(value, Node):
-            value._set_nodeid(name)
-            if current_value is None:
-                self._element_append_child_node(value)
-            else:
-                child_index = index(current_value)
-                self[child_index] = [value]
-            msg = None
-        else:
-            msg = SetAttributeMessage(self, name, value)
+    def _set_named_attribute(self, name, value):
+        msg = SetAttributeMessage(self, name, value)
         self._send_msg_to_client(msg)
         object.__setattr__(self, name, value)
 
-    def _set_nodeid(self, name):
-        self._nodeid = name
-
     def __delattr__(self, name):
-        if name[0] == '_':
-            object.__delattr__(self, name)
-            return
+        if self._is_underscored_name(name):
+            return object.__delattr__(self, name)
+
         value = getattr(self, name)
-        if name in self.immutable_names:
-            raise ElementError('%s is immutable, and may not be deleted' % (name,))
-        elif isinstance(value, Event):
-            if len(value):
-                raise ElementError('Trying to delete an event = %s from the node, '\
-                                   'but there are still listeners attached.' % (name,))
-            msg = DetachEventMessage(self, name)
-        elif isinstance(value, Node):
-            del self[value]
-            msg = None
-        else:
-            msg = RemoveAttributeMessage(self, name)
+        try:
+            value.del_element_attribute(self, name)
+        except AttributeError:
+            self._del_named_attribute(name)
+
+    def _del_named_attribute(self, name):
+        msg = RemoveAttributeMessage(self, name)
         self._send_msg_to_client(msg)
         object.__delattr__(self, name)
+
+    def _is_underscored_name(self, name):
+        if name in self.immutable_names:
+            raise ElementError('%s is immutable, and may not be deleted' % (name,))
+        if name[0] == '_':
+            return True
+        if not self.is_active_on_client():
+            raise ElementError('Attributes, children and events may not be set or deleted until '\
+                               'the element is active on the client.') # pragma: no cover 
+        return False
+
+    def _set_nodeid(self, name):
+        self._nodeid = name
 
     def _remove_element_from_client(self):
         if self.is_active_on_client():
@@ -157,7 +150,7 @@ class Element(Node):
         return len(self._children)
 
     def __getitem__(self, child):
-        return self._children[child]
+        return self._children[child] # pragma: no cover
 
     def __iadd__(self, child_node_list): 
         for child_node in child_node_list:
@@ -166,6 +159,7 @@ class Element(Node):
             except TypeError: # pragma: no cover
                 raise TypeError('argument to += (append) must be a list of appendable objects like Elements and TextNodes') \
                     # pragma: no cover
+        return self
 
     def _element_append_child_node(self, child_node):
         child_node.dom_insert(str(self._serial_no), self, None)
@@ -178,14 +172,15 @@ class Element(Node):
         del self._children[sliceobj]
 
     def __setitem__(self, sliceobj, child_list):
+        if isinstance(sliceobj, Node):
+            sliceobj = index(sliceobj)
+
         self._remove_slice_from_client(sliceobj)
         self._add_list_to_client(sliceobj, child_list)
-
         if isinstance(sliceobj, int):
             self._children[sliceobj:sliceobj+1] = child_list
         else:
             self._children[sliceobj] = child_list
-        return self[sliceobj]
             
     def _remove_slice_from_client(self, sliceobj):
         slice_list = self._get_slice_children_list(sliceobj)
@@ -236,8 +231,6 @@ class Element(Node):
         raise IndexError('Child Node not found in _children list') # pragma: no cover
 
     def _send_msg_to_client(self, msg):
-        if not msg:
-            return
         self._get_ws().send(msg.jsonstring(), False)
 
     def get_element_by_id(self, nodeid):

@@ -16,6 +16,9 @@ in a REDOWL application.
 """
 
 from messages.update_event_message import UpdateEventMessage
+from messages.attach_event_message import AttachEventMessage
+from messages.detach_event_message import DetachEventMessage
+from element_error import ElementError
 import json
 import logging
 
@@ -125,3 +128,20 @@ class Event(object):
 
     def __len__(self):
         return len(self.listeners)
+
+    def set_element_attribute(self, element, name):
+        self.owner_node = element
+        self.name = name
+        msg = AttachEventMessage(element, name, self.arguments)
+        element._send_msg_to_client(msg)
+        object.__setattr__(element, name, self)
+
+    def del_element_attribute(self, element, name):
+        if len(self):
+            raise ElementError('Trying to delete an event = %s from the node, '\
+                               'but there are still listeners attached.' % (name,))
+        msg = DetachEventMessage(element, name)
+        element._send_msg_to_client(msg)
+        object.__delattr__(element, name)
+
+

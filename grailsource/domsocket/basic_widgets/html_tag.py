@@ -18,7 +18,8 @@ class HTMLTag(Element):
     def dom_insert_element(self, nodeid, parentNode, index):
         super(HTMLTag,self).dom_insert_element(self.tag, nodeid, parentNode, parentNode._get_ws(), index)
 
-        self._set_arg(self._kw)
+        if self._kw:
+            self._set_arg(self._kw)
         for arg in self._args:
             self._set_arg(arg)
 
