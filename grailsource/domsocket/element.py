@@ -81,7 +81,7 @@ class Element(Node):
         object.__setattr__(self, '_serial_no',  0)
 
         msg = InsertChildMessage(self.parentNode, child_index, self)
-        self.send_msg(msg)
+        self._send_msg_to_client(msg)
 
         object.__setattr__(self, '_active_on_client',  True)
 
@@ -120,7 +120,7 @@ class Element(Node):
             msg = None
         else:
             msg = SetAttributeMessage(self, name, value)
-        self.send_msg(msg)
+        self._send_msg_to_client(msg)
         object.__setattr__(self, name, value)
 
     def _set_nodeid(self, name):
@@ -143,14 +143,14 @@ class Element(Node):
             msg = None
         else:
             msg = RemoveAttributeMessage(self, name)
-        self.send_msg(msg)
+        self._send_msg_to_client(msg)
         object.__delattr__(self, name)
 
     def _remove_element_from_client(self):
         if self.is_active_on_client():
             self._stop_observations()
             msg = RemoveMessage(self)
-            self.send_msg(msg)
+            self._send_msg_to_client(msg)
         object.__setattr__(self, '_active_on_client', False)            
 
     def __len__(self):
@@ -235,10 +235,10 @@ class Element(Node):
             index += 1
         raise IndexError('Child Node not found in _children list') # pragma: no cover
 
-    def send_msg(self, msg):
+    def _send_msg_to_client(self, msg):
         if not msg:
             return
-        self._ws.send(msg.jsonstring(), False)
+        self._get_ws().send(msg.jsonstring(), False)
 
     def get_element_by_id(self, nodeid):
         if nodeid == self.id:
@@ -252,12 +252,12 @@ class Element(Node):
         raise ElementError('nodeid %s could not be found' % (nodeid,))
 
     def document_get_element_by_id(self, nodeid):
-        return self.get_w_s().app.get_element_by_id(nodeid)
+        return self._get_ws().app.get_element_by_id(nodeid)
 
-    def get_w_s(self):
+    def _get_ws(self):
         return self._ws
 
-    def process_msg(self, ws, msg):
+    def process_client_msg(self, ws, msg):
         if msg['type'] == 'event':
             node = self.get_element_by_id(msg['nodeid'])
             try:
@@ -272,5 +272,5 @@ class Element(Node):
         else: # pragma: no cover
             raise MessageError('Event type %s not defined' % (msg['type'])) # pragma: no cover
 
-    def closed(self, code, reason):
+    def client_has_closed_ws(self, code, reason):
         pass

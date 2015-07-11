@@ -38,7 +38,7 @@ class AppWebSocket(WebSocket):
         self.logger.info('Received message = %s' % message.data)
         json_msg = json.loads(message.data)
         try:
-            self.app.process_msg(self, json_msg)
+            self.app.process_client_msg(self, json_msg)
         except AttributeError:
             if json_msg['eventName'] == 'init' and json_msg['nodeid'] == self.appid:
                 self.app = self.create_app(self.appid, None, self)
@@ -47,4 +47,4 @@ class AppWebSocket(WebSocket):
 
     def closed(self, code, reason="no reason given"):
         self.logger.info('Application has shut down: %s:%s.' % (code, reason))
-        self.app.closed(code, reason)
+        self.app.client_has_closed_ws(code, reason)

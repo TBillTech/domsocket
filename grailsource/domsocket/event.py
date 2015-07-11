@@ -36,8 +36,9 @@ class Event(object):
     and calls the listener back using the listener's callback method.  A listener registers/deregisters with the Event class 
     by using the add_listener and remove_listener methods.
 
-    Here is an example, again using the my_button Element: suppose we have a SpecialList Element called 'my_special_list' that wants to get 
-    a callback method callback when my_button is clicked in the GUI.  For example, suppose the SpecialList has an on_my_button_click method:
+    Here is an example, again using the my_button Element: suppose we have a SpecialList Element called 'my_special_list' 
+    that wants to get a callback method callback when my_button is clicked in the GUI.  For example, suppose the 
+    SpecialList has an on_my_button_click method:
 
     class SpecialList(Element):
         ...
@@ -65,11 +66,11 @@ class Event(object):
     listener, the state on the server is synchronized with the state in the GUI for all the attributes listed in the attribute_args.
     This means it is normally not necessary to examine the attribute_arg information in the event handler method.
 
-    New and/or existing attribute synchronization elements can be added and/or removed by using the add_argument and remove_argument methods
-    of the Event object.  For example:
+    New and/or existing attribute synchronization elements can be added and/or removed by using the add_argument and 
+    remove_argument methods of the Event object.  For example:
         my_button.click.add_argument(a_paragraph_node_id, 'text')
-    Consequently, after the click event of the my_button object is called, the value of the a_text_field_node would be automatically updated
-    before the callbacks are executed.
+    Consequently, after the click event of the my_button object is called, the value of the a_text_field_node would be 
+    automatically updated before the callbacks are executed.
     }
     """
 
@@ -91,7 +92,7 @@ class Event(object):
         self.arguments.append(event_argument)
         if self.owner_node:
             msg = UpdateEventMessage(self.owner_node, self.name, self.arguments)
-            self.owner_node.send_msg(msg)
+            self.owner_node._send_msg_to_client(msg)
 
     def remove_argument(self, node, parameter):
         nodeid = node.id
@@ -99,7 +100,7 @@ class Event(object):
         self.arguments.remove(event_argument)
         if self.owner_node:
             msg = UpdateEventMessage(self.owner_node, self.name, self.arguments)
-            self.owner_node.send_msg(msg)
+            self.owner_node._send_msg_to_client(msg)
 
     def add_listener(self, listener, listener_callback):
         self.listeners.add((listener, listener_callback))

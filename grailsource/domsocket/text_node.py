@@ -21,7 +21,7 @@ class TextNode(Node):
         self.text = text
 
     def create_node(self, name, parentNode, index):
-        object.__setattr__(self, '_ws', parentNode.get_w_s())
+        object.__setattr__(self, '_ws', parentNode._get_ws())
         object.__setattr__(self, 'parentNode', parentNode)
         self.show_text_node(index)    
         return self
@@ -54,7 +54,7 @@ class TextNode(Node):
     def __str__(self):
         return self.text # pragma: no cover
 
-    def send_msg(self, msg):
+    def _send_msg_to_client(self, msg):
         self._ws.send(msg.jsonstring(), False)
 
     def show_text_node(self, index): 
@@ -62,13 +62,13 @@ class TextNode(Node):
             raise AttributeError() # pragma: no cover
 
         msg = InsertTextNodeMessage(self, index)
-        self.send_msg(msg)
+        self._send_msg_to_client(msg)
 
         self.set_active_on_client()
        
     def update(self):
         if self.is_active_on_client():
             msg = SetTextNodeMessage(self)
-            self.send_msg(msg)
+            self._send_msg_to_client(msg)
         
 

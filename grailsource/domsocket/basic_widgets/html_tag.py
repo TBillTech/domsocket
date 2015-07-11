@@ -16,7 +16,7 @@ class HTMLTag(Element):
         return self
 
     def show_element(self, nodeid, parentNode, index):
-        super(HTMLTag,self).show_element(self.tag, nodeid, parentNode, parentNode.get_w_s(), index)
+        super(HTMLTag,self).show_element(self.tag, nodeid, parentNode, parentNode._get_ws(), index)
 
         self._set_arg(self._kw)
         for arg in self._args:
