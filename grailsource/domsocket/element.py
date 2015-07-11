@@ -154,11 +154,7 @@ class Element(Node):
 
     def __iadd__(self, child_node_list): 
         for child_node in child_node_list:
-            try:
-                self._element_append_child_node(child_node)
-            except TypeError: # pragma: no cover
-                raise TypeError('argument to += (append) must be a list of appendable objects like Elements and TextNodes') \
-                    # pragma: no cover
+            self._element_append_child_node(child_node)
         return self
 
     def _element_append_child_node(self, child_node):
@@ -240,7 +236,7 @@ class Element(Node):
             for child in self._children:
                 try:
                     return child.get_element_by_id(nodeid)
-                except:
+                except ElementError, AttributeError:
                     continue
         raise ElementError('nodeid %s could not be found' % (nodeid,))
 
