@@ -248,18 +248,23 @@ class Element(Node):
 
     def process_client_msg(self, ws, msg):
         if msg['type'] == 'event':
-            node = self.get_element_by_id(msg['nodeid'])
-            try:
-                onevent = getattr(node, msg['eventName'])
-            except AttributeError: # pragma: no cover
-                raise MessageError('Event handler %s is not defined in node class %s with nodeid %s'\
-                                   % (msg['eventName'], node.__class__.__name__, msg['nodeid'])) # pragma: no cover
-            onevent(msg)
+            self._process_client_event(msg)
         elif msg['type'] == 'exception': # pragma: no cover
-            raise MessageError('Exception raised from GUI: %s\noriginal message: %s\n GUI Stack: %s'\
-                               % (msg['message'], msg['original'], msg['stack'])) # pragma: no cover
+            self._process_client_exception(msg)
         else: # pragma: no cover
             raise MessageError('Event type %s not defined' % (msg['type'])) # pragma: no cover
+
+    def _process_client_event(self, msg):
+        node = self.get_element_by_id(msg['nodeid'])
+        onevent = getattr(node, msg['eventName'], None)
+        if not onevent:
+            raise MessageError('Event handler %s is not defined in node class %s with nodeid %s'\
+                               % (msg['eventName'], node.__class__.__name__, msg['nodeid'])) # pragma: no cover
+        onevent(msg)
+        
+    def _process_client_exception(self, msg):
+        raise MessageError('Exception raised from GUI: %s\noriginal message: %s\n GUI Stack: %s'\
+                           % (msg['message'], msg['original'], msg['stack'])) # pragma: no cover
 
     def client_has_closed_ws(self, code, reason):
         pass
