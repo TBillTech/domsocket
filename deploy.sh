@@ -19,7 +19,6 @@ fi
 mkdir grail/domsocket
 mkdir grail/scripts
 mkdir grail/apps
-mkdir grail/apps/IDE
 if [ ! -e grail/toolkits ]
     then mkdir grail/toolkits
 fi
