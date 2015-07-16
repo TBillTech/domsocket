@@ -5,7 +5,8 @@ import time
 
 class Harness(object):
 
-    def __init__(self):
+    def __init__(self, test_info):
+        self.app_name = test_info.app_name
         self.run()
 
     def __enter__(self):
@@ -20,5 +21,5 @@ class Harness(object):
         return False
 
     def run(self):
-        args = ['coverage', 'run', './cherrypyserver/serve.py', 'tester']
+        args = ['coverage', 'run', './cherrypyserver/serve.py', self.app_name]
         self.p = Popen(args)

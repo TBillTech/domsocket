@@ -25,9 +25,9 @@ fi
 mkdir grail/temp
 
 cp -rf grailsource/cherrypyserver/* grail/cherrypyserver/
-cp -rf grailsource/IDE grail/apps
-mv grail/apps/IDE/IDE.conf grail/apps
-mv grail/apps/IDE/IDE.html grail/apps
+cp -rf grailsource/config grail/apps
+mv grail/apps/config/config.conf grail/apps
+mv grail/apps/config/config.html grail/apps
 cp -rf grailsource/domsocket grail
 cp -rf grailsource/scripts grail
 
