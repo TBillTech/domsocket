@@ -10,6 +10,7 @@ from test.summary import Summary, summary_from_std_strs
 from test.test_runner import TestRunner
 from test.tester_test_harness import Harness
 from test.subprocess_call import sub_process_call_with_temp_file_i_o
+from test.testinfo import TestInfo
 
 import imp
 import sys
@@ -23,19 +24,6 @@ test_framework_files.append('__init__')
 test_framework_files.append('testbase.trailer.js')
 test_path = abspath('test')
 apps_path = abspath('apps')
-
-class TestInfo(object):
-    def __init__(self, app_name, test_name):
-        self.app_name = app_name
-        self.test_name = test_name
-
-    def relative_file_name(self):
-        return join('apps', self.app_name, 'test', self.test_name)
-
-    def get_args(self):
-        return [abspath('/home/thomas/node_modules/.bin/slimerjs'),
-            '--error-log-file=%s' % ('jslog.txt',),
-            '-P', 'AllowSSL', self.relative_file_name()]
 
 def full_test_path(filename):
     return join(test_path, filename)

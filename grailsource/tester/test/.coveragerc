@@ -1,7 +1,8 @@
 [run]
 branch = False
 cover_pylib = False
-source = domsocket,cherrypyserver,apps
+source = domsocket,cherrypyserver
+data_file = apps/tester/test/.coverage
 
 [report]
 exclude_lines =
