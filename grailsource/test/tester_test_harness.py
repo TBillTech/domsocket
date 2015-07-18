@@ -22,5 +22,9 @@ class Harness(object):
         return False
 
     def run(self):
-        args = ['coverage', 'run', './cherrypyserver/serve.py', self.app_name]
+        args = ['coverage', 
+                'run', 
+                '--rcfile=apps/%s/test/.coveragerc'%(self.app_name), 
+                './cherrypyserver/serve.py', 
+                self.app_name]
         self.p = Popen(args)

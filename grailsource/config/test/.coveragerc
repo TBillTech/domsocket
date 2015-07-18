@@ -1,7 +1,7 @@
 [run]
 branch = False
 cover_pylib = False
-source = domsocket,cherrypyserver
+source = apps
 data_file = apps/config/test/.coverage
 
 [report]

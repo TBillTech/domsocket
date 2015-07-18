@@ -20,7 +20,7 @@ class TestInfo(object):
         return [abspath('/home/thomas/node_modules/.bin/slimerjs'),
             '--error-log-file=%s' % ('jslog.txt',),
             '-P', 'AllowSSL', self.relative_file_name()]
-
+ 
     def setup_coverage(self):
-        shutil.copy(self.relative_test_dir('.coveragerc'), '.coveragerc')
-    
+        pass
+   

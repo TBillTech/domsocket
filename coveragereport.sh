@@ -1,2 +1,2 @@
 cd grail
-coverage report -m
+coverage report -m --rcfile=apps/$1/test/.coveragerc
