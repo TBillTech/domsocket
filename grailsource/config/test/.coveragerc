@@ -1,0 +1,12 @@
+[run]
+branch = False
+cover_pylib = False
+source = domsocket,cherrypyserver
+data_file = apps/config/test/.coverage
+
+[report]
+exclude_lines =
+    pragma: no cover
+
+
+

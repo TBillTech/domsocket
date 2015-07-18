@@ -6,4 +6,9 @@ rm grailsource/domsocket/tester/*~
 rm grailsource/scripts/*~
 rm grailsource/test/*~
 rm grailsource/tester/*~
+rm grailsource/tester/test/*~
+rm grailsource/tester/widgets/*~
+rm grailsource/config/*~
+rm grailsource/config/test/*~
+rm grailsource/config/widgets/*~
 rm *~
