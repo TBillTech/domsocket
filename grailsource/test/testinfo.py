@@ -4,6 +4,7 @@
 import os
 from os.path import isfile, join, isdir, abspath
 import shutil
+import imp
 
 class TestInfo(object):
     def __init__(self, app_name, test_name):
@@ -21,6 +22,9 @@ class TestInfo(object):
             '--error-log-file=%s' % ('jslog.txt',),
             '-P', 'AllowSSL', self.relative_file_name()]
  
-    def setup_coverage(self):
-        pass
+    def find_module(self):
+        return imp.find_module(self.py_module_name(), [self.relative_test_dir('')])
+
+    def py_module_name(self):
+        return self.test_name[:-3]
    

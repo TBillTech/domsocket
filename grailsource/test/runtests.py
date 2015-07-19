@@ -55,21 +55,24 @@ def get_all_test_py_file_list():
 def not_test_framework_file(name):
     return name not in test_framework_files and remove_py_extension(name) not in test_framework_files
 
-def get_test_py_file_list():
-    return [f for f in get_all_test_py_file_list() if not_test_framework_file(f)]
-
 def get_all_appnames():
     return [f for f in get_apps_dir_list() if isdir(full_apps_path(f))]
 
-def get_all_testnames_from(path_name):
-    return [f for f in listdir(path_name) if has_js_extension(f)]
+def get_all_testnames_from(path_name, ext_test):
+    return [f for f in listdir(path_name) if ext_test(f)]
 
-def get_test_js_file_list():
+def get_test_ext_file_list(ext_test):
     test_info_list = list()
     for app_name in get_all_appnames():
-        for test_name in get_all_testnames_from(join(apps_path, app_name, 'test')):
+        for test_name in get_all_testnames_from(join(apps_path, app_name, 'test'), ext_test):
             test_info_list += [TestInfo(app_name, test_name)]
     return test_info_list
+
+def get_test_js_file_list():
+    return get_test_ext_file_list(has_js_extension)
+
+def get_test_py_file_list():
+    return get_test_ext_file_list(has_py_extension)
 
 def remove_py_extension(name):
     return file_finder.remove_extension(name, py_extension)
@@ -81,16 +84,16 @@ def run_test(run_test_method):
     with TestRunner(run_test_method) as runner:
         return runner.run()
 
-def get_test_module(modulename):
-    (filename, pathname, description) = imp.find_module(modulename, [test_path])
-    return imp.load_module(modulename, filename, pathname, description)
+def get_test_module(test_info):
+    (filename, pathname, description) = test_info.find_module()
+    return imp.load_module(test_info.py_module_name(), filename, pathname, description)
 
-def test_py_module(modulename):
-    test_module = get_test_module(modulename)
+def test_py_module(test_info):
+    test_module = get_test_module(test_info)
     return run_test(test_module.run_test_method)
 
 def perform_py_tests():
-    return [test_py_module(modulename) for modulename in get_import_names()]
+    return [test_py_module(test_info) for test_info in get_test_py_file_list()]
 
 def perform_subprocess_test(test_info):
     with Harness(test_info) as harness:
