@@ -10,8 +10,8 @@ cherrypy_conf_path = os.path.join(
 def reset_temp_conf():
     try:
         os.unlink(get_temp_conf_path())
-    except OSError:
-        pass
+    except OSError:  # pragma: no cover
+        pass         # pragma: no cover
     append_to_temp_conf(cherrypy_conf_path)
 
 

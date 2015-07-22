@@ -1,7 +1,8 @@
 [run]
 branch = False
 cover_pylib = False
-source = apps
+source = apps/config
+omit = apps/config/set_config_password.py
 data_file = apps/config/test/.coverage
 
 [report]
