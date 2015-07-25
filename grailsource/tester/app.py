@@ -108,7 +108,6 @@ class App(Element):
     def login_dialog_show(self):
         self.login = LoginDialog()
         self._test_event_out_of_order()
-        self._delete_observed_event_test()
 
     def _test_event_out_of_order(self):
         login_event = Event()
@@ -117,13 +116,6 @@ class App(Element):
         login_event.add_observer(self, App.on_login)
         login_event.add_argument(self.login._password, 'value')
 
-    def _delete_observed_event_test(self):
-        try:
-            del self.login._loginButton.click
-            raise ElementError('Should not be allowed to delete Events with observers still attached.')
-        except ElementError:
-            pass
-    
     def on_login(self, theLoginButton, msg):
         authenticated = self.authenticate()
         if authenticated:

@@ -2,6 +2,7 @@
 
 from domsocket.element import Element
 from widgets.login_dialog import LoginDialog
+from widgets.configuration_list import ConfigurationList
 from domsocket.text_node import TextNode
 from domsocket.basic_widgets.html_tag import HTMLTag
 import hashlib
@@ -29,7 +30,7 @@ class App(Element):
 
     def on_authenticated(self):
         self.authenticated_cleanup()
-        #self.config = Configuration()
+        self.config_list = ConfigurationList()
 
     def on_not_authenticated(self):
         self.invalid = HTMLTag('p', TextNode('username and/or password is invalid'))

@@ -215,6 +215,9 @@ class Element(Node):
             return nodeid
 
     def _stop_observations(self):
+        for (key, value) in self.__dict__.items():
+            if isinstance(value, Event):
+                delattr(self, key)
         for child in self._children:
             child._stop_observations()
 

@@ -132,11 +132,7 @@ class Event(object):
         object.__setattr__(element, name, self)
 
     def del_element_attribute(self, element, name):
-        if len(self):
-            raise ElementError('Trying to delete an event = %s from the node, '\
-                               'but there are still observers attached.' % (name,))
         msg = DetachEventMessage(element, name)
         element._send_msg_to_client(msg)
         object.__delattr__(element, name)
-
 
