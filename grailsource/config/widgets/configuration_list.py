@@ -32,7 +32,6 @@ class ConfigurationList(HTMLWidget):
         self.install_button = InstallButton(install_handler=self)
 
     def on_install(self):
-        #del self.install_button._Button.click
         del self.install_button
         self += [ConfigurationItem()]
         self.append_install_button()
