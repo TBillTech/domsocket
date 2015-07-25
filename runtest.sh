@@ -1,13 +1,13 @@
-rm -rf grail/test
+rm -rf deployed/test
 
-./deploy.sh
-cp -rf grailsource/tester grail/apps
-mv grail/apps/tester/tester.conf grail/apps
-mv grail/apps/tester/tester.html grail/apps
+./mkdeployed.sh
+cp -rf source/tester deployed/apps
+mv deployed/apps/tester/tester.conf deployed/apps
+mv deployed/apps/tester/tester.html deployed/apps
 
-cp -rf grailsource/test grail
+cp -rf source/test deployed
 
-cd grail/cherrypyserver
+cd deployed/cherrypyserver
 ip="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
 ./updateconfigipaddresses.sh $ip
 ./switchtoport8443.sh
