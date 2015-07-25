@@ -108,8 +108,8 @@ class HTMLWidgetParser(HTMLParser):
         if self.prior_is_tag(tag):
             self.pop_stack_prior()
             return
-        raise HTMLImporterException("end tag (%s) does not match current start tag (%s) on the stack at position %s",
-                                    tag, self.get_end_tag(), self.getpos())  # pragma: no cover
+        raise HTMLImporterException("end tag (%s) does not match current start tag (%s) on the stack at position %s" \
+                                    % (tag, self.get_end_tag(), self.getpos()))  # pragma: no cover
 
     def top_is_tag(self, tag):
         return self.get_end_tag() == tag
