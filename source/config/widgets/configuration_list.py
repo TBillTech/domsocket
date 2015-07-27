@@ -7,7 +7,13 @@ from domsocket.basic_widgets.html_widget import HTMLWidget
 from domsocket.event import Event
 from configuration_item import ConfigurationItem
 from install_button import InstallButton
+from domsocket.file_finder import get_all_app_info
 
+
+class AppInfoLike(object):
+    def __init__(self, app_name, exposed):
+        self.app_name = app_name
+        self.exposed = exposed
 
 class ConfigurationList(HTMLWidget):
 
@@ -26,13 +32,14 @@ class ConfigurationList(HTMLWidget):
         self.append_install_button()
 
     def insert_apps(self):
-        self += [ConfigurationItem()]
+        for app_info in get_all_app_info():
+            self += [ConfigurationItem(app_info)]
 
     def append_install_button(self):
         self.install_button = InstallButton(install_handler=self)
 
     def on_install(self):
         del self.install_button
-        self += [ConfigurationItem()]
+        self += [ConfigurationItem(AppInfoLike('bogus',True))]
         self.append_install_button()
         

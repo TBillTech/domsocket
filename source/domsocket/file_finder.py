@@ -8,6 +8,19 @@ apps_path = os.path.abspath('apps')
 conf_extension = '.conf'
 html_extension = '.html'
 
+class AppInfo(object):
+    def __init__(self, conf_filename):
+        self.app_name = remove_conf_extension(conf_filename)
+        self.exposed = is_exposed(conf_filename)
+
+    def toggle_enabled(self):
+        filename = full_path(join(self.app_name,'exposed'))
+        if self.exposed:
+            os.remove(filename)
+        else:
+            with open(filename, 'w+') as exposed_file:
+                exposed_file.write('True')
+        self.exposed = not self.exposed
 
 def full_path(filename):
     return join(apps_path, filename)
@@ -77,6 +90,8 @@ def is_exposed(name):
 def get_exposed_app_names():
     return [remove_conf_extension(f) for f in get_app_file_list() if is_exposed(f)]
 
+def get_all_app_info():
+    return [AppInfo(f) for f in get_app_file_list() if has_conf_extension(f)]
 
 def get_app_conf_paths(app_names):
     return [full_path(f) for f in get_app_conf_file_list(app_names)]
