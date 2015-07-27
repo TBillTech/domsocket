@@ -17,7 +17,7 @@ cherrypy.tools.websocket = WebSocketTool()
 
 parser = argparse.ArgumentParser(
     description='Serve some websocket applications.')
-parser.add_argument('applications', metavar='Apps', type=str, nargs='+',
+parser.add_argument('applications', metavar='Apps', type=str, nargs='*',
                     help='applications to run')
 
 if __name__ == '__main__':

@@ -42,19 +42,19 @@ def add_h_t_m_l_extension(name):
 
 
 def get_app_dir_list():
-    return listdir(apps_path) # pragma: no cover
+    return listdir(apps_path) 
 
 
 def get_app_file_list():
-    return [f for f in get_app_dir_list() if is_apps_file(f)] # pragma: no cover
+    return [f for f in get_app_dir_list() if is_apps_file(f)] 
 
 
 def get_app_conf_file_list(app_names):
-    return [full_path(add_conf_extension(f)) for f in app_names]
+    return [full_path(add_conf_extension(f)) for f in app_names if is_apps_file(add_h_t_m_l_extension(f))]
 
 
 def get_app_h_t_m_l_file_list(app_names):
-    return [full_path(add_h_t_m_l_extension(f)) for f in app_names]
+    return [full_path(add_h_t_m_l_extension(f)) for f in app_names if is_apps_file(add_h_t_m_l_extension(f))]
 
 
 def remove_extension(name, extension):
@@ -62,15 +62,20 @@ def remove_extension(name, extension):
 
 
 def remove_conf_extension(name):
-    return remove_extension(name, conf_extension) # pragma: no cover
+    return remove_extension(name, conf_extension) 
 
 
 def remove_h_t_m_l_extension(name):
     return remove_extension(name, conf_extension)
 
+def is_exposed(name):
+    if has_conf_extension(name):
+        if is_apps_file(join(remove_conf_extension(name),'exposed')):
+            return True
+    return False
 
-def get_app_names():
-    return [remove_conf_extension(f) for f in get_app_conf_file_list()] # pragma: no cover
+def get_exposed_app_names():
+    return [remove_conf_extension(f) for f in get_app_file_list() if is_exposed(f)]
 
 
 def get_app_conf_paths(app_names):
