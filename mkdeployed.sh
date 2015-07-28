@@ -4,6 +4,7 @@ cp -rf deployed/cherrypyserver/keys tempoldsource
 rm -rf deployed/cherrpyserver
 rm -rf deployed/domsocket
 rm -rf deployed/scripts
+rm -rf deployed/style
 rm -rf deployed/apps
 rm -rf deployed/temp
 
@@ -18,6 +19,7 @@ if [ ! -e deployed/cherrypyserver/keys ]
 fi
 mkdir deployed/domsocket
 mkdir deployed/scripts
+mkdir deployed/style
 mkdir deployed/apps
 if [ ! -e deployed/toolkits ]
     then mkdir deployed/toolkits
@@ -32,12 +34,6 @@ cp -rf source/domsocket deployed
 cp -rf source/scripts deployed
 
 cp -rf tempoldsource/keys deployed/cherrypyserver
-
-#if [ ! -e deployed/toolkits/wrapbootstrapCoreAdmin ]
-#    then ./setupcoreadmintoolkit.sh
-#else
-#    echo "wrapbootstrap Core Admin already present"
-#fi
 
 cd deployed/cherrypyserver
 ip="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"

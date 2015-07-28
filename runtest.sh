@@ -1,6 +1,15 @@
 rm -rf deployed/test
 
-./mkdeployed.sh
+deploy="True"
+if [ $# -ne 0 ]
+  then 
+    if [ "$1" = "nodeploy" ]
+      then deploy="False"
+    fi
+fi
+if [ "$deploy" = "True" ]
+    then ./mkdeployed.sh
+fi
 cp -rf source/tester deployed/apps
 mv deployed/apps/tester/tester.conf deployed/apps
 mv deployed/apps/tester/tester.html deployed/apps
