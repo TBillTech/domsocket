@@ -45,6 +45,8 @@ from event import Event
 from text_node import TextNode
 from node import Node
 from operator import index
+import sys
+import traceback
 
 import logging
 from element_error import ElementError
@@ -158,9 +160,19 @@ class Element(Node):
         return self
 
     def _element_append_child_node(self, child_node):
-        child_node.dom_insert(str(self._serial_no), self, None)
+        self._child_node_dom_insert(child_node, None)
         self._children.append(child_node)
         self._serial_no += 1
+
+    def _child_node_dom_insert(self, child_node, first_index):
+        try:
+            child_node.dom_insert(str(self._serial_no), self, first_index)
+        except AttributeError, e:
+            if hasattr(child_node, 'dom_insert'):
+                type_, value_, traceback_ = sys.exc_info()
+                raise ElementError('%s in %s.dom_insert: %s' % (repr(e), repr(child_node), traceback.format_tb(traceback_)))
+            else:
+                raise ElementError('%s does not possess dom_insert' % (repr(child_node),))
 
     def __delitem__(self, sliceobj):
         self._remove_slice_from_client(sliceobj)
@@ -187,7 +199,7 @@ class Element(Node):
         if not isinstance(first_index, int):
             first_index = self._get_first_index_of_slice(first_index)
         for child_node in child_list:
-            child_node.dom_insert(str(self._serial_no), self, first_index)
+            self._child_node_dom_insert(child_node, first_index)
             first_index += 1
             self._serial_no += 1
 
