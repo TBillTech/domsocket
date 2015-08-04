@@ -11,9 +11,11 @@ from operator import index
 
 class App(Element):
 
-    def __init__(self, nodeid, parentNode, ws):
-        self._nodeid = nodeid
-        self.dom_insert_element('div', nodeid, parentNode, ws, child_index=None)
+    def __init__(self):
+        super(App, self).__init__()
+
+    def dom_insert(self, nodetag, nodeid, parentNode, ws, child_index):
+        super(App, self).dom_insert(nodetag, nodeid, parentNode, ws, child_index)
 
         self.first_paragraph_show()
         self.sub_body_show()

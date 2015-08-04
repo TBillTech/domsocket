@@ -69,12 +69,13 @@ class Element(Node):
     def __init__(self, *args, **kw):
         object.__setattr__(self, '_args', args)
         object.__setattr__(self, '_kw', kw)
-        object.__setattr__(self, '_active_on_client', False)
         object.__setattr__(self, '_children', list())
         object.__setattr__(self, '_nodeid', None)
 
-    def dom_insert_element(self, nodetag, nodeid, parentNode, ws, child_index):
-        object.__setattr__(self, '_active_on_client', False)
+    def dom_insert(self, nodetag, nodeid, parentNode, ws, child_index):
+        if self.is_active_on_client():
+            raise ElementError('Cannot make element active because it is already active') # pragma: no cover
+       
         object.__setattr__(self, 'tag', nodetag)
         object.__setattr__(self, '_children', list())
         object.__setattr__(self, '_ws', ws)
@@ -167,12 +168,13 @@ class Element(Node):
     def _child_node_dom_insert(self, child_node, first_index):
         try:
             child_node.dom_insert(str(self._serial_no), self, first_index)
-        except AttributeError, e:
-            if hasattr(child_node, 'dom_insert'):
-                type_, value_, traceback_ = sys.exc_info()
-                raise ElementError('%s in %s.dom_insert: %s' % (repr(e), repr(child_node), traceback.format_tb(traceback_)))
-            else:
-                raise ElementError('%s does not possess dom_insert' % (repr(child_node),))
+        except AttributeError, e: # pragma: no cover
+            if hasattr(child_node, 'dom_insert'): # pragma: no cover
+                type_, value_, traceback_ = sys.exc_info() # pragma: no cover
+                raise ElementError('%s in %s.dom_insert: %s' % \
+                                   (repr(e), repr(child_node), traceback.format_tb(traceback_))) # pragma: no cover
+            else: # pragma: no cover
+                raise ElementError('%s does not possess dom_insert' % (repr(child_node),)) # pragma: no cover
 
     def __delitem__(self, sliceobj):
         self._remove_slice_from_client(sliceobj)

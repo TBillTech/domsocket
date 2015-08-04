@@ -33,8 +33,8 @@ class RootFactory(object):
         self.init_conf()
 
     def init_app_names(self, applications):
-        if not applications:
-            self.app_names = file_finder.get_exposed_app_names()
+        if not applications: 
+            self.app_names = file_finder.get_exposed_app_names() # pragma: no cover
         else:
             self.app_names = applications
 

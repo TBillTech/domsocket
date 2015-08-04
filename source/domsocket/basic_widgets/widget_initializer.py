@@ -1,5 +1,6 @@
 """Copyright (c) 2015 TBillTech.  All rights reserved."""
 
+from domsocket.element import Element
 
 class WidgetInitializer(object):
 
@@ -11,8 +12,7 @@ class WidgetInitializer(object):
         self.index = index
 
     def initialize(self, tag):
-        from domsocket.element import Element
-        Element.dom_insert_element(self.widget, tag, self.nodeid, self.parentNode, self.ws, self.index)
+        Element.dom_insert(self.widget, tag, self.nodeid, self.parentNode, self.ws, self.index)
         return self.widget
 
     def add_helper_property(self, id, sub_node):
