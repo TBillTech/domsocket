@@ -304,11 +304,46 @@ with(domsocket)
   HandleEvent = function(event)
   {
     var theListener = this;
-    var msg = CreateEventMessage(theListener);
+    var msg = CreateEventMessage(theListener, event);
     theListener.ws.sendmsg(msg);
   };
 
-  CreateEventMessage = function(theListener)
+  var eventPropertyNames = [
+  "currentTarget", "target", "timeStamp", "type", "view",
+  "altKey", "button", "buttons", "clientX", "clientY", "ctrlKey", "detail", "metaKey",
+      "relatedTaget", "screenX", "screenY", "shiftKey", "which",
+  "charCode", "key", "keyCode", "location", 
+  "newURL", "oldURL",
+  "persisted",
+  "animationName", "elapsedTime",
+  "propertyName",
+  "deltaX", "deltaY", "deltaZ", "deltaMode"]
+
+  eventProperties = function(event) 
+  {
+    var msgProperties = new Object();
+    for (var i = 0; i < eventPropertyNames.length; i++)
+    {
+	propertyName = eventPropertyNames[i];
+	try {
+	    if((propertyName === "currentTarget") || 
+	       (propertyName === "target") || 
+	       (propertyName === "relatedTarget") ||
+	       (propertyName === "view"))
+	    {
+		msgProperties[propertyName] = event[propertyName].id;
+            }
+            else
+	    {
+		msgProperties[propertyName] = event[propertyName];
+            }
+	} catch (e) {
+	}
+    }
+    return msgProperties;
+  };
+
+  CreateEventMessage = function(theListener, event)
   {
       var msg = new Object();
       msg.type = "event";
@@ -316,6 +351,7 @@ with(domsocket)
       msg.eventName = theListener.eventName;
       if(theListener.hasOwnProperty("attributeArgs"))
 	  msg.attributeArgs = GetAttributeResults(theListener);
+      msg.event = eventProperties(event);
       return msg;
   };
 
@@ -361,18 +397,24 @@ with(domsocket)
 
   DetachEvent = function(msg, ws)
   {
-    var theElement = document.getElementById(msg.id);
-    wsInfoRemoveListener(ws, theElement, msg.name);
+      var theElement = document.getElementById(msg.id);
+      wsInfoRemoveListener(ws, theElement, msg.name);
   };
 
   UpdateEvent = function(msg, ws)
   {
-     var theElement = document.getElementById(msg.id);
+      var theElement = document.getElementById(msg.id);
       var theListener = wsInfoGetListener(ws, theElement, msg.name);
       if(msg.hasOwnProperty("attributeArgs"))
 	  theListener.attributeArgs = msg.attributeArgs;
       else 
 	  theListener.removeAttribute("attributeArgs");
+  };
+
+  SetFocus = function(msg, ws)
+  {
+      var theElement = document.getElementById(msg.id);
+      theElement.focus();
   };
 
   DetachAllEvents = function(msg, ws)
@@ -389,6 +431,7 @@ with(domsocket)
   wsOnMessageHandlers.attachEvent = AttachEvent;
   wsOnMessageHandlers.detachEvent = DetachEvent;
   wsOnMessageHandlers.updateEvent = UpdateEvent;
+  wsOnMessageHandlers.setFocus = SetFocus;
 };
 // --------------------------------------------- end domsocket namespace -------------------------------------------------
 

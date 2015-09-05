@@ -106,6 +106,16 @@ class App(Element):
 
     def login_button_show(self):
         self.test_login_button = LoginButton()
+        on_focus = Event()
+        on_focus.add_observer(self, App.on_focus)
+        self.test_login_button.focus = on_focus
+        self.test_login_button.set_focus()
+
+    def on_focus(self, theLoginButton, msg):
+        if msg['event']['target'] != self.test_login_button.id:
+            raise Error('on_focus target "%s" != test_login_button id "%s"' %
+                        (msg['event']['target'], self.test_login_button.id))
+        self.focus_found = HTMLTag('p', TextNode('on focus event returned'))
 
     def login_dialog_show(self):
         self.login = LoginDialog()

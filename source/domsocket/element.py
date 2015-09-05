@@ -41,6 +41,7 @@ from messages.detach_event_message import DetachEventMessage
 from messages.remove_message import RemoveMessage
 from messages.remove_child_message import RemoveChildMessage
 from messages.insert_child_message import InsertChildMessage
+from messages.focus_message import FocusMessage
 from event import Event
 from text_node import TextNode
 from node import Node
@@ -285,3 +286,7 @@ class Element(Node):
 
     def client_has_closed_ws(self, code, reason):
         pass
+
+    def set_focus(self):
+        msg = FocusMessage(self)
+        self._send_msg_to_client(msg)
