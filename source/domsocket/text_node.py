@@ -38,6 +38,14 @@ class TextNode(Node):
         object.__setattr__(self, 'text', str(value))
         self.update()
 
+    def set_element_attribute(self, element, name):
+        if hasattr(element, name):
+            current_value = getattr(element, name)
+            if hasattr(current_value, 'text'):
+                current_value.text = self.text
+                return
+        super(TextNode, self).set_element_attribute(element, name)
+
     def _set_nodeid(self, name):
         pass
 
