@@ -53,6 +53,7 @@ import logging
 from element_error import ElementError
 from messages.message_error import MessageError
 
+#messageLog = open('messageLog.txt', 'w+')
 
 class Element(Node):
     """The Element class is the basis for all domsocket Gui elements. 
@@ -195,7 +196,7 @@ class Element(Node):
             
     def _remove_slice_from_client(self, sliceobj):
         slice_list = self._get_slice_children_list(sliceobj)
-        for child_node in slice_list:
+        for child_node in reversed(slice_list):
             child_node._remove_element_from_client()
 
     def _add_list_to_client(self, first_index, child_list):
@@ -245,6 +246,7 @@ class Element(Node):
         raise IndexError('Child Node not found in _children list') # pragma: no cover
 
     def _send_msg_to_client(self, msg):
+        #messageLog.write(str(msg.msg_dict)+'\n')
         self._get_ws().send(msg.jsonstring(), False)
 
     def get_element_by_id(self, nodeid):
@@ -290,3 +292,22 @@ class Element(Node):
     def set_focus(self):
         msg = FocusMessage(self)
         self._send_msg_to_client(msg)
+
+    def find_parent(self, cls):
+        if not self.parentNode or not hasattr(self.parentNode, 'find_parent'):
+            raise ElementError('No parent Node of class %s found' % (repr(cls))) #pragma: no cover
+        if isinstance(self.parentNode, cls):
+            return self.parentNode
+        return self.parentNode.find_parent(cls)
+
+    def find_handler(self, handler_name):
+        return getattr(self, handler_name, 
+                       self.find_parent_handler(handler_name))
+
+    def find_parent_handler(self, handler_name):
+        if not self.parentNode or not hasattr(self.parentNode, 'find_parent_handler'):
+            raise ElementError('No parent Node of class %s found' % (repr(cls))) #pragma: no cover
+        if hasattr(self.parentNode, handler_name):
+            return getattr(self.parentNode, handler_name)
+        return self.parentNode.find_parent_handler(handler_name)
+

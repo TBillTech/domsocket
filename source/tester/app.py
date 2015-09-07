@@ -21,6 +21,7 @@ class App(Element):
         self.sub_body_show()
         self.login_button_show()
         self.login_dialog_show()
+        self.longlist_show()
         
     def first_paragraph_show(self):
         self.create_first_paragraph()
@@ -164,3 +165,34 @@ class App(Element):
     def colorize_valid(self, theLoginButton, msg):
         self.valid.style = 'color:green'
         
+    def longlist_show(self):
+        self.longlist = HTMLTag('ul')
+        for index in range(100):
+            self.longlist += [self.new_list_element()]
+            self.add_select(self.longlist[-1])
+        self.longlist[10:90] = []
+        for index in range(100):
+            self.longlist += [self.new_list_element()]
+            self.add_select(self.longlist[-1])
+        self.longlist[:] = []
+        for index in range(50):
+            self.longlist += [self.new_list_element()]
+            self.add_select(self.longlist[-1])            
+        self.longlist[10:] = []
+
+    def new_list_element(self):
+        return HTMLTag('li', count=len(self.longlist))
+
+    def add_select(self, the_li):
+        if not the_li.find_parent(App) == self:
+            raise ElementError('Child the_li is not a descendant of self')
+        if not the_li.find_handler('on_select') == self.on_select:
+            raise ElementError('could not find on_select handler for the_li')
+
+        the_li.selector = HTMLTag('input', { 'type': 'checkbox' } )
+        select_click = Event()
+        select_click.add_observer(self, App.on_select)
+        the_li.selector.click = select_click
+
+    def on_select(self, the_checkbox, msg):
+        pass
