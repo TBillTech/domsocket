@@ -78,5 +78,12 @@ class TextNode(Node):
         if self.is_active_on_client():
             msg = SetTextNodeMessage(self)
             self._send_msg_to_client(msg)
+
+    def _remove_element_from_client(self):
+        self.text = ''
+        if self.is_active_on_client():
+            self.update()
+        else:
+            raise AttributeError() # pragma: no cover
         
 
