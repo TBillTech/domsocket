@@ -53,7 +53,7 @@ function login_dialog_test(id) {
     var login_button = get_element_by_id_on_page(id+'.myLoginDialog.0.1.0.2.loginButton');
     assert_equal(get_text_content_of(id+'.myLoginDialog.0.1.0.2.loginButton'), 'Login');
     login_button.click();
-    do_test(100, function(elid) { login_dialog_test_2(elid); }.bind(null, id));
+    do_test(200, function(elid) { login_dialog_test_2(elid); }.bind(null, id));
 }
 
 function login_dialog_test_2(id) {
