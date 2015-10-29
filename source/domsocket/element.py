@@ -311,3 +311,8 @@ class Element(Node):
             return getattr(self.parentNode, handler_name)
         return self.parentNode.find_parent_handler(handler_name)
 
+    def getattr_class(self):
+        return getattr(self, 'class', '')
+
+    def setattr_class(self, value):
+        setattr(self, 'class', value)
