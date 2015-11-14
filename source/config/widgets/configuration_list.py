@@ -18,13 +18,7 @@ class AppInfoLike(object):
 class ConfigurationList(HTMLWidget):
 
     def __init__(self):
-        configuration_list_HTML_file_name = abspath(join('apps',
-                                               'config',
-                                               'widgets',
-                                               'configuration_list.html'))
-
-        with open(configuration_list_HTML_file_name, 'r') as configuration_list_HTML_file:
-            super(ConfigurationList, self).__init__(configuration_list_HTML_file.read(), None)
+        super(ConfigurationList, self).__init__()
 
     def dom_insert(self, name, parentNode, index):
         super(ConfigurationList, self).dom_insert(name, parentNode, index)

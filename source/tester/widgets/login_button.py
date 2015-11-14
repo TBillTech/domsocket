@@ -8,11 +8,8 @@ from domsocket.basic_widgets.html_widget import HTMLWidget
 
 class LoginButton(HTMLWidget):
 
-    def __init__(self):
-        login_dialog_HTML_file_name = abspath(join('apps',
-                                               'tester',
-                                               'widgets',
-                                               'login_dialog.html'))
+    _widget_html_id = 'loginButton'
+    _html_source_filename = 'login_dialog.html'
 
-        with open(login_dialog_HTML_file_name, 'r') as login_dialog_HTML_file:
-            super(LoginButton, self).__init__(login_dialog_HTML_file.read(), 'loginButton' )
+    def __init__(self):
+        super(LoginButton, self).__init__()

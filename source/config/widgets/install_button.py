@@ -10,13 +10,7 @@ from domsocket.event import Event
 class InstallButton(HTMLWidget):
 
     def __init__(self, install_handler):
-        install_button_HTML_file_name = abspath(join('apps',
-                                               'config',
-                                               'widgets',
-                                               'install_button.html'))
-
-        with open(install_button_HTML_file_name, 'r') as install_button_HTML_file:
-            super(InstallButton, self).__init__(install_button_HTML_file.read(), None)
+        super(InstallButton, self).__init__()
 
         self._install_handler = install_handler
             

@@ -316,3 +316,12 @@ class Element(Node):
 
     def setattr_class(self, value):
         setattr(self, 'class', value)
+
+    def get_html_source_app_name(self):
+        try:
+            return self._html_source_app_name
+        except AttributeError:
+            try:
+                return self.parentNode.get_html_source_app_name()
+            except AttributeError:
+                return self._tempParentNodeRef.get_html_source_app_name()

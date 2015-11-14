@@ -11,13 +11,7 @@ from domsocket.text_node import TextNode
 class ConfigurationItem(HTMLWidget):
 
     def __init__(self, app_info):
-        configuration_item_HTML_file_name = abspath(join('apps',
-                                               'config',
-                                               'widgets',
-                                               'configuration_item.html'))
-
-        with open(configuration_item_HTML_file_name, 'r') as configuration_item_HTML_file:
-            super(ConfigurationItem, self).__init__(configuration_item_HTML_file.read(), None)
+        super(ConfigurationItem, self).__init__()
 
         self._app_info = app_info
 

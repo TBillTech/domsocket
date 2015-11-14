@@ -12,6 +12,8 @@ from os.path import join
 
 class App(Element):
 
+    _html_source_app_name = __package__
+
     def __init__(self):
         super(App, self).__init__()
 

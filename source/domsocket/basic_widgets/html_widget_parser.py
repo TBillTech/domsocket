@@ -14,14 +14,14 @@ class HTMLImporterException(Exception):
 
 class HTMLWidgetParser(HTMLParser):
 
-    def __init__(self, html_source, widget_html_id, node_init):
+    def __init__(self, html_widget):
         HTMLParser.__init__(self)
 
-        self.html_source = html_source
+        self.html_source = html_widget.get_html_source()
 
-        if widget_html_id:
-            self.widget_html_id = widget_html_id
-        self.node_init = node_init
+        if html_widget.get_widget_html_id():
+            self.widget_html_id = html_widget.get_widget_html_id()
+        self.node_init = html_widget._node_init
         self.have_found_first_tag = False
         self.xml_parse_stack = list()
         self.feed(self.html_source)
