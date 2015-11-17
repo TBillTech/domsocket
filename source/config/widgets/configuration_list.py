@@ -20,8 +20,8 @@ class ConfigurationList(HTMLWidget):
     def __init__(self):
         super(ConfigurationList, self).__init__()
 
-    def dom_insert(self, name, parentNode, index):
-        super(ConfigurationList, self).dom_insert(name, parentNode, index)
+    def on_create(self, name, parentNode, index):
+        super(ConfigurationList, self).on_create(name, parentNode, index)
         self.insert_apps()
         self.append_install_button()
 

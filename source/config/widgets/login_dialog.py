@@ -24,7 +24,7 @@ class LoginDialog(HTMLWidget):
     def on_login(self, theLoginButton, msg):
         self._login_handler.on_login(self._username.value, self._password.value)
 
-    def dom_insert(self, name, parentNode, index):
-        super(LoginDialog, self).dom_insert(name, parentNode, index)
+    def on_create(self, name, parentNode, index):
+        super(LoginDialog, self).on_create(name, parentNode, index)
         self._loginButton.click = self.get_login_event()
         

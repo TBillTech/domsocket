@@ -15,8 +15,8 @@ class ConfigurationItem(HTMLWidget):
 
         self._app_info = app_info
 
-    def dom_insert(self, name, parentNode, index):
-        super(ConfigurationItem, self).dom_insert(name, parentNode, index)
+    def on_create(self, name, parentNode, index):
+        super(ConfigurationItem, self).on_create(name, parentNode, index)
         self._AppName.name = TextNode(self._app_info.app_name)
         self._URL.href = '/apps/' + self._app_info.app_name
         self._URL.name = TextNode(self._app_info.app_name)

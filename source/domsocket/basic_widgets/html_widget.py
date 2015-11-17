@@ -11,7 +11,7 @@ class HTMLWidget(Element):
     def __init__(self):
         super(HTMLWidget, self).__init__()
 
-    def dom_insert(self, name, parentNode, index):
+    def on_create(self, name, parentNode, index):
         if self.is_active_on_client():
             raise AttributeError() # pragma: no cover
 

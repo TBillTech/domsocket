@@ -22,7 +22,7 @@ class InstallButton(HTMLWidget):
     def on_install_click(self, theLoginButton, msg):
         self._install_handler.on_install()
 
-    def dom_insert(self, name, parentNode, index):
-        super(InstallButton, self).dom_insert(name, parentNode, index)
+    def on_create(self, name, parentNode, index):
+        super(InstallButton, self).on_create(name, parentNode, index)
         self._Button.click = self.get_install_event()
         

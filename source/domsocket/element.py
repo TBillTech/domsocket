@@ -74,7 +74,7 @@ class Element(Node):
         object.__setattr__(self, '_children', list())
         object.__setattr__(self, '_nodeid', None)
 
-    def dom_insert(self, nodetag, nodeid, parentNode, ws, child_index):
+    def on_create(self, nodetag, nodeid, parentNode, ws, child_index):
         if self.is_active_on_client():
             raise ElementError('Cannot make element active because it is already active') # pragma: no cover
        
@@ -163,20 +163,20 @@ class Element(Node):
         return self
 
     def _element_append_child_node(self, child_node):
-        self._child_node_dom_insert(child_node, None)
+        self._child_node_on_create(child_node, None)
         self._children.append(child_node)
         self._serial_no += 1
 
-    def _child_node_dom_insert(self, child_node, first_index):
+    def _child_node_on_create(self, child_node, first_index):
         try:
-            child_node.dom_insert(str(self._serial_no), self, first_index)
+            child_node.on_create(str(self._serial_no), self, first_index)
         except AttributeError, e: # pragma: no cover
-            if hasattr(child_node, 'dom_insert'): # pragma: no cover
+            if hasattr(child_node, 'on_create'): # pragma: no cover
                 type_, value_, traceback_ = sys.exc_info() # pragma: no cover
-                raise ElementError('%s in %s.dom_insert: %s' % \
+                raise ElementError('%s in %s.on_create: %s' % \
                                    (repr(e), repr(child_node), traceback.format_tb(traceback_))) # pragma: no cover
             else: # pragma: no cover
-                raise ElementError('%s does not possess dom_insert' % (repr(child_node),)) # pragma: no cover
+                raise ElementError('%s does not possess on_create' % (repr(child_node),)) # pragma: no cover
 
     def __delitem__(self, sliceobj):
         self._remove_slice_from_client(sliceobj)
@@ -203,7 +203,7 @@ class Element(Node):
         if not isinstance(first_index, int):
             first_index = self._get_first_index_of_slice(first_index)
         for child_node in child_list:
-            self._child_node_dom_insert(child_node, first_index)
+            self._child_node_on_create(child_node, first_index)
             first_index += 1
             self._serial_no += 1
 

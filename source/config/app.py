@@ -17,8 +17,8 @@ class App(Element):
     def __init__(self):
         super(App, self).__init__()
 
-    def dom_insert(self, nodetag, nodeid, parentNode, ws, child_index):
-        super(App, self).dom_insert(nodetag, nodeid, parentNode, ws, child_index)
+    def on_create(self, nodetag, nodeid, parentNode, ws, child_index):
+        super(App, self).on_create(nodetag, nodeid, parentNode, ws, child_index)
 
         self.login_dialog_show()
 

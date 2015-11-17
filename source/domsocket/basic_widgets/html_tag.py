@@ -9,8 +9,8 @@ class HTMLTag(Element):
         super(HTMLTag, self).__init__(*args, **kw)
         object.__setattr__(self, 'tag', tag)
 
-    def dom_insert(self, name, parentNode, index):
-        super(HTMLTag,self).dom_insert(self.tag, name, parentNode, parentNode._get_ws(), index)
+    def on_create(self, name, parentNode, index):
+        super(HTMLTag,self).on_create(self.tag, name, parentNode, parentNode._get_ws(), index)
         self.dom_insert_args()
 
     def dom_insert_args(self):

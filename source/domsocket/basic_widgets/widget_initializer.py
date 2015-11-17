@@ -12,7 +12,7 @@ class WidgetInitializer(object):
         self.index = index
 
     def initialize(self, tag):
-        Element.dom_insert(self.widget, tag, self.nodeid, self.parentNode, self.ws, self.index)
+        Element.on_create(self.widget, tag, self.nodeid, self.parentNode, self.ws, self.index)
         return self.widget
 
     def add_helper_property(self, id, sub_node):

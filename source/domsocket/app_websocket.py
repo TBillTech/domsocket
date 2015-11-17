@@ -42,7 +42,7 @@ class AppWebSocket(WebSocket):
         except AttributeError:
             if json_msg['eventName'] == 'init' and json_msg['nodeid'] == self.appid:
                 self.app = self.create_app()
-                self.app.dom_insert('div', self.appid, None, self, child_index=None)
+                self.app.on_create('div', self.appid, None, self, child_index=None)
             else:
                 raise  # pragma: no cover
 
