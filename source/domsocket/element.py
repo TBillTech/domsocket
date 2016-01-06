@@ -200,18 +200,16 @@ class Element(Node):
             child_node._remove_element_from_client()
 
     def _add_list_to_client(self, first_index, child_list):
-        if not isinstance(first_index, int):
-            first_index = self._get_first_index_of_slice(first_index)
+        if isinstance(first_index, Node):
+            first_index = index(first_index)
+        if isinstance(first_index, slice):
+            first_index = first_index.start
+        if not first_index:
+            first_index = 0
         for child_node in child_list:
             self._child_node_on_create(child_node, first_index)
             first_index += 1
             self._serial_no += 1
-
-    def _get_first_index_of_slice(self, sliceobj):
-        try:
-            return index(self._get_slice_children_list(sliceobj)[0])
-        except IndexError:
-            return 0
 
     def _get_slice_children_list(self, sliceobj):
         slice_list = self._children[sliceobj]
@@ -252,7 +250,7 @@ class Element(Node):
     def get_element_by_id(self, nodeid):
         if nodeid == self.id:
             return self
-        if nodeid[:len(self.id)] == self.id:
+        if nodeid[:len(self.id)] == self.id and nodeid[len(self.id)] == '.':
             for child in self._children:
                 try:
                     return child.get_element_by_id(nodeid)
