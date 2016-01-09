@@ -292,18 +292,20 @@ class Element(Node):
         self._send_msg_to_client(msg)
 
     def find_parent(self, cls):
-        if not self.parentNode or not hasattr(self.parentNode, 'find_parent'):
+        if self.parentNode is None or not hasattr(self.parentNode, 'find_parent'):
             raise ElementError('No parent Node of class %s found' % (repr(cls))) #pragma: no cover
         if isinstance(self.parentNode, cls):
             return self.parentNode
         return self.parentNode.find_parent(cls)
 
     def find_handler(self, handler_name):
-        return getattr(self, handler_name, 
-                       self.find_parent_handler(handler_name))
+        handler = getattr(self, handler_name, None) 
+        if not handler:
+            handler = self.find_parent_handler(handler_name)
+        return handler
 
     def find_parent_handler(self, handler_name):
-        if not self.parentNode or not hasattr(self.parentNode, 'find_parent_handler'):
+        if self.parentNode is None or not hasattr(self.parentNode, 'find_parent_handler'):
             raise ElementError('No parent Node of class %s found' % (repr(cls))) #pragma: no cover
         if hasattr(self.parentNode, handler_name):
             return getattr(self.parentNode, handler_name)
