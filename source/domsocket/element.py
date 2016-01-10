@@ -66,7 +66,7 @@ class Element(Node):
     fully mirrored.  (This is why the parentNode element is Camel case as opposed to normal python PEP 8).
     """
 
-    immutable_names = set(['tag', 'id', 'parentNode', '_ws', '_active_on_client', '_children'])
+    immutable_names = set(['id', 'parentNode', '_ws', '_active_on_client', '_children'])
 
     def __init__(self, *args, **kw):
         object.__setattr__(self, '_args', args)
@@ -74,14 +74,11 @@ class Element(Node):
         object.__setattr__(self, '_children', list())
         object.__setattr__(self, '_nodeid', None)
 
-    def on_create(self, nodetag, nodeid, parentNode, ws, child_index):
-        if self.is_active_on_client():
-            raise ElementError('Cannot make element active because it is already active') # pragma: no cover
-       
-        object.__setattr__(self, 'tag', nodetag)
+    def on_create(self, nodeid, parentNode, child_index):
+        if not hasattr(self, 'tag'):
+            raise ElementError('Cannot create element on client because "tag" attribute is not set')
+        self._set_parent(parentNode)
         object.__setattr__(self, '_children', list())
-        object.__setattr__(self, '_ws', ws)
-        object.__setattr__(self, 'parentNode', parentNode)
         object.__setattr__(self, 'id', self._element_get_id(nodeid))
         object.__setattr__(self, '_serial_no',  0)
 
@@ -90,11 +87,21 @@ class Element(Node):
 
         object.__setattr__(self, '_active_on_client',  True)
 
+    def _set_parent(self, parentNode):
+        if self.is_active_on_client():
+            raise ElementError('Cannot set parent because this element (%s) is already active on client' % (repr(self),)) # pragma: no cover
+        try:
+            object.__setattr__(self, '_ws', parentNode._get_ws())
+            object.__setattr__(self, 'parentNode', parentNode)
+        except AttributeError:
+            object.__setattr__(self, '_ws', parentNode)
+            object.__setattr__(self, 'parentNode', None)
+
     def is_active_on_client(self):
         return getattr(self, '_active_on_client', False)
 
     def __setattr__(self, name, value):
-        if self._is_underscored_name(name):
+        if self._is_server_only(name):
             return object.__setattr__(self, name, value)
 
         if self._value_is_valid(name, value):
@@ -117,7 +124,7 @@ class Element(Node):
         object.__setattr__(self, name, value)
 
     def __delattr__(self, name):
-        if self._is_underscored_name(name):
+        if self._is_server_only(name):
             return object.__delattr__(self, name)
 
         value = getattr(self, name)
@@ -131,14 +138,14 @@ class Element(Node):
         self._send_msg_to_client(msg)
         object.__delattr__(self, name)
 
-    def _is_underscored_name(self, name):
-        if name in self.immutable_names:
-            raise ElementError('%s is immutable, and may not be deleted' % (name,))
-        if name[0] == '_':
+    def _is_server_only(self, name):
+        if name in self.immutable_names or (name == 'tag' and self.is_active_on_client()):
+            raise ElementError('%s is immutable, and may not be modified' % (name,))
+        if name[0] == '_' or name == 'tag':
             return True
         if not self.is_active_on_client():
             raise ElementError('Attributes, children and events may not be set or deleted until '\
-                               'the element is active on the client.') # pragma: no cover 
+                               'the element is active on the client.') # pragma: no cover
         return False
 
     def _set_nodeid(self, name):
@@ -321,7 +328,4 @@ class Element(Node):
         try:
             return self._html_source_app_name
         except AttributeError:
-            try:
-                return self.parentNode.get_html_source_app_name()
-            except AttributeError:
-                return self._tempParentNodeRef.get_html_source_app_name()
+            return self.parentNode.get_html_source_app_name()

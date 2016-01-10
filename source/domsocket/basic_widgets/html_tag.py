@@ -7,10 +7,10 @@ class HTMLTag(Element):
 
     def __init__(self, tag, *args, **kw):
         super(HTMLTag, self).__init__(*args, **kw)
-        object.__setattr__(self, 'tag', tag)
+        self.tag = tag
 
     def on_create(self, name, parentNode, index):
-        super(HTMLTag,self).on_create(self.tag, name, parentNode, parentNode._get_ws(), index)
+        super(HTMLTag,self).on_create(name, parentNode, index)
         self.dom_insert_args()
 
     def dom_insert_args(self):

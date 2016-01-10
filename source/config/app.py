@@ -16,9 +16,10 @@ class App(Element):
 
     def __init__(self):
         super(App, self).__init__()
+        self.tag = 'div'
 
-    def on_create(self, nodetag, nodeid, parentNode, ws, child_index):
-        super(App, self).on_create(nodetag, nodeid, parentNode, ws, child_index)
+    def on_create(self, nodeid, ws, child_index):
+        super(App, self).on_create(nodeid, ws, child_index)
 
         self.login_dialog_show()
 

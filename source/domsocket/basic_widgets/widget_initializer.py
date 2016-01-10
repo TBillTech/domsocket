@@ -4,15 +4,15 @@ from domsocket.element import Element
 
 class WidgetInitializer(object):
 
-    def __init__(self, widget, nodeid, parentNode, ws, index):
+    def __init__(self, widget, nodeid, parentNode, index):
         self.widget = widget
         self.nodeid = nodeid
         self.parentNode = parentNode
-        self.ws = ws
         self.index = index
 
     def initialize(self, tag):
-        Element.on_create(self.widget, tag, self.nodeid, self.parentNode, self.ws, self.index)
+        self.widget.tag = tag
+        Element.on_create(self.widget, self.nodeid, self.parentNode, self.index)
         return self.widget
 
     def add_helper_property(self, id, sub_node):

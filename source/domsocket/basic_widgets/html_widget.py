@@ -15,10 +15,9 @@ class HTMLWidget(Element):
         if self.is_active_on_client():
             raise AttributeError() # pragma: no cover
 
-        self._tempParentNodeRef = parentNode
-        self._node_init = WidgetInitializer(self, name, parentNode, parentNode._get_ws(), index)
+        self._set_parent(parentNode)
+        self._node_init = WidgetInitializer(self, name, parentNode, index)
         HTMLWidgetParser(self)
-        del self._tempParentNodeRef
         return self
         
     def get_widget_html_id(self):
