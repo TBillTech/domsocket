@@ -207,15 +207,18 @@ class Element(Node):
             child_node._remove_element_from_client()
 
     def _add_list_to_client(self, first_index, child_list):
+        stride = 1
         if isinstance(first_index, Node):
             first_index = index(first_index)
         if isinstance(first_index, slice):
-            first_index = first_index.start
-        if not first_index:
-            first_index = 0
+            (first_index, stop, stride) = first_index.indices(len(self))
+            if stride < 0:
+                stride += 1
+        if first_index < 0:
+            first_index = len(self)+first_index
         for child_node in child_list:
             self._child_node_on_create(child_node, first_index)
-            first_index += 1
+            first_index += stride
             self._serial_no += 1
 
     def _get_slice_children_list(self, sliceobj):
