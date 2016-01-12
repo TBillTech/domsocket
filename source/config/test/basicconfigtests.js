@@ -1,3 +1,9 @@
+//Copyright (c) 2015 TBillTech.  
+
+//This Source Code Form is subject to the terms of the Mozilla Public
+//License, v. 2.0. If a copy of the MPL was not distributed with this
+//file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 
 function run_test() {
     do_test(500, groupA_tests);
@@ -36,3 +42,4 @@ function login_dialog_test_2(id) {
 function login_dialog_test_3(id) {
     assert(!has_id('config.invalid'));
 }
+
