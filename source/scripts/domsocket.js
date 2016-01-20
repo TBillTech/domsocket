@@ -309,10 +309,25 @@ with(domsocket)
 
   HandleEvent = function(event)
   {
-    var theListener = this;
-    var msg = CreateEventMessage(theListener, event);
-    theListener.ws.sendmsg(msg);
+      var theListener = this;
+      var msg = CreateEventMessage(theListener, event);
+      theListener.ws.sendmsg(msg);
+      disabledEventPropagation(event);
+      return false;
   };
+
+  disabledEventPropagation = function(event)
+  {
+      event.returnValue = false;
+      if(event.stopPropagation)
+      {
+	  event.stopPropagation();
+      } else if(window.event)
+      {
+	  window.event.cancelBubble = true;
+      }
+      event.preventDefault();
+  }
 
   var eventPropertyNames = [
   "currentTarget", "target", "timeStamp", "type", "view",
