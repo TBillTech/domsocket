@@ -31,12 +31,15 @@ In the root of the source tree, to install as a site-package,
 run python setup.py install.  For example on Ubuntu linux::
   sudo python setup.py install
 
+
 You can now import the domsocket library in your source code::
+
   from domsocket.zmq_runner import ZMQRunner, domsocket_js_path
   from domsocket.element import Element
   from domsocket.event import Event
   from domsocket.basic_widgets.html_widget import HTMLWidget
   from domsocket.basic_widgets.html_tag import HTMLTag
+
 
 
 Running the Example Todos App
