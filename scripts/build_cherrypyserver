@@ -1,0 +1,35 @@
+#!python
+
+import os
+
+def build_is_safe():
+    user_key = raw_input('If you have made changes to files in this directory, they '\
+                         'may become overwritten, and you should run ./build.sh instead of this script.\n'\
+                         'Are you sure you wish to use the '\
+                         'current directory as a destination to force copy the docker '\
+                         'cherrypyserver build files and start the docker image build process? (Y/n)')
+    if user_key != 'Y':
+        print('User cancelled:  Not running build or copying any files.')
+        return False
+    return True
+
+def setup_build():
+    import site
+    site_packages = site.getsitepackages()
+    for site_package_location in site_packages:
+        location = os.path.join(site_package_location,
+                                'domsocket', 'data', 'cherrypyserver')
+        if os.path.isdir(location):
+            os.system('cp -rf %s/* .' % (location,))
+            return
+    raise Exception('Could not find domsocket at any site package location')
+
+def run_build():
+    os.system('chmod a+x *.sh')
+    os.system('chmod a+x serve.py')
+    os.system('./build.sh')
+
+if __name__ == '__main__':
+    if build_is_safe():
+        setup_build()
+        run_build()

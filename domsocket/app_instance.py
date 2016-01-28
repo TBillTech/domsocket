@@ -16,24 +16,27 @@ class AppInstance(object):
     2) self.appid (which equals the top level div tag for the Gui application)
     """
 
-    def __init__(self, ws_id, runner):
-        self.ws_id = ws_id
+    def __init__(self, client, runner):
+        self.client = client
         self.runner = runner
         self.create_app = runner.app_cls
 
-    def recv(self, json_msg):
+    def recv(self, message):
+        print('recieving message "%s"' % (message,))
+        json_msg = json.loads(message)
         try:
             self.app.process_client_msg(self, json_msg)
         except AttributeError:
             if json_msg['eventName'] == 'init':
-                self.appid = json_msg['nodeid']:
+                self.appid = json_msg['nodeid']
                 self.app = self.create_app()
                 self.app.on_create(self.appid, self, child_index=None)
             else:
                 raise  # pragma: no cover
 
     def send(self, message, f):
-        self.runner.ws_send(self.ws_id, message)
+        print('sending message "%s"' % (message,))
+        self.runner.ws_send(self.client, message)
 
     def closed(self, code, reason):
         self.app.client_has_closed_ws(code, reason)

@@ -1,0 +1,30 @@
+#!python
+
+import os
+
+def copy_is_safe():
+    user_key = raw_input('If you have made changes to files in this directory, they '\
+                         'may become overwritten, and you create a new clean directory.'\
+                         'Are you sure you wish to use the '\
+                         'current directory as a destination to force copy the todos '\
+                         'app example? (Y/n)')
+    if user_key != 'Y':
+        print('User cancelled:  Not copying any files.')
+        return False
+    return True
+
+def setup_build():
+    import site
+    site_packages = site.getsitepackages()
+    for site_package_location in site_packages:
+        location = os.path.join(site_package_location,
+                                'domsocket', 'data', 'examples', 'todos')
+        if os.path.isdir(location):
+            os.system('cp -rf %s/* .' % (location,))
+            return
+    raise Exception('Could not find domsocket/data/examples/todos at any site package location')
+
+if __name__ == '__main__':
+    if build_is_safe():
+        setup_build()
+
