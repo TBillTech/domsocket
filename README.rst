@@ -109,13 +109,13 @@ browser.  Type the following url::
 
 Your ip address may vary.  It should match eth0 from your ifconfig.
 
-Once you have hit the web page, you will get a self-signed certificate warning.  This is
-a bit of a pain at the moment, because every time you run the server, it regenerates
-the self signed keys.  This is probably the next step in this project, to make that more
-friendly and at least preserve the keys from run to run.  
+Once you have hit the web page, you will get a self-signed certificate warning the first time.
+If you do have not done the "update the genkeys.sh" step every time you run the server, it willregenerates
+the self signed keys.  However, if you have performed that step, then the keys will be preserved
+from run to run.
 
 Resolve the certificate warning according to your web browsers instructions, and then
-you shoudl see an input box with a "Add Todo" button beside it::
+you should see an input box with a "Add Todo" button beside it::
   Type something
   press tab
   press enter
