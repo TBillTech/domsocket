@@ -56,7 +56,15 @@ Executing this command will result in copying all the cherrypyserver files to th
 current directory, and building the Docker container called cherrpyserver.  This will
 also "load" the container into the Docker Engine, and allow you to run the server.
 
-If you make modifications to these files, and wish to rebuild the cherrypyserver, then
+Next, you may wish to update the genkeys.sh with your own information, and build the
+keys that will be used by the cherrypyserver every time::
+
+  update server_openssl.conf
+  mkdir keys
+  ./genkey.sh
+  
+
+If you make modifications, and wish to rebuild the cherrypyserver, then
 from this directory, run::
   ./build.sh
 
@@ -90,10 +98,10 @@ with vi.
 
 To run the app piece of the example, change to the directory where you copied the todos
 app files, and run::
-  ./app.py -p5555 -i172.17.0.1
+  ./app.py -p5555 -i10.0.2.15
 
 It is possible that the ip address will not match your docker container.  You should
-change it to match docker0 from the ifconfig if it does not.
+change it to match eth0 from the ifconfig if it does not.
 
 Now that the two pieces of the server are running, you can hit the app with your web 
 browser.  Type the following url::

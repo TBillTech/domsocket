@@ -21,10 +21,11 @@ def setup_build():
                                 'domsocket', 'data', 'examples', 'todos')
         if os.path.isdir(location):
             os.system('cp -rf %s/* .' % (location,))
+            os.system('chmod a+x app.py')
             return
     raise Exception('Could not find domsocket/data/examples/todos at any site package location')
 
 if __name__ == '__main__':
-    if build_is_safe():
+    if copy_is_safe():
         setup_build()
 

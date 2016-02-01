@@ -10,5 +10,5 @@ setup(name='domsocket',
       url='https://github.com/TBillTech/domsocket',
       packages=['domsocket', 'domsocket/basic_widgets', 'domsocket/messages'],
       scripts=['scripts/build_cherrypyserver', 'scripts/test_domsocket', 'scripts/todos_app_example'],
-      package_data={'domsocket': ['data/*','data/cherrypyserver/*','data/examples/*','data/examples/todos/*','data/exmaples/todos/widgets/*','data/js/*', 'data/test/*', 'data/test/tester/*', 'data/test/tester/test/*', '/data/test/tester/widgets/*']},
+      package_data={'domsocket': ['data/*','data/cherrypyserver/*','data/examples/*','data/examples/todos/*','data/examples/todos/widgets/*','data/js/*', 'data/test/*', 'data/test/tester/*', 'data/test/tester/test/*', 'data/test/tester/widgets/*']},
       )
