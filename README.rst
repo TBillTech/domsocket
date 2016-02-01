@@ -110,7 +110,7 @@ browser.  Type the following url::
 Your ip address may vary.  It should match eth0 from your ifconfig.
 
 Once you have hit the web page, you will get a self-signed certificate warning the first time.
-If you do have not done the "update the genkeys.sh" step every time you run the server, it willregenerates
+If you have not done the "update the genkeys.sh" step, then every time you run the server it will regenerate
 the self signed keys.  However, if you have performed that step, then the keys will be preserved
 from run to run.
 
