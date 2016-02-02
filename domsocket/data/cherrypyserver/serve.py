@@ -18,12 +18,19 @@ from root_factory import RootFactory
 import appws_factory
 from server_info import ServerInfo
 
+def shutdown():
+    print('engine is calling shutdown')
+    appws_factory.SHUTDOWN_SIGNAL = True
+    exit()
+
 def run_server():
     os.system('./updateconfigipaddresses.sh')
     os.system('./genkey.sh')
 
     WebSocketPlugin(cherrypy.engine).subscribe()
     cherrypy.tools.websocket = WebSocketTool()
+
+    cherrypy.engine.subscribe('stop', shutdown)
 
     parser = argparse.ArgumentParser(description='Serve a domsocket application.')
     parser.add_argument('--server_ip','-i', dest='server_ip', default='*',
@@ -32,10 +39,10 @@ def run_server():
     args = parser.parse_args()
     server_info = ServerInfo(args)
     root_factory = RootFactory(server_info)
+    root = root_factory.create_root()
+    root_conf = root_factory.get_conf()
 
     try:
-        root = root_factory.create_root()
-        root_conf = root_factory.get_conf()
         cherrypy.quickstart(root, '/', config=root_conf)
     finally:
         logging.info('finally clause kicked out of cherrypy.quickstart')

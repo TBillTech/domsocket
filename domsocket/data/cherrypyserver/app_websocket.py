@@ -17,6 +17,8 @@ from threading import Thread, Lock
 ZMQDOMSOCKETSERVERPORT = 5555
 IDLESLEEPTIME = 0.1
 
+SHUTDOWN_SIGNAL = False
+
 # TODO:  Make this more efficient, and do not fork a thread for EVERY websocket.
 # I left this class here because I assume a further optimization will be to control the number of processes
 # looking for messages comming from the zmq sockets.  NO doubt this class will be replaced by another 
@@ -27,7 +29,7 @@ IDLESLEEPTIME = 0.1
 # Instead of joining on shutdown, AppWebSocket should remove itself from the future send message listener module.
 # And etc...
 def from_app_to_websocket(app_websocket):
-    while not app_websocket.closed:
+    while not app_websocket.closed and not SHUTDOWN_SIGNAL:
         try:
             app_websocket.send_message()
         except zmq.Again:

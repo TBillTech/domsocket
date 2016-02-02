@@ -127,13 +127,15 @@ Stopping the Example
 
 To shut down the todos app, just press Ctrl-C.
 
-To shut down the cherrypyserver container, it may be slightly more difficult.  It may not
-stop with Ctrl-C.  This is another thing that needs to be looked at.  For the moment, 
-you can kill it::
+To shut down the cherrypyserver container in interactive mode, press Ctrl-C followed by the exit command.
+
+To shut down the cherrypyserver container in run mode, just press Ctrl-C.
+
+If the docker container becomes unresponsive, you can kill it manually.  First locate the process::
   sudo docker ps
 
 There should be a hex number appearing at the beginning of the line showing cherrypyserver.
-copy and paste this hex number into the docker kill command like so::
+You may now copy and paste this hex number into the docker kill command to abnormally shutdown the contianer::
   sudo docker kill 5a347ceb9583
 
 

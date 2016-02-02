@@ -25,7 +25,7 @@ RUN apk add --update \
  && adduser -D webserver 
 ADD WebSocket-for-Python-0.3.4.tar.gz /tmp/tarballs/WebSocket/
 WORKDIR /tmp/tarballs/WebSocket/WebSocket-for-Python-0.3.4/
-VOLUME ["/keys_volume"]
+#VOLUME ["/keys_volume"]
 RUN python setup.py install \ 
  && rm -rf /tmp/tarballs/* 
 COPY *.sh /opt/server/

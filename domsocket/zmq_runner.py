@@ -71,7 +71,7 @@ class ZMQRunner(object):
         else:
             import traceback
             reason = '%s:%s:%s' % (ex_type, ex_message, traceback.print_tb(ex_trace))
-            import pdb; pdb.set_trace()
+            #import pdb; pdb.set_trace()
         for (client, app_instance) in self.instances.items():
             app_instance.closed(code, reason)
         del self.instances
