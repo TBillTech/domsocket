@@ -20,7 +20,7 @@ function RunGUI()
 {
   with(domsocket)
   {
-    Bootstrap("wss://" + window.location.host + "/$appName", "$appName");
+    Bootstrap("ws://" + window.location.host + "/$appName", "$appName");
   }
 }
 

@@ -1,3 +1,4 @@
+#!/usr/bin/python
 """Copyright (c) 2015 TBillTech.  
 
   This Source Code Form is subject to the terms of the Mozilla Public
@@ -5,6 +6,7 @@
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
 """
 
+from domsocket.zmq_runner import ZMQRunner, domsocket_js_path
 from domsocket.event import Event
 from domsocket.basic_widgets.html_tag import HTMLTag
 from domsocket.element import Element
@@ -14,9 +16,11 @@ from domsocket.text_node import TextNode
 from domsocket.element_error import ElementError
 from operator import index
 
+theRunner = None
+
 class App(Element):
 
-    _html_source_app_name = __package__
+    _html_source_app_name = 'tester'
 
     def __init__(self):
         super(App, self).__init__()
@@ -204,3 +208,23 @@ class App(Element):
 
     def on_select(self, the_checkbox, msg):
         pass
+
+    def client_has_closed_ws(self, code, reason):
+        print('Test client has closed')
+        theRunner.stop()
+
+
+if __name__ == '__main__':
+    manifest = {
+        ('.','app.html') : ('.','app.html'),
+        ('.','app.conf') : ('.','app.conf'),
+        'css' : (),
+        'scripts' : ('domsocket.js',),
+        ('scripts', 'domsocket.js') : (domsocket_js_path, 'domsocket.js'), 
+        'static' : (),
+        'style' : (),
+        'toolkits' : ()
+        }
+    with ZMQRunner(App, manifest) as runner:
+        theRunner = runner
+        runner.run()

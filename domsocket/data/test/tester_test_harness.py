@@ -13,24 +13,34 @@ class Harness(object):
 
     def __init__(self, test_info):
         self.test_info = test_info
-        self.app_name = test_info.app_name
         self.run()
 
     def __enter__(self):
-        time.sleep(0.1)
+        time.sleep(1.0)
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         try:
-            self.p.terminate()
+            start_time = time.time()
+            while self.p.poll() is None:
+                time.sleep(0.1)
+                if time.time() - start_time > 2.0:
+                    break
+            if self.p.poll() is None:
+                print('Terminating client after timeout')
+                self.p.terminate()
         except Exception as ex:
             print(ex)
         return False
 
+    def get_ip(self):
+        return self.test_info.args.server_ip
+
     def run(self):
         args = ['coverage', 
                 'run', 
-                '--rcfile=apps/%s/test/.coveragerc'%(self.app_name), 
-                './cherrypyserver/serve.py', 
-                self.app_name]
+                '--rcfile=coveragerc', 
+                './app.py', 
+                '-p5555',
+                '-i%s'%self.get_ip()]
         self.p = Popen(args)

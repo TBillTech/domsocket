@@ -29,7 +29,7 @@ SHUTDOWN_SIGNAL = False
 # Instead of joining on shutdown, AppWebSocket should remove itself from the future send message listener module.
 # And etc...
 def from_app_to_websocket(app_websocket):
-    while not app_websocket.closed and not SHUTDOWN_SIGNAL:
+    while not app_websocket.is_closed and not SHUTDOWN_SIGNAL:
         try:
             app_websocket.send_message()
         except zmq.Again:
@@ -51,7 +51,7 @@ class AppWebSocket(WebSocket):
         context = zmq.Context()
         self.socket = context.socket(zmq.DEALER)
         self.socket.bind('tcp://%s:%s' % (server_ip, ZMQDOMSOCKETSERVERPORT))
-        self.closed = False
+        self.is_closed = False
         self.lock = Lock()
         self.message_sender = Thread(target=from_app_to_websocket, args=(self,))
         self.message_sender.start()
@@ -80,6 +80,6 @@ class AppWebSocket(WebSocket):
         self.shutdown()
 
     def shutdown(self):
-        self.closed = True
+        self.is_closed = True
         self.message_sender.join()
         del self.socket

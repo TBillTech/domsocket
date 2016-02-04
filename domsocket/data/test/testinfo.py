@@ -7,29 +7,26 @@
 """
 
 import os
-from os.path import isfile, join, isdir, abspath
+from os.path import isfile, join, isdir, abspath, expanduser
 import shutil
 import imp
 
 class TestInfo(object):
-    def __init__(self, app_name, test_name):
-        self.app_name = app_name
+    def __init__(self, test_name, args):
         self.test_name = test_name
-
-    def relative_test_dir(self, file_name):
-        return join('apps', self.app_name, 'test', file_name)
+        self.args = args
 
     def relative_file_name(self):
-        return self.relative_test_dir(self.test_name)
+        return join('tests', self.test_name)
+
+    def relative_temp_name(self):
+        return join('temp', self.test_name)
+
+    def get_server_ip(self):
+        return self.args.server_ip
 
     def get_args(self):
-        return [abspath('/home/thomas/node_modules/.bin/slimerjs'),
+        return [abspath(expanduser('~/node_modules/.bin/slimerjs')),
             '--error-log-file=%s' % ('jslog.txt',),
-            '-P', 'AllowSSL', self.relative_file_name()]
+            '-P', 'AllowSSL', self.relative_temp_name()]
  
-    def find_module(self):
-        return imp.find_module(self.py_module_name(), [self.relative_test_dir('')])
-
-    def py_module_name(self):
-        return self.test_name[:-3]
-   

@@ -64,6 +64,9 @@ class ZMQRunner(object):
             on_command = getattr(self, command, self.command_error)
             on_command(client, message)
 
+    def stop(self):
+        self.running = False
+
     def __exit__(self, ex_type, ex_message, ex_trace):
         code = CLOSE_GOING_AWAY
         if not ex_type:
@@ -93,7 +96,7 @@ class ZMQRunner(object):
     def ws_close(self, client, message):
         json_msg = json.loads(message)
         code = json_msg['code']
-        reason = json_reason['reason']
+        reason = json_msg['reason']
         self.instances[client].closed(code, reason)
         del self.instances[client]
 

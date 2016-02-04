@@ -6,10 +6,12 @@
 """
 
 __all__ = [
+    'app',
     'runtests',
     'subprocess_call',
     'summary',
     'testinfo',
     'test_runner',
-    'tester_test_harness'
+    'tester_test_harness',
+    'widgets'
 ]

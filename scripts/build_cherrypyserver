@@ -1,6 +1,7 @@
 #!python
 
 import os
+import argparse
 
 def build_is_safe():
     user_key = raw_input('If you have made changes to files in this directory, they '\
@@ -21,12 +22,24 @@ def setup_build():
                                 'domsocket', 'data', 'cherrypyserver')
         if os.path.isdir(location):
             os.system('cp -rf %s/* .' % (location,))
+            os.system('chmod a+x *.sh')
+            os.system('chmod a+x serve.py')
+            try:
+                os.system('mkdir keys')
+            except OSError:
+                pass
             return
     raise Exception('Could not find domsocket at any site package location')
 
 def run_build():
-    os.system('chmod a+x *.sh')
-    os.system('chmod a+x serve.py')
+    parser = argparse.ArgumentParser(description='Copy files and build cherrypyserver')
+    parser.add_argument('-n', '--insecure', action='store_true',
+                        help='Build the insecure version of the server (cherrypyinsecureserver)')
+    args = parser.parse_args()
+
+    if args.insecure:
+        os.system('./switchtoinsecurebuild.sh')
+
     os.system('./build.sh')
 
 if __name__ == '__main__':

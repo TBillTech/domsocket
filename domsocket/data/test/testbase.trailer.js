@@ -126,7 +126,7 @@ function do_final_test(timeout, test_function) {
     }, timeout, test_function);
 }
 
-page.open('https://10.0.0.8:8443', function(status) {
+page.open(url, function(status) {
 
     if (status !== 'success') {
 	summary.errors = ['FAIL to load the address'];
