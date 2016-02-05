@@ -43,9 +43,20 @@ function sub_body_divA_test(id) {
     assert_equal_nocase(get_tag_of(id+'.0'), 'div');
     assert(!has_id(id+'.1'));
     assert_equal_nocase(get_tag_of(id+'.2'), 'p');
-    assert_equal_nocase(get_tag_of(id+'.5'), 'span');
-    assert_equal_nocase(get_tag_of(id+'.6'), 'li');
-    assert_equal_nocase(get_tag_of(id+'.4'), 'div');
+    assert_equal_nocase(get_tag_of(id+'.17'), 'span');
+    assert_equal_nocase(get_tag_of(id+'.18'), 'li');
+    assert_equal_nocase(get_tag_of(id+'.19'), 'span');
+    assert_equal_nocase(get_tag_of(id+'.5'), 'div');
+    assert_equal_nocase(get_tag_of(id+'.6'), 'div');
+    assert_equal_nocase(get_tag_of(id+'.21'), 'p');
+    assert_equal_nocase(get_tag_of(id+'.8'), 'div');
+    assert_equal_nocase(get_tag_of(id+'.22'), 'p');
+    assert_equal_nocase(get_tag_of(id+'.10'), 'div');
+    assert_equal_nocase(get_tag_of(id+'.23'), 'p');
+    assert_equal_nocase(get_tag_of(id+'.12'), 'div');
+    assert_equal_nocase(get_tag_of(id+'.13'), 'div');
+    assert_equal_nocase(get_tag_of(id+'.15'), 'div');
+    assert_equal_nocase(get_tag_of(id+'.20'), 'span');
     assert_equal(get_attribute_of(id, 'custom_class'), 'custom_class_info');
     assert_equal(get_attribute_of(id, 'keyword2'), 'keyword2_info');
 }

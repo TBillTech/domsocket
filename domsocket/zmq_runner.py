@@ -22,7 +22,7 @@ def get_domsocket_js_path():
     for location in site.getsitepackages():
         if os.path.isdir(join(location, 'domsocket')):
             return join(location, 'domsocket', 'data', 'js')
-    raise Error('Cannot find domsocket library in site packages: %s' % (site.getsitepackages(),))
+    raise Error('Cannot find domsocket library in site packages: %s' % (site.getsitepackages(),)) # pragma: no cover
 
 domsocket_js_path = get_domsocket_js_path()
 
@@ -72,17 +72,16 @@ class ZMQRunner(object):
         if not ex_type:
             reason = 'shutdown'
         else:
-            import traceback
-            reason = '%s:%s:%s' % (ex_type, ex_message, traceback.print_tb(ex_trace))
-            #import pdb; pdb.set_trace()
+            import traceback # pragma: no cover
+            reason = '%s:%s:%s' % (ex_type, ex_message, traceback.print_tb(ex_trace)) # pragma: no cover
         for (client, app_instance) in self.instances.items():
-            app_instance.closed(code, reason)
+            app_instance.closed(code, reason) # pragma: no cover
         del self.instances
         return True
 
-    def command_error(self, client, message):
+    def command_error(self, client, message): 
         print('Could not find command "%s" (client id=%s)' \
-              % (message, hexlify(client)))
+              % (message, hexlify(client))) # pragma: no cover
 
     def ws_recv(self, client, message):
         if not client in self.instances:

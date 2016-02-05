@@ -63,8 +63,11 @@ class App(Element):
 
     def _text_node_test(self):
         self.first_paragraph.text_node = TextNode('Hello World!')
-        self.first_paragraph.text_node.text = 'Hello World! -- changed!'
+        self.first_paragraph.text_node.text = 'Hello World! -- changed to!'
+        self.first_paragraph.text_node = TextNode('Hello World! -- changed to!')
         self.first_paragraph.text_node = TextNode('Hello World! -- changed!')
+        self.first_paragraph += [TextNode('A'), TextNode('B'), TextNode('C')]
+        self.first_paragraph[-3:] = []
 
     def _immutable_attribute_test(self):
         try:
@@ -90,16 +93,24 @@ class App(Element):
 
     def create_sub_body(self):
         sub_body_kwargs = dict()
-        sub_body_kwargs['class'] = 'sub_body_class'
+        sub_body_kwargs['class'] = 'sub_body_class_tochange'
         sub_body_kwargs['subp_child'] = self.sub_paragraph_child()
         sub_body_kwargs['sub_body_divA'] = self.sub_body_divA_child()
         sub_body_kwargs['sub_body_divB'] = self.sub_body_divA_child()
         self.sub_body = HTMLTag('body', sub_body_kwargs)
+        if self.sub_body.getattr_class() != 'sub_body_class_tochange':
+            raise Error('getattr_class return is wrong')
+        self.sub_body.setattr_class('sub_body_class')
+        if not self.sub_body.get_html_source_app_name() == 'tester':
+            raise Error('source app name is not tester!')        
 
     def _slice_tests(self):
         del self.sub_body.sub_body_divA[1:2]
         self.sub_body.sub_body_divA[2:2] = [HTMLTag('span')]
         self.sub_body.sub_body_divA[3] = [HTMLTag('li')]
+        self.sub_body.sub_body_divA[self.sub_body.sub_body_divA[4]] = [HTMLTag('span')]
+        self.sub_body.sub_body_divA[-1] = [HTMLTag('span')]
+        self.sub_body.sub_body_divA[7:13:2] = [HTMLTag('p'), HTMLTag('p'), HTMLTag('p')]
 
     def _item_tests(self):
         del self.sub_body.sub_body_divB 
@@ -113,7 +124,11 @@ class App(Element):
     
     def sub_body_divA_child(self):
         return HTMLTag('div', HTMLTag('div'), HTMLTag('div'), 
-                       [HTMLTag('p'), HTMLTag('p'), HTMLTag('div')],
+                       [HTMLTag('p'), HTMLTag('p'), HTMLTag('div'),
+                        HTMLTag('div'), HTMLTag('div'), HTMLTag('div'),
+                        HTMLTag('div'), HTMLTag('div'), HTMLTag('div'),
+                        HTMLTag('div'), HTMLTag('div'), HTMLTag('div'),
+                        HTMLTag('div'), HTMLTag('div'), HTMLTag('div')],
                        custom_class='custom_class_info', 
                        keyword2='keyword2_info')
 

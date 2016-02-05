@@ -80,7 +80,7 @@ class Element(Node):
 
     def on_create(self, nodeid, parentNode, child_index):
         if not hasattr(self, 'tag'):
-            raise ElementError('Cannot create element on client because "tag" attribute is not set')
+            raise ElementError('Cannot create element on client because "tag" attribute is not set') # pragma: no cover
         self._set_parent(parentNode)
         object.__setattr__(self, '_children', list())
         object.__setattr__(self, 'id', self._element_get_id(nodeid))
@@ -212,12 +212,10 @@ class Element(Node):
 
     def _add_list_to_client(self, first_index, child_list):
         stride = 1
-        if isinstance(first_index, Node):
-            first_index = index(first_index)
         if isinstance(first_index, slice):
             (first_index, stop, stride) = first_index.indices(len(self))
-            if stride < 0:
-                stride += 1
+            if stride < 0: # pragma: no cover
+                raise ElementError('Negative stride slices not supported') # pragma: no cover
         if first_index < 0:
             first_index = len(self)+first_index
         for child_node in child_list:
@@ -299,7 +297,7 @@ class Element(Node):
                            % (msg['message'], msg['original'], msg['stack'])) # pragma: no cover
 
     def client_has_closed_ws(self, code, reason):
-        pass
+        pass # pragma: no cover
 
     def set_focus(self):
         msg = FocusMessage(self)
