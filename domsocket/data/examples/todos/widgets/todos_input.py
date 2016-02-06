@@ -19,7 +19,7 @@ class TodosInput(HTMLWidget):
     def on_create(self, name, parentNode, index):
         super(TodosInput, self).on_create(name, parentNode, index)
         self._TodosEntry.value = ''
-        #self._TodosEntry.keydown = self.create_input_keydown_event()
+        self._TodosEntry.keydown = self.create_input_keydown_event()
         self._TodosEntry.set_focus()
         self._Add.click = self.create_add_press_event()
 
@@ -36,10 +36,7 @@ class TodosInput(HTMLWidget):
         return add_press_event
 
     def on_input_keydown(self, theInputControl, msg):
-        if msg['event']['keyCode'] != self.ENTER_KEY_CODE:
-            self._TodosEntry.value = self._TodosEntry.value + msg['event']['key']
-            return
-        else:
+        if msg['event']['keyCode'] == self.ENTER_KEY_CODE:
             self.add_todo()
 
     def on_add_press(self, theInputControl, msg):

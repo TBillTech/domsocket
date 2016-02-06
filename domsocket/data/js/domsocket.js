@@ -312,7 +312,8 @@ with(domsocket)
       var theListener = this;
       var msg = CreateEventMessage(theListener, event);
       theListener.ws.sendmsg(msg);
-      disabledEventPropagation(event);
+      if(theListener.clientNoBubble)
+	  disabledEventPropagation(event);
       return false;
   };
 
@@ -411,6 +412,10 @@ with(domsocket)
       theListener.eventName = msg.name;
       if(msg.hasOwnProperty("attributeArgs"))
 	  theListener.attributeArgs = msg.attributeArgs;
+      theListener.clientNoBubble = false;
+      if(msg.hasOwnProperty("clientNoBubble"))
+	  if(theListener.clientNoBubble != false)
+	      theListener.clientNoBubble = msg.clientNoBubble;
       theListener.handleEvent = HandleEvent;
       theListener.ws = ws;
       return theListener;

@@ -80,11 +80,12 @@ class Event(object):
     }
     """
 
-    def __init__(self):
+    def __init__(self, client_no_bubble = False):
         self.arguments = list()
         self.observers = set()
         self.owner_node = None
         self.name = None
+        self.client_no_bubble = client_no_bubble
 
     def construct_argument(self, node, parameter):
         event_argument = dict()
@@ -130,7 +131,7 @@ class Event(object):
     def set_element_attribute(self, element, name):
         self.owner_node = element
         self.name = name
-        msg = AttachEventMessage(element, name, self.arguments)
+        msg = AttachEventMessage(element, name, self.arguments, self.client_no_bubble)
         element._send_msg_to_client(msg)
         object.__setattr__(element, name, self)
 

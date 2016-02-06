@@ -14,9 +14,8 @@ class AppWSFactory(object):
     """ AppWSFactory creates an app_websocket application to handle websocket requests
     """
 
-    def __init__(self, app_name, server_id):
+    def __init__(self, app_name):
         self.app_name = app_name
-        self.server_id = server_id
 
     def __call__(self, *args, **kw):
-        return AppWebSocket(self.app_name, self.server_id, *args, **kw)
+        return AppWebSocket(self.app_name, *args, **kw)

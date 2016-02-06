@@ -38,11 +38,14 @@ class ZMQRunner(object):
                                 help='The port number to listen for web app zmq messages.')
             parser.add_argument('--ip', '-i', dest='ip_addr', default='localhost',
                                 help='The ip address to make the connection to the client.')
+            parser.add_argument('--verbose', '-v', dest='verbose', action='store_true',
+                                help='Print out verbose messaging (reduces apparent server responsiveness)')
             args = parser.parse_args()
 
         self.port = args.port
         self.ip_addr = args.ip_addr
         self.manifest = manifest
+        self.verbose = args.verbose
 
     def app_name(self):
         return self.app_cls._html_source_app_name

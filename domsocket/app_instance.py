@@ -22,7 +22,8 @@ class AppInstance(object):
         self.create_app = runner.app_cls
 
     def recv(self, message):
-        print('recieving message "%s"' % (message,))
+        if self.runner.verbose:
+            print('recieving message "%s"' % (message,))
         json_msg = json.loads(message)
         try:
             self.app.process_client_msg(self, json_msg)
@@ -35,7 +36,8 @@ class AppInstance(object):
                 raise  # pragma: no cover
 
     def send(self, message, f):
-        print('sending message "%s"' % (message,))
+        if self.runner.verbose:
+            print('sending message "%s"' % (message,))
         self.runner.ws_send(self.client, message)
 
     def closed(self, code, reason):

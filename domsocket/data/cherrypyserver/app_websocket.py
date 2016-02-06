@@ -19,6 +19,8 @@ IDLESLEEPTIME = 0.1
 
 SHUTDOWN_SIGNAL = False
 
+parsed_args = None
+
 # TODO:  Make this more efficient, and do not fork a thread for EVERY websocket.
 # I left this class here because I assume a further optimization will be to control the number of processes
 # looking for messages comming from the zmq sockets.  NO doubt this class will be replaced by another 
@@ -41,8 +43,10 @@ class AppWebSocket(WebSocket):
     back to the zmq domsocket app.
     """
 
-    def __init__(self, app_name, server_ip, *args, **kw):
+    def __init__(self, app_name, *args, **kw):
         self.app_name = app_name
+        self.server_ip = parsed_args.server_ip
+        self.verbose = parsed_args.verbose
         self.logger = logging.getLogger(self.app_name)
         self.logger.info(
             'Creating %s with args=%s and keywords=%s.' % (self.app_name, args, kw))
@@ -50,7 +54,7 @@ class AppWebSocket(WebSocket):
         self.logger.setLevel(logging.DEBUG)
         context = zmq.Context()
         self.socket = context.socket(zmq.DEALER)
-        self.socket.bind('tcp://%s:%s' % (server_ip, ZMQDOMSOCKETSERVERPORT))
+        self.socket.bind('tcp://%s:%s' % (self.server_ip, ZMQDOMSOCKETSERVERPORT))
         self.is_closed = False
         self.lock = Lock()
         self.message_sender = Thread(target=from_app_to_websocket, args=(self,))
@@ -60,14 +64,14 @@ class AppWebSocket(WebSocket):
         # flush is just a corny workaround for wss.  flush means do nothing.
         if message.data == 'flush':
             return
-        print('Received message "%s"' % (message.data,))
+        if self.verbose: print('Received message "%s"' % (message.data,))
         with self.lock:
             self.socket.send_multipart(['ws_recv', message.data])
 
     def send_message(self):
         with self.lock:
             (command, message) = self.socket.recv_multipart(zmq.NOBLOCK)
-        print('About to send messge "%s"' % (message,))
+        if self.verbose: print('About to send messge "%s"' % (message,))
         self.send(message, False)
 
     def closed(self, code, reason="no reason given"):

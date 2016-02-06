@@ -150,7 +150,7 @@ class App(Element):
         self._test_event_out_of_order()
 
     def _test_event_out_of_order(self):
-        login_event = Event()
+        login_event = Event(client_no_bubble=True)
         login_event.add_argument(self.login._username, 'value')
         self.login._loginButton.click = login_event
         login_event.add_observer(self, App.on_login)
