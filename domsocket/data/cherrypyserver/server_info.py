@@ -7,6 +7,7 @@
 import zmq
 import os
 import json
+import subprocess
 from os.path import join, abspath
 from one_shot_message import OneShotMessage
 
@@ -40,8 +41,8 @@ class ServerInfo(object):
 
     def copy_file(self, path, file_name):
         file_contents = self.read_file(path, file_name)
-        if file_name[-len('.tar.gz')] == '.tar.gz':
-            write_zipped_contents(file_contents, abspath(path), file_name)
+        if file_name[-len('.tar.gz'):] == '.tar.gz':
+            self.write_zipped_contents(file_contents, abspath(path), file_name)
         else:
             with open(join(abspath(path),file_name), 'w+') as to_write:
                 to_write.write(file_contents)
@@ -54,9 +55,13 @@ class ServerInfo(object):
 
 
     def write_zipped_contents(self, file_contents, path, file_name):
-        with open(join(abspath('temp'),file_name), 'w+') as to_write:
+        temp_filepath = join(abspath('temp'),file_name)
+        unzip_path = join(abspath(path), './')
+        with open(temp_filepath, 'w+') as to_write:
             to_write.write(file_contents)
-        subprocess.call(['tar', '-xvf', join(abspath('temp'),file_name), \
-                         '-C', join(abspath(path),'/')]) 
-        os.unlink(join(abspath('temp'),file_name))
+        subprocess.call(['gunzip', temp_filepath]) 
+        temp_filepath = temp_filepath[0:-len('.gz')]
+        untar_call = ['tar', '-xvf', temp_filepath, '-C', unzip_path]
+        subprocess.call(untar_call)
+        os.unlink(temp_filepath)
 

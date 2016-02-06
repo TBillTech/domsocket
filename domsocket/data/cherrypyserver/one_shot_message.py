@@ -23,6 +23,8 @@ class OneShotMessage(object):
         self.socket.send_multipart([self.command, json.dumps(self.args)])
         self.json_message = self.socket.recv()
         self.message_obj = json.loads(self.json_message)
+        if 'blob' in self.message_obj:
+            self.message_obj[self.message_obj['blob']] = self.socket.recv()
         return self
 
     def __exit__(self, ex_type, ex_message, ex_trace):

@@ -111,8 +111,10 @@ class ZMQRunner(object):
         with open(file_name, 'r') as read_file:
             contents = read_file.read()
         json_msg = dict()
-        json_msg['file_contents'] = contents
-        self.socket.send_multipart([client, json.dumps(json_msg)])
+        json_msg['blob'] = 'file_contents'
+        raw_message = json.dumps(json_msg)
+        self.socket.send_multipart([client, raw_message])
+        self.socket.send_multipart([client, contents])
 
     def list_directory(self, client, message):
         (path,) = json.loads(message)
