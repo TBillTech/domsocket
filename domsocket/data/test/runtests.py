@@ -100,7 +100,7 @@ def perform_all_tests(args):
 
 def run():
     parser = argparse.ArgumentParser(description='Run domsocket tests.')
-    parser.add_argument('--server_ip', '-i', dest='server_ip', default='*',
+    parser.add_argument('--server_ip', '-i', dest='server_ip', default='localhost',
                         help='the ip address where the cherrpyserver is listening')
     args = parser.parse_args()
 

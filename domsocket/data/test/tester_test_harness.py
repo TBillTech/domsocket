@@ -42,5 +42,6 @@ class Harness(object):
                 '--rcfile=coveragerc', 
                 './app.py', 
                 '-p5555',
-                '-i%s'%self.get_ip()]
+                '-i%s'%self.get_ip(),
+                '-v',]
         self.p = Popen(args)
