@@ -78,9 +78,9 @@ class ZMQRunner(object):
             import traceback # pragma: no cover
             traceback.print_tb(ex_trace) # pragma: no cover
             reason = '%s:%s' % (ex_type, ex_message) # pragma: no cover
-            print(reason)
+            print(reason) # pragma: no cover
         for ((front, client), app_instance) in self.instances.items():
-            self.socket.send_multipart([front, client, 'shutdown', reason])
+            self.socket.send_multipart([front, client, 'shutdown', reason]) # pragma: no cover
             app_instance.closed(code, reason) # pragma: no cover
         self.socket.close()
         del self.instances
