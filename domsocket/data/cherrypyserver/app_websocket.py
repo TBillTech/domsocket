@@ -5,37 +5,17 @@
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
 """
 
-import logging
+import cherrypy
 import json
 import zmq
 from ws4py.websocket import WebSocket
 import imp
 import os
 import time
-from threading import Thread, Lock
+from zmq_backend import get_backend
 
 ZMQDOMSOCKETSERVERPORT = 5555
 IDLESLEEPTIME = 0.1
-
-SHUTDOWN_SIGNAL = False
-
-parsed_args = None
-
-# TODO:  Make this more efficient, and do not fork a thread for EVERY websocket.
-# I left this class here because I assume a further optimization will be to control the number of processes
-# looking for messages comming from the zmq sockets.  NO doubt this class will be replaced by another 
-# module that will handle the N <-> M mapping between send message listener threads and zmq sockets.
-# Instead of forking a new process, AppWebSocket should use the send message listener module to be coded in the future.
-# I expect that instead of sleeping, the send message listener threads will handle the zmq.Again exception 
-# more in the aggregate for all the zmq sockets the listener thread is controlling.
-# Instead of joining on shutdown, AppWebSocket should remove itself from the future send message listener module.
-# And etc...
-def from_app_to_websocket(app_websocket):
-    while not app_websocket.is_closed and not SHUTDOWN_SIGNAL:
-        try:
-            app_websocket.send_message()
-        except zmq.Again:
-            time.sleep(IDLESLEEPTIME)
 
 class AppWebSocket(WebSocket):
 
@@ -45,45 +25,28 @@ class AppWebSocket(WebSocket):
 
     def __init__(self, app_name, *args, **kw):
         self.app_name = app_name
-        self.server_ip = parsed_args.server_ip
-        self.verbose = parsed_args.verbose
-        self.logger = logging.getLogger(self.app_name)
-        self.logger.info(
+        self.backend = get_backend()
+        self.verbose = self.backend.verbose
+        cherrypy.log.access_log.info(
             'Creating %s with args=%s and keywords=%s.' % (self.app_name, args, kw))
         WebSocket.__init__(self, *args, **kw)
-        self.logger.setLevel(logging.DEBUG)
-        context = zmq.Context()
-        self.socket = context.socket(zmq.DEALER)
-        self.socket.bind('tcp://%s:%s' % (self.server_ip, ZMQDOMSOCKETSERVERPORT))
-        self.is_closed = False
-        self.lock = Lock()
-        self.message_sender = Thread(target=from_app_to_websocket, args=(self,))
-        self.message_sender.start()
+        self.backend.register(self)
 
     def received_message(self, message):
         # flush is just a corny workaround for wss.  flush means do nothing.
         if message.data == 'flush':
             return
         if self.verbose: print('Received message "%s"' % (message.data,))
-        with self.lock:
-            self.socket.send_multipart(['ws_recv', message.data])
+        self.backend.message_from_client(self, 'ws_recv', message.data)
 
-    def send_message(self):
-        with self.lock:
-            (command, message) = self.socket.recv_multipart(zmq.NOBLOCK)
-        if self.verbose: print('About to send messge "%s"' % (message,))
-        self.send(message, False)
+    def send_message(self, command, message):
+        if command == 'shutdown':
+            cherrypy.log.error_log.error('close down websocket because zmq_runner reports "%s"' % (message,))
+            self.close(1001, message)
+        else:
+            if self.verbose: print('About to send messge "%s"' % (message,))
+            self.send(message, False)
 
     def closed(self, code, reason="no reason given"):
-        self.logger.info('Application has shut down: %s:%s.' % (code, reason))
-        json_msg = dict()
-        json_msg['code'] = code
-        json_msg['reason'] = reason
-        with self.lock:
-            self.socket.send_multipart(['ws_close',json.dumps(json_msg)])
-        self.shutdown()
-
-    def shutdown(self):
-        self.is_closed = True
-        self.message_sender.join()
-        del self.socket
+        cherrypy.log.access_log.info('Application has shut down: %s:%s.' % (code, reason))
+        self.backend.deregister(self, code, reason)

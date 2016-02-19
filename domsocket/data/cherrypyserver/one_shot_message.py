@@ -20,7 +20,7 @@ class OneShotMessage(object):
         self.socket = context.socket(zmq.DEALER)
         self.socket.bind('tcp://%s:%s' % (self.server_ip, ONESHOTMESSAGEPORT))
         print('about to send message: [%s,%s]' % (self.command, json.dumps(self.args)))
-        self.socket.send_multipart([self.command, json.dumps(self.args)])
+        self.socket.send_multipart(["0", self.command, json.dumps(self.args)])
         self.json_message = self.socket.recv()
         self.message_obj = json.loads(self.json_message)
         if 'blob' in self.message_obj:

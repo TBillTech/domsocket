@@ -199,7 +199,7 @@ class Element(Node):
             sliceobj = index(sliceobj)
 
         self._remove_slice_from_client(sliceobj)
-        self._add_list_to_client(sliceobj, child_list)
+        self._add_list_to_client(sliceobj, list(child_list))
         if isinstance(sliceobj, int):
             self._children[sliceobj:sliceobj+1] = child_list
         else:

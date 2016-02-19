@@ -47,7 +47,7 @@ class HTMLWidget(Element):
 
     def construct_html_source_path(self):
         file_name = self.get_html_source_filename()
-        return abspath(join('widgets', file_name))
+        return abspath(join('..', self.get_html_source_app_name(), 'widgets', file_name))
 
     def get_html_source_filename(self):
         try:

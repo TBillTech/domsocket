@@ -62,10 +62,10 @@ class ZMQRunner(object):
         self.running = True
 
         while self.running:
-            (client, command, message) = self.socket.recv_multipart()
+            (front, client, command, message) = self.socket.recv_multipart()
     
             on_command = getattr(self, command, self.command_error)
-            on_command(client, message)
+            on_command((front, client), message)
 
     def stop(self):
         self.running = False
@@ -76,15 +76,19 @@ class ZMQRunner(object):
             reason = 'shutdown'
         else:
             import traceback # pragma: no cover
-            reason = '%s:%s:%s' % (ex_type, ex_message, traceback.print_tb(ex_trace)) # pragma: no cover
-        for (client, app_instance) in self.instances.items():
+            traceback.print_tb(ex_trace) # pragma: no cover
+            reason = '%s:%s' % (ex_type, ex_message) # pragma: no cover
+            print(reason)
+        for ((front, client), app_instance) in self.instances.items():
+            self.socket.send_multipart([front, client, 'shutdown', reason])
             app_instance.closed(code, reason) # pragma: no cover
+        self.socket.close()
         del self.instances
         return True
 
     def command_error(self, client, message): 
         print('Could not find command "%s" (client id=%s)' \
-              % (message, hexlify(client))) # pragma: no cover
+              % (message, client)) # pragma: no cover
 
     def ws_recv(self, client, message):
         if not client in self.instances:
@@ -93,19 +97,22 @@ class ZMQRunner(object):
         self.instances[client].recv(message)
             
     def ws_send(self, client, message):
-        self.socket.send_multipart([client, 'ws_send', message])
+        (front, client) = client
+        self.socket.send_multipart([front, client, 'ws_send', message])
 
     def ws_close(self, client, message):
         json_msg = json.loads(message)
         code = json_msg['code']
         reason = json_msg['reason']
-        self.instances[client].closed(code, reason)
-        del self.instances[client]
+        if client in self.instances:
+            self.instances[client].closed(code, reason)
+            del self.instances[client]
 
     def get_app_name(self, client, message):
         json_msg = dict()
         json_msg['app_name'] = self.app_name()
-        self.socket.send_multipart([client, json.dumps(json_msg)])
+        (front, client) = client
+        self.socket.send_multipart([front, json.dumps(json_msg)])
 
     def read_file(self, client, message):
         (path, file_name) = json.loads(message)
@@ -116,13 +123,15 @@ class ZMQRunner(object):
         json_msg = dict()
         json_msg['blob'] = 'file_contents'
         raw_message = json.dumps(json_msg)
-        self.socket.send_multipart([client, raw_message])
-        self.socket.send_multipart([client, contents])
+        (front, client) = client
+        self.socket.send_multipart([front, raw_message])
+        self.socket.send_multipart([front, contents])
 
     def list_directory(self, client, message):
         (path,) = json.loads(message)
         listing = self.manifest[path]
         json_msg = dict()
         json_msg['directory_listing'] = listing
-        self.socket.send_multipart([client, json.dumps(json_msg)])
+        (front, client) = client
+        self.socket.send_multipart([front, json.dumps(json_msg)])
 

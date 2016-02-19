@@ -18,11 +18,13 @@ from root_factory import RootFactory
 import appws_factory
 import app_websocket
 from server_info import ServerInfo
+from zmq_backend import init_backend, get_backend
 
 def shutdown():
     print('engine is calling shutdown')
-    appws_factory.SHUTDOWN_SIGNAL = True
-    exit()
+    backend = get_backend()
+    backend.stop()
+    #exit()
 
 def run_server():
     os.system('./updateconfigipaddresses.sh')
@@ -42,6 +44,8 @@ def run_server():
     args = parser.parse_args()
     app_websocket.parsed_args = args
     server_info = ServerInfo(args)
+    backend = init_backend(args)
+    backend.start()
     root_factory = RootFactory(server_info)
     root = root_factory.create_root()
     root_conf = root_factory.get_conf()
