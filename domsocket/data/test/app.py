@@ -12,6 +12,7 @@ from domsocket.basic_widgets.html_tag import HTMLTag
 from domsocket.element import Element
 from widgets.login_dialog import LoginDialog
 from widgets.login_button import LoginButton
+from widgets.increment_widget import IncrementWidget
 from domsocket.text_node import TextNode
 from domsocket.element_error import ElementError
 from operator import index
@@ -34,6 +35,7 @@ class App(Element):
         self.login_button_show()
         self.login_dialog_show()
         self.longlist_show()
+        self.increment_widget_show()
         
     def first_paragraph_show(self):
         self.create_first_paragraph()
@@ -228,14 +230,28 @@ class App(Element):
         print('Test client has closed')
         theRunner.stop()
 
+    def increment_widget_show(self):
+        self.incrementor = IncrementWidget(self.on_increment)
+        self._increment_expected_value = 3
+        self.incrementor.do_increment(3)
+
+    def on_increment(self, current_value):
+        if self._increment_expected_value != current_value:
+            raise ElementError('on increment expected %s != current %s' % \
+                               (self._increment_expected_value, current_value))
+        self._increment_expected_value += 3
+        if current_value > 3:
+            del self.incrementor
+
 
 if __name__ == '__main__':
     manifest = {
         ('.','app.html') : ('.','app.html'),
         ('.','app.conf') : ('.','app.conf'),
         'css' : (),
-        'scripts' : ('domsocket.js',),
+        'scripts' : ('domsocket.js','increment_widget.js'),
         ('scripts', 'domsocket.js') : (domsocket_js_path, 'domsocket.js'), 
+        ('scripts', 'increment_widget.js') : ('widgets', 'increment_widget.js'), 
         'static' : (),
         'style' : (),
         'toolkits' : ()

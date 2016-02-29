@@ -14,7 +14,7 @@ import json
 from os.path import join, abspath
 from app_instance import AppInstance
 from binascii import hexlify
-from multiprocessing import Process
+from threading import Lock
 
 CLOSE_GOING_AWAY = 1001
 
@@ -46,6 +46,7 @@ class ZMQRunner(object):
         self.ip_addr = args.ip_addr
         self.manifest = manifest
         self.verbose = args.verbose
+        self.socket_lock = Lock()
 
     def app_name(self):
         return self.app_cls._html_source_app_name
@@ -71,6 +72,7 @@ class ZMQRunner(object):
         self.running = False
 
     def __exit__(self, ex_type, ex_message, ex_trace):
+        print('hit exit of ZMQ Runner')
         code = CLOSE_GOING_AWAY
         if not ex_type:
             reason = 'shutdown'
@@ -80,7 +82,7 @@ class ZMQRunner(object):
             reason = '%s:%s' % (ex_type, ex_message) # pragma: no cover
             print(reason) # pragma: no cover
         for ((front, client), app_instance) in self.instances.items():
-            self.socket.send_multipart([front, client, 'shutdown', reason]) # pragma: no cover
+            self.locked_send([front, client, 'shutdown', reason]) # pragma: no cover
             app_instance.closed(code, reason) # pragma: no cover
         self.socket.close()
         del self.instances
@@ -98,7 +100,11 @@ class ZMQRunner(object):
             
     def ws_send(self, client, message):
         (front, client) = client
-        self.socket.send_multipart([front, client, 'ws_send', message])
+        self.locked_send([front, client, 'ws_send', message])
+
+    def locked_send(self, message_list):
+        with self.socket_lock:
+            self.socket.send_multipart(message_list)
 
     def ws_close(self, client, message):
         json_msg = json.loads(message)
@@ -112,7 +118,7 @@ class ZMQRunner(object):
         json_msg = dict()
         json_msg['app_name'] = self.app_name()
         (front, client) = client
-        self.socket.send_multipart([front, json.dumps(json_msg)])
+        self.locked_send([front, json.dumps(json_msg)])
 
     def read_file(self, client, message):
         (path, file_name) = json.loads(message)
@@ -124,8 +130,8 @@ class ZMQRunner(object):
         json_msg['blob'] = 'file_contents'
         raw_message = json.dumps(json_msg)
         (front, client) = client
-        self.socket.send_multipart([front, raw_message])
-        self.socket.send_multipart([front, contents])
+        self.locked_send([front, raw_message])
+        self.locked_send([front, contents])
 
     def list_directory(self, client, message):
         (path,) = json.loads(message)
@@ -133,5 +139,5 @@ class ZMQRunner(object):
         json_msg = dict()
         json_msg['directory_listing'] = listing
         (front, client) = client
-        self.socket.send_multipart([front, json.dumps(json_msg)])
+        self.locked_send([front, json.dumps(json_msg)])
 

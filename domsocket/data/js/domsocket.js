@@ -12,6 +12,7 @@ with(domsocket)
   var EventListeners = new Array();
   var debug = true;
   var wsInfoObjs = new Object();
+  var widgetConstructors = new Object();
 
   Bootstrap = function(web_socket_url, nodeid) 
   {
@@ -19,6 +20,11 @@ with(domsocket)
 	  BootstrapDomSocket(web_socket_url, nodeid);  
       else  
 	  alert("This web browser lacks WebSocket capabilities.  Please run the with a web browser that supports WebSockets.");
+  };
+
+  SetWidgetClass = function(className, classConstructor)
+  {
+      widgetConstructors[className] = classConstructor;
   };
 
   BootstrapDomSocket = function(web_socket_url, nodeid)
@@ -37,6 +43,7 @@ with(domsocket)
       wsInfo.ws = ws;
       wsInfo.events = new Object();
       wsInfo.nodeids = new Object();
+      wsInfo.widgets = new Object();
       return wsInfo
   };
 
@@ -50,7 +57,7 @@ with(domsocket)
   DeleteWebSocket = function(ws)
   {
       if(ws in wsInfoObjs)
-	  delete wsInfoObjs[ws];
+          delete wsInfoObjs[ws];
   };
 
   WSOnOpen = function(ws, nodeid)
@@ -80,8 +87,8 @@ with(domsocket)
 
   WSOnClose = function(ws)
   {
+      DetachAllWidgets(ws);
       DetachAllEvents(ws);
-      DropAllElementIds(ws);
       DeleteWebSocket(ws);
   };
 
@@ -157,8 +164,8 @@ with(domsocket)
 	  var nodeEvents = wsInfo.events[theElementId];
 	  for(var eventName in nodeEvents)
 	  {
-              var theListener = nodeEvents[eventName];
-              theElement.removeEventListener(theListener);
+	      var theElement = document.getElementById(theElementId);
+	      wsInfoRemoveListener(ws, theElement, eventName);
 	  }
       }
       delete wsInfo.events;
@@ -443,7 +450,92 @@ with(domsocket)
       theElement.focus();
   };
 
-  DetachAllEvents = function(msg, ws)
+  CreateWidget = function(msg, ws)
+  {
+      var widget = new Object();
+      widget.ws = ws;
+      widget.theElement = document.getElementById(msg.id);
+      widget.stop = false;
+      widget.idleSleep = 10;
+      widget.HaveListener = function(eventName)
+      {
+          if(eventName in getNodeEvents(this.ws, this.theElement))
+              return true;
+          return false;
+      };
+      widget.GetListener = function(eventName)
+      {
+          return wsInfoGetListener(this.ws, this.theElement, eventName);
+      };
+      widget.Run = function()
+      {
+          if(this.stop)
+	      return;
+          if(this.HaveWork())
+              this.DoWork();
+	  setTimeout(function() { this.Run(); }.bind(this), this.SleepTime());
+      };
+      widget.SleepTime = function()
+      {
+	  if(this.HaveWork())
+	      return 0;
+	  else
+	      return this.idleSleep;
+      };
+      widget.Attach = function()
+      {
+	  this.Run();
+      };
+      widget.Detach = function()
+      {
+	  this.Destructor();
+          this.stop = true;
+      };
+      widget.CreateEvent = function()
+      {
+          var event = new Object();
+          event.target = this.theElement;
+          event.timeStamp = Date.now();
+	  return event;
+      };
+      widget.SendEvent = function(event, eventName) 
+      {
+           var theListener = this.GetListener(eventName);
+           theListener.handleEvent(event);
+      };
+      widget.HaveWork = function() { return false; };
+      widget.DoWork = function() { };
+      widget.Destructor = function() { };
+      widget.Construct = widgetConstructors[msg.className];
+      widget.Construct(msg);
+      return widget;
+  };
+
+  AttachWidget = function(msg, ws)
+  {
+      var widget = CreateWidget(msg, ws);
+      wsInfoObjs[ws].widgets[msg.id] = widget;
+      widget.Attach();
+  };
+
+  DetachWidget = function(msg, ws)
+  {
+      if(msg.id in wsInfoObjs[ws].widgets)
+      {
+	  var widget = wsInfoObjs[ws].widgets[msg.id];
+	  widget.Detach();
+	  delete wsInfoObjs[ws].widgets[msg.id];
+      }
+  };
+
+  DetachAllWidgets = function(ws)
+  {
+      for(var widget in wsInfoObjs[ws].widgets)
+          widget.Detach();
+      wsInfoObjs[ws].widgets = [];
+  };
+
+  DetachAllEvents = function(ws)
   {
     wsInfoRemoveAllListeners(ws);
   };
@@ -458,6 +550,8 @@ with(domsocket)
   wsOnMessageHandlers.detachEvent = DetachEvent;
   wsOnMessageHandlers.updateEvent = UpdateEvent;
   wsOnMessageHandlers.setFocus = SetFocus;
+  wsOnMessageHandlers.attachWidget = AttachWidget;
+  wsOnMessageHandlers.detachWidget = DetachWidget; 
 };
 // --------------------------------------------- end domsocket namespace -------------------------------------------------
 

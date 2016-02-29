@@ -12,9 +12,11 @@
 <!-- Use title if it's in the page YAML frontmatter.  Feel free to change this as desired. -->
 <title>tester Test Application</title>
 
-<!-- Changing lines below this point requires in depth knowledge of the domsocket framework. -->
-<!-- Changing anything below may easily prevent the application from loading properly. -->
+<!-- Always include domsocket.js -->
 <script type="text/javascript" src="/scripts/domsocket.js" ></script>
+<!-- Include client side widget logic. -->
+<script type="text/javascript" src="/scripts/increment_widget.js" ></script>
+<!-- And then bootstrap domsocket with the app Name as a template parameter. -->
 <script type="text/javascript">
 function RunGUI()
 {

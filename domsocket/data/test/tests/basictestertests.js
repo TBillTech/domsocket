@@ -87,9 +87,23 @@ function login_dialog_test_3(id) {
     assert_equal(get_text_content_of('tester.valid'), 'username and password is valid');
     var login_button = get_element_by_id_on_page(id+'.myLoginDialog.0.1.0.2.loginButton');
     login_button.click();
-    do_final_test(100, function(elid) { login_dialog_test_4(elid); }.bind(null, id));
+    do_test(100, function(elid) { login_dialog_test_4(elid); }.bind(null, id));
 }
 
 function login_dialog_test_4(id) {
     assert_equal(get_attribute_of('tester.valid', 'style'), 'color:green');
+    do_test(0, function() { increment_widget_test(); }.bind(null));
+}
+
+function increment_widget_test() {
+    var incrementor = get_element_by_id_on_page('tester.incrementor');
+    assert_equal(get_attribute_of('tester.incrementor', 'haveWork'), 'false');
+    assert_equal(get_attribute_of('tester.incrementor', 'currentValue'), '3');
+    incrementor.setAttribute('haveWork', 'true');
+    do_final_test(100, function() { increment_widget_test_2(); }.bind(null));
+}
+
+function increment_widget_test_2() {
+    assert(!has_id('tester.incrementor'));
+    assert_equal(get_attribute_of('tester', 'incrementor_destroyed'), 'true');
 }
