@@ -17,9 +17,9 @@ with(domsocket)
   Bootstrap = function(web_socket_url, nodeid) 
   {
       if ("WebSocket" in window) 
-	  BootstrapDomSocket(web_socket_url, nodeid);  
+          BootstrapDomSocket(web_socket_url, nodeid);  
       else  
-	  alert("This web browser lacks WebSocket capabilities.  Please run the with a web browser that supports WebSockets.");
+          alert("This web browser lacks WebSocket capabilities.  Please run the with a web browser that supports WebSockets.");
   };
 
   SetWidgetClass = function(className, classConstructor)
@@ -79,9 +79,9 @@ with(domsocket)
       }
       catch(err)
       {
-	  var errmsg = NewErrorMessage(err);
+          var errmsg = NewErrorMessage(err);
           errmsg.original = evt.data;
-	  ws.sendmsg(errmsg);
+          ws.sendmsg(errmsg);
       }
   };
 
@@ -132,7 +132,7 @@ with(domsocket)
   {
       var nodeEvents = createNodeEvents(theListener.ws, theElement);
       if(theListener.eventName in nodeEvents)
-	  throw new Error(theListener.eventName + " is already defined for node " + theElement.id);
+          throw new Error(theListener.eventName + " is already defined for node " + theElement.id);
       nodeEvents[theListener.eventName] = theListener;
       theElement.addEventListener(theListener.eventName, theListener);
   };
@@ -141,7 +141,7 @@ with(domsocket)
   {
       var nodeEvents = getNodeEvents(ws, theElement);
       if(eventName in nodeEvents)
-	  return nodeEvents[eventName];
+          return nodeEvents[eventName];
       throw new Error(eventName + " is not defined for node " + theElement.id);
   };
 
@@ -150,9 +150,9 @@ with(domsocket)
       var nodeEvents = getNodeEvents(ws, theElement);
       if(eventName in nodeEvents)
       {
-	  var theListener = nodeEvents[eventName];
-	  theElement.removeEventListener(theListener.eventName, theListener);
-	  delete nodeEvents[eventName];
+          var theListener = nodeEvents[eventName];
+          theElement.removeEventListener(theListener.eventName, theListener);
+          delete nodeEvents[eventName];
       }
   };
 
@@ -161,12 +161,12 @@ with(domsocket)
       var wsInfo = wsInfoObjs[ws];
       for(var theElementId in wsInfo.events)
       {
-	  var nodeEvents = wsInfo.events[theElementId];
-	  for(var eventName in nodeEvents)
-	  {
-	      var theElement = document.getElementById(theElementId);
-	      wsInfoRemoveListener(ws, theElement, eventName);
-	  }
+          var nodeEvents = wsInfo.events[theElementId];
+          for(var eventName in nodeEvents)
+          {
+              var theElement = document.getElementById(theElementId);
+              wsInfoRemoveListener(ws, theElement, eventName);  
+          }
       }
       delete wsInfo.events;
   };
@@ -180,7 +180,7 @@ with(domsocket)
   {
       var wsInfo = wsInfoObjs[ws];
       if(eventListenerIsMissing(theElement, wsInfo))
-	  throw new Error(theElement.id + " is not defined.");
+          throw new Error(theElement.id + " is not defined.");
       return wsInfo.events[theElement.id];      
   };
 
@@ -188,7 +188,7 @@ with(domsocket)
   {
       var wsInfo = wsInfoObjs[ws];
       if(eventListenerIsMissing(theElement, wsInfo))
-	  wsInfo.events[theElement.id] = new Object();
+          wsInfo.events[theElement.id] = new Object();
       return getNodeEvents(ws, theElement);
   };
 
@@ -196,16 +196,16 @@ with(domsocket)
   {
       var wsInfo = wsInfoObjs[ws];
       if(!(theElement.id in wsInfo.nodeids))
-	  wsInfo.nodeids[theElement.id] = theElement;
+          wsInfo.nodeids[theElement.id] = theElement;
   };
 
   wsInfoRemoveElement = function(ws, theElement)
   {
       var wsInfo = wsInfoObjs[ws];
       if(!(theElement.id in wsInfo.nodeids))
-	  throw new Error(theElement.id + " is not defined.");
+          throw new Error(theElement.id + " is not defined.");
       if(!(wsInfoOtherOwners(ws, theElement.id)))
-	 theElement.parentNode.removeChild(theElement);
+         theElement.parentNode.removeChild(theElement);
       delete wsInfo.nodeids[theElement.id];
   };
 
@@ -214,11 +214,11 @@ with(domsocket)
       var wsInfo = wsInfoObjs[ws];
       for(var theElementId in wsInfo.nodeids)
       {
-	  if(!(wsInfoOtherOwners(ws, theElementId)))
-	  {
+          if(!(wsInfoOtherOwners(ws, theElementId)))
+          {
               var theElement = document.getElementById(msg.id);
               theElement.parentNode.removeChild(theElement);
-	  }
+          }
       }
       delete wsInfo.nodeids;
   };
@@ -227,9 +227,9 @@ with(domsocket)
   {
       for(var ws in wsInfoObjs)
       {
-	  if(ws == thisws)
+          if(ws == thisws)
               continue;
-	  if(theElementId in wsInfoObjs[ws].nodeids)
+          if(theElementId in wsInfoObjs[ws].nodeids)
               return true;
       }
       return false;
@@ -290,11 +290,11 @@ with(domsocket)
   {
       var theElement = document.getElementById(msg.id);
       if(theElement.getAttribute(msg.name) instanceof Function)
-	  theElement.getAttribute(msg.name)(msg.value);
+           theElement.getAttribute(msg.name)(msg.value);
       else if(msg.name === "value")
-	  theElement.value = msg.value;
+          theElement.value = msg.value;
       else
-	  theElement.setAttribute(msg.name, msg.value);
+          theElement.setAttribute(msg.name, msg.value);
       return msg.value;
   };
 
@@ -302,7 +302,7 @@ with(domsocket)
   {
       var theElement = document.getElementById(msg.id);
       if(theElement.getAttribute(msg.name) instanceof Function)
-	  return theElement.getAttribute(msg.name)();
+          return theElement.getAttribute(msg.name)();
       else if(msg.name === "value")
           return theElement.value;
       return theElement.getAttribute(msg.name);
@@ -320,7 +320,7 @@ with(domsocket)
       var msg = CreateEventMessage(theListener, event);
       theListener.ws.sendmsg(msg);
       if(theListener.clientNoBubble)
-	  disabledEventPropagation(event);
+          disabledEventPropagation(event);
       return false;
   };
 
@@ -329,10 +329,10 @@ with(domsocket)
       event.returnValue = false;
       if(event.stopPropagation)
       {
-	  event.stopPropagation();
+          event.stopPropagation();
       } else if(window.event)
       {
-	  window.event.cancelBubble = true;
+          window.event.cancelBubble = true;
       }
       event.preventDefault();
   }
@@ -353,21 +353,21 @@ with(domsocket)
     var msgProperties = new Object();
     for (var i = 0; i < eventPropertyNames.length; i++)
     {
-	propertyName = eventPropertyNames[i];
-	try {
-	    if((propertyName === "currentTarget") || 
-	       (propertyName === "target") || 
-	       (propertyName === "relatedTarget") ||
-	       (propertyName === "view"))
-	    {
-		msgProperties[propertyName] = event[propertyName].id;
+        propertyName = eventPropertyNames[i];
+        try {
+            if((propertyName === "currentTarget") || 
+               (propertyName === "target") || 
+               (propertyName === "relatedTarget") ||
+               (propertyName === "view"))
+            {
+                msgProperties[propertyName] = event[propertyName].id;
             }
             else
-	    {
-		msgProperties[propertyName] = event[propertyName];
+            {
+                msgProperties[propertyName] = event[propertyName];
             }
-	} catch (e) {
-	}
+        } catch (e) {
+        }
     }
     return msgProperties;
   };
@@ -379,7 +379,7 @@ with(domsocket)
       msg.nodeid = theListener.nodeid;
       msg.eventName = theListener.eventName;
       if(theListener.hasOwnProperty("attributeArgs"))
-	  msg.attributeArgs = GetAttributeResults(theListener);
+          msg.attributeArgs = GetAttributeResults(theListener);
       msg.event = eventProperties(event);
       return msg;
   };
@@ -390,8 +390,8 @@ with(domsocket)
       var attributeArgs = theListener.attributeArgs;
       for(var i = 0; i < attributeArgs.length; i++)
       {
-	  var result = GetAttributeResult(attributeArgs[i]);
-	  results.push(result);
+          var result = GetAttributeResult(attributeArgs[i]);
+          results.push(result);
       }
       return results;
   };
@@ -418,11 +418,11 @@ with(domsocket)
       theListener.nodeid = msg.id;
       theListener.eventName = msg.name;
       if(msg.hasOwnProperty("attributeArgs"))
-	  theListener.attributeArgs = msg.attributeArgs;
+          theListener.attributeArgs = msg.attributeArgs;
       theListener.clientNoBubble = false;
       if(msg.hasOwnProperty("clientNoBubble"))
-	  if(theListener.clientNoBubble != false)
-	      theListener.clientNoBubble = msg.clientNoBubble;
+          if(theListener.clientNoBubble != false)
+              theListener.clientNoBubble = msg.clientNoBubble;
       theListener.handleEvent = HandleEvent;
       theListener.ws = ws;
       return theListener;
@@ -439,9 +439,9 @@ with(domsocket)
       var theElement = document.getElementById(msg.id);
       var theListener = wsInfoGetListener(ws, theElement, msg.name);
       if(msg.hasOwnProperty("attributeArgs"))
-	  theListener.attributeArgs = msg.attributeArgs;
+          theListener.attributeArgs = msg.attributeArgs;
       else 
-	  theListener.removeAttribute("attributeArgs");
+          theListener.removeAttribute("attributeArgs");
   };
 
   SetFocus = function(msg, ws)
@@ -470,25 +470,25 @@ with(domsocket)
       widget.Run = function()
       {
           if(this.stop)
-	      return;
+              return;
           if(this.HaveWork())
               this.DoWork();
-	  setTimeout(function() { this.Run(); }.bind(this), this.SleepTime());
+          setTimeout(function() { this.Run(); }.bind(this), this.SleepTime());
       };
       widget.SleepTime = function()
       {
-	  if(this.HaveWork())
-	      return 0;
-	  else
-	      return this.idleSleep;
+          if(this.HaveWork())
+              return 0;
+          else
+              return this.idleSleep;
       };
       widget.Attach = function()
       {
-	  this.Run();
+          this.Run();
       };
       widget.Detach = function()
       {
-	  this.Destructor();
+          this.Destructor();
           this.stop = true;
       };
       widget.CreateEvent = function()
@@ -496,7 +496,7 @@ with(domsocket)
           var event = new Object();
           event.target = this.theElement;
           event.timeStamp = Date.now();
-	  return event;
+          return event;
       };
       widget.SendEvent = function(event, eventName) 
       {
@@ -506,6 +506,7 @@ with(domsocket)
       widget.HaveWork = function() { return false; };
       widget.DoWork = function() { };
       widget.Destructor = function() { };
+      widget.Receive = function(msg) { };
       widget.Construct = widgetConstructors[msg.className];
       widget.Construct(msg);
       return widget;
@@ -522,12 +523,21 @@ with(domsocket)
   {
       if(msg.id in wsInfoObjs[ws].widgets)
       {
-	  var widget = wsInfoObjs[ws].widgets[msg.id];
-	  widget.Detach();
-	  delete wsInfoObjs[ws].widgets[msg.id];
+          var widget = wsInfoObjs[ws].widgets[msg.id];
+          widget.Detach();
+          delete wsInfoObjs[ws].widgets[msg.id];
       }
   };
 
+  SendToWidget = function(msg, ws)
+  {
+      if(msg.id in wsInfoObjs[ws].widgets)
+      {
+          var widget = wsInfoObjs[ws].widgets[msg.id];
+          widget.Receive(msg.msg);
+      }
+  };
+  
   DetachAllWidgets = function(ws)
   {
       for(var widget in wsInfoObjs[ws].widgets)
@@ -551,7 +561,8 @@ with(domsocket)
   wsOnMessageHandlers.updateEvent = UpdateEvent;
   wsOnMessageHandlers.setFocus = SetFocus;
   wsOnMessageHandlers.attachWidget = AttachWidget;
-  wsOnMessageHandlers.detachWidget = DetachWidget; 
+  wsOnMessageHandlers.detachWidget = DetachWidget;
+  wsOnMessageHandlers.sendToWidget = SendToWidget;
 };
 // --------------------------------------------- end domsocket namespace -------------------------------------------------
 

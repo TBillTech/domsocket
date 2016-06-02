@@ -13,28 +13,29 @@ with(increment_widget)
     {
         this.HaveWork = HaveWork;
         this.DoWork = DoWork;
-	this.Destructor = Destructor;
+        this.Destructor = Destructor;
+        this.Receive = Receive;
     };
 
     HaveWork = function()
     {
-	if (this.theElement.hasAttribute('haveWork'))
+        if (this.theElement.hasAttribute('haveWork'))
         {
             return (this.theElement.getAttribute('haveWork') === 'true');
         }
-	return false;
+        return false;
     };
 
     DoWork = function()
     {
         var theElement = this.theElement;
-	var theParagraph = theElement.firstChild.firstChild;
-	var priorValue = +theElement.getAttribute('currentValue');
-	var incrementBy = +theElement.getAttribute('incrementBy');
-	theElement.setAttribute('currentValue', 
-				(priorValue + incrementBy).toString());
-	theParagraph.textContent = theElement.getAttribute('currentValue');
-	if(this.HaveListener('increment'))
+        var theParagraph = theElement.firstChild.firstChild;
+        var priorValue = +theElement.getAttribute('currentValue');
+        var incrementBy = +theElement.getAttribute('incrementBy');
+        theElement.setAttribute('currentValue', 
+        	(priorValue + incrementBy).toString());
+        theParagraph.textContent = theElement.getAttribute('currentValue');
+        if(this.HaveListener('increment'))
         {
             var event = this.CreateEvent();
             event.detail = 'done';
@@ -45,11 +46,17 @@ with(increment_widget)
 
     Destructor = function()
     {
-	var theElement = this.theElement;
-	var theParent = theElement.parentNode;
-	theParent.setAttribute('incrementor_destroyed', 'true');
+        var theElement = this.theElement;
+        var theParent = theElement.parentNode;
+        theParent.setAttribute('incrementor_destroyed', 'true');
     };
 
+    Receive = function(msg)
+    {
+        if (msg === 'haveWork')
+            this.theElement.setAttribute('haveWork', 'true');
+    };
+    
     with(domsocket)
     {
         SetWidgetClass('IncrementWidget', Constructor);

@@ -27,7 +27,7 @@ class IncrementWidget(JavascriptWidget):
 
     def do_increment(self, increment_by):
         self.incrementBy = str(increment_by)
-        self.haveWork = 'true'
+        self.send('haveWork')
 
     def get_increment_event(self):
         increment_event = Event()

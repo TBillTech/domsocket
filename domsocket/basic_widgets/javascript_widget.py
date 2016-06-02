@@ -8,6 +8,7 @@
 from html_widget import HTMLWidget
 from domsocket.messages.attach_widget_message import AttachWidgetMessage
 from domsocket.messages.detach_widget_message import DetachWidgetMessage
+from domsocket.messages.send_to_widget_message import SendToWidgetMessage
 
 
 class JavascriptWidget(HTMLWidget):
@@ -33,3 +34,7 @@ class JavascriptWidget(HTMLWidget):
         msg = DetachWidgetMessage(self)
         self._send_msg_to_client(msg)
         super(JavascriptWidget, self)._remove_element_from_client()
+
+    def send(self, msg_string):
+        msg = SendToWidgetMessage(self, msg_string)
+        self._send_msg_to_client(msg)
