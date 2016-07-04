@@ -118,14 +118,12 @@ with(domsocket)
           return err.message;
       else if(err.hasOwnProperty("description"))
           return err.description;
-      return err.stringify();      
+      return String(err);      
   };
 
   GetErrorStack = function(err)
   {
-      if(err.hasOwnProperty("stack"))
-          return err.stack;
-      return "Unknown stack";
+      return String(err.stack);
   };
 
   wsInfoAddListener = function(theElement, theListener)
@@ -334,7 +332,7 @@ with(domsocket)
       {
           window.event.cancelBubble = true;
       }
-      event.preventDefault();
+      event.defaultPrevented = true;
   }
 
   var eventPropertyNames = [
@@ -342,7 +340,7 @@ with(domsocket)
   "altKey", "button", "buttons", "clientX", "clientY", "ctrlKey", "detail", "metaKey",
       "relatedTaget", "screenX", "screenY", "shiftKey", "which",
   "charCode", "key", "keyCode", "location", 
-  "newURL", "oldURL",
+  "newURL", "oldURL", "from", "to", "serialNo",
   "persisted",
   "animationName", "elapsedTime",
   "propertyName",
@@ -453,10 +451,12 @@ with(domsocket)
   CreateWidget = function(msg, ws)
   {
       var widget = new Object();
+      wsInfoObjs[widget] = NewwsInfo(widget);
       widget.ws = ws;
       widget.theElement = document.getElementById(msg.id);
       widget.stop = false;
       widget.idleSleep = 10;
+      widget.eventHandlers = new Object();
       widget.HaveListener = function(eventName)
       {
           if(eventName in getNodeEvents(this.ws, this.theElement))
@@ -472,7 +472,18 @@ with(domsocket)
           if(this.stop)
               return;
           if(this.HaveWork())
-              this.DoWork();
+          {
+              try
+              {
+                  this.DoWork();
+              }
+              catch(err)
+              {
+                  var errmsg = NewErrorMessage(err);
+                  errmsg.original = 'Error in javascript widget';
+                  this.ws.sendmsg(errmsg);
+              }
+          }
           setTimeout(function() { this.Run(); }.bind(this), this.SleepTime());
       };
       widget.SleepTime = function()
@@ -490,6 +501,7 @@ with(domsocket)
       {
           this.Destructor();
           this.stop = true;
+          delete wsInfoObjs[this];
       };
       widget.CreateEvent = function()
       {
@@ -502,6 +514,46 @@ with(domsocket)
       {
            var theListener = this.GetListener(eventName);
            theListener.handleEvent(event);
+      };
+      widget.FireEvent = function(eventName, msg)
+      {
+          if(self.HaveListener(eventName))
+          {
+              var event = self.CreateEvent();
+              event.detail = msg;
+              self.SendEvent(event, eventName)
+          }
+      };
+      // a javascript event handler is invoked by the domsocket HandleEvent function
+      // Which expects to call ws.sendmsg(msg), but here the ws is actually: this
+      // due to a prior call to AttachEvent(msg, this);
+      widget.sendmsg = function(msg)
+      {
+          if(msg.eventName in this.eventHandlers)
+              this.eventHandlers[msg.eventName](this, msg);
+      };
+      widget.AttachEvent = function(eventName, eventHandler, clientNoBubble)
+      {
+          msg = new Object();
+          msg.id = this.theElement.id;
+          msg.name = eventName;
+          msg.clientNoBubble = clientNoBubble;
+          with(domsocket)
+          {
+              AttachEvent(msg, this);
+          }
+          this.eventHandlers[eventName] = eventHandler;
+      };
+      widget.DetachEvent = function(eventName)
+      {
+          msg = new Object();
+          msg.id = this.theElement.id;
+          msg.name = eventName;
+          with(domsocket)
+          {
+              DetachEvent(msg, this);
+          }
+          delete this.eventHandlers[eventName];
       };
       widget.HaveWork = function() { return false; };
       widget.DoWork = function() { };

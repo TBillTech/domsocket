@@ -24,7 +24,7 @@ def shutdown():
     print('engine is calling shutdown')
     backend = get_backend()
     backend.stop()
-    #exit()
+    exit()
 
 def run_server():
     os.system('./updateconfigipaddresses.sh')
