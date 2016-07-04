@@ -593,7 +593,8 @@ with(domsocket)
   DetachAllWidgets = function(ws)
   {
       for(var widget in wsInfoObjs[ws].widgets)
-          widget.Detach();
+          if(widget.hasOwnProperty('Detach'))
+              widget.Detach();
       wsInfoObjs[ws].widgets = [];
   };
 
