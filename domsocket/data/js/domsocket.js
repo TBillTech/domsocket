@@ -340,7 +340,7 @@ with(domsocket)
   "altKey", "button", "buttons", "clientX", "clientY", "ctrlKey", "detail", "metaKey",
       "relatedTaget", "screenX", "screenY", "shiftKey", "which",
   "charCode", "key", "keyCode", "location", 
-  "newURL", "oldURL", "from", "to", "serialNo",
+  "newURL", "oldURL", "from", "to",
   "persisted",
   "animationName", "elapsedTime",
   "propertyName",
@@ -517,11 +517,11 @@ with(domsocket)
       };
       widget.FireEvent = function(eventName, msg)
       {
-          if(self.HaveListener(eventName))
+          if(this.HaveListener(eventName))
           {
-              var event = self.CreateEvent();
+              var event = this.CreateEvent();
               event.detail = msg;
-              self.SendEvent(event, eventName)
+              this.SendEvent(event, eventName)
           }
       };
       // a javascript event handler is invoked by the domsocket HandleEvent function
