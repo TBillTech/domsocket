@@ -316,9 +316,9 @@ with(domsocket)
   {
       var theListener = this;
       var msg = CreateEventMessage(theListener, event);
-      theListener.ws.sendmsg(msg);
       if(theListener.clientNoBubble)
           disabledEventPropagation(event);
+      theListener.ws.sendmsg(msg);
       return false;
   };
 
@@ -332,7 +332,7 @@ with(domsocket)
       {
           window.event.cancelBubble = true;
       }
-      event.defaultPrevented = true;
+      event.preventDefault();
   }
 
   var eventPropertyNames = [
@@ -419,8 +419,8 @@ with(domsocket)
           theListener.attributeArgs = msg.attributeArgs;
       theListener.clientNoBubble = false;
       if(msg.hasOwnProperty("clientNoBubble"))
-          if(theListener.clientNoBubble != false)
-              theListener.clientNoBubble = msg.clientNoBubble;
+          if(msg.clientNoBubble != false)
+              theListener.clientNoBubble = true;
       theListener.handleEvent = HandleEvent;
       theListener.ws = ws;
       return theListener;
@@ -538,10 +538,7 @@ with(domsocket)
           msg.id = this.theElement.id;
           msg.name = eventName;
           msg.clientNoBubble = clientNoBubble;
-          with(domsocket)
-          {
-              AttachEvent(msg, this);
-          }
+          AttachEvent(msg, this);
           this.eventHandlers[eventName] = eventHandler;
       };
       widget.DetachEvent = function(eventName)
@@ -549,10 +546,7 @@ with(domsocket)
           msg = new Object();
           msg.id = this.theElement.id;
           msg.name = eventName;
-          with(domsocket)
-          {
-              DetachEvent(msg, this);
-          }
+          DetachEvent(msg, this);
           delete this.eventHandlers[eventName];
       };
       widget.HaveWork = function() { return false; };
