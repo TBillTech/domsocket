@@ -11,6 +11,7 @@ import imp
 import os
 import site
 import json
+import time
 from os.path import join, abspath
 from app_instance import AppInstance
 from binascii import hexlify
@@ -63,10 +64,19 @@ class ZMQRunner(object):
         self.running = True
 
         while self.running:
-            (front, client, command, message) = self.socket.recv_multipart()
+            (front, client, command, message) = self.locked_recv_multipart()
     
             on_command = getattr(self, command, self.command_error)
             on_command((front, client), message)
+
+    def locked_recv_multipart(self):
+        while self.running:
+            with self.socket_lock:
+                try:
+                    return self.socket.recv_multipart(zmq.NOBLOCK)
+                except zmq.error.Again:
+                    pass
+            time.sleep(0.1)
 
     def stop(self):
         self.running = False
