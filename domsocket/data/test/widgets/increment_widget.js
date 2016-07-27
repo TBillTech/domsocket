@@ -11,10 +11,10 @@ with(increment_widget)
 {
     Constructor = function(msg)
     {
-        this.HaveWork = HaveWork;
         this.DoWork = DoWork;
         this.Destructor = Destructor;
         this.Receive = Receive;
+        this.HaveWork = HaveWork;
     };
 
     HaveWork = function()
@@ -33,14 +33,11 @@ with(increment_widget)
         var priorValue = +theElement.getAttribute('currentValue');
         var incrementBy = +theElement.getAttribute('incrementBy');
         theElement.setAttribute('currentValue', 
-        	(priorValue + incrementBy).toString());
+            (priorValue + incrementBy).toString());
         theParagraph.textContent = theElement.getAttribute('currentValue');
-        if(this.HaveListener('increment'))
-        {
-            var event = this.CreateEvent();
-            event.detail = 'done';
-            this.SendEvent(event, 'increment');
-        };
+        var event = Object();
+        event.detail = 'done';
+        this.FireEvent('increment', event);
         this.theElement.setAttribute('haveWork', 'false');
     };
 

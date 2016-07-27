@@ -5,7 +5,7 @@
 //file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 function run_test() {
-    do_test(500, groupA_tests);
+    do_test(800, groupA_tests);
 }
 
 function groupA_tests() {
@@ -69,7 +69,7 @@ function login_dialog_test(id) {
     var login_button = get_element_by_id_on_page(id+'.myLoginDialog.0.1.0.2.loginButton');
     assert_equal(get_text_content_of(id+'.myLoginDialog.0.1.0.2.loginButton'), 'Login');
     login_button.click();
-    do_test(200, function(elid) { login_dialog_test_2(elid); }.bind(null, id));
+    do_test(400, function(elid) { login_dialog_test_2(elid); }.bind(null, id));
 }
 
 function login_dialog_test_2(id) {
@@ -80,14 +80,14 @@ function login_dialog_test_2(id) {
     password.value = 'bad';
     var login_button = get_element_by_id_on_page(id+'.myLoginDialog.0.1.0.2.loginButton');
     login_button.click();
-    do_test(100, function(elid) { login_dialog_test_3(elid); }.bind(null, id));
+    do_test(200, function(elid) { login_dialog_test_3(elid); }.bind(null, id));
 }
 
 function login_dialog_test_3(id) {
     assert_equal(get_text_content_of('tester.valid'), 'username and password is valid');
     var login_button = get_element_by_id_on_page(id+'.myLoginDialog.0.1.0.2.loginButton');
     login_button.click();
-    do_test(100, function(elid) { login_dialog_test_4(elid); }.bind(null, id));
+    do_test(200, function(elid) { login_dialog_test_4(elid); }.bind(null, id));
 }
 
 function login_dialog_test_4(id) {
@@ -100,7 +100,7 @@ function increment_widget_test() {
     assert_equal(get_attribute_of('tester.incrementor', 'haveWork'), 'false');
     assert_equal(get_attribute_of('tester.incrementor', 'currentValue'), '3');
     incrementor.setAttribute('haveWork', 'true');
-    do_final_test(100, function() { increment_widget_test_2(); }.bind(null));
+    do_final_test(200, function() { increment_widget_test_2(); }.bind(null));
 }
 
 function increment_widget_test_2() {

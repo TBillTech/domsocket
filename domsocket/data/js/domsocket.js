@@ -503,25 +503,18 @@ with(domsocket)
           this.stop = true;
           delete wsInfoObjs[this];
       };
-      widget.CreateEvent = function()
-      {
-          var event = new Object();
-          event.target = this.theElement;
-          event.timeStamp = Date.now();
-          return event;
-      };
-      widget.SendEvent = function(event, eventName) 
+      widget.SendEvent = function(eventName, event) 
       {
            var theListener = this.GetListener(eventName);
            theListener.handleEvent(event);
       };
-      widget.FireEvent = function(eventName, msg)
+      widget.FireEvent = function(eventName, event)
       {
           if(this.HaveListener(eventName))
           {
-              var event = this.CreateEvent();
-              event.detail = msg;
-              this.SendEvent(event, eventName)
+              event.target = this.theElement;
+              event.timeStamp = Date.now();
+              this.SendEvent(eventName, event)
           }
       };
       // a javascript event handler is invoked by the domsocket HandleEvent function

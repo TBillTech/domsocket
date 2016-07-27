@@ -16,7 +16,7 @@ class Harness(object):
         self.run()
 
     def __enter__(self):
-        time.sleep(1.0)
+        time.sleep(2.0)
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
