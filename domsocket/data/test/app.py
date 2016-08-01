@@ -36,6 +36,7 @@ class App(Element):
         self.login_dialog_show()
         self.longlist_show()
         self.increment_widget_show()
+        self.noop = lambda x: x
         
     def first_paragraph_show(self):
         self.create_first_paragraph()

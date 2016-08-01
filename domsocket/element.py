@@ -54,6 +54,7 @@ import sys
 import traceback
 
 import logging
+import types
 from element_error import ElementError
 from messages.message_error import MessageError
 
@@ -105,7 +106,7 @@ class Element(Node):
         return getattr(self, '_active_on_client', False)
 
     def __setattr__(self, name, value):
-        if self._is_server_only(name):
+        if self._is_server_only(name, value):
             return object.__setattr__(self, name, value)
 
         if self._value_is_valid(name, value):
@@ -128,10 +129,10 @@ class Element(Node):
         object.__setattr__(self, name, value)
 
     def __delattr__(self, name):
-        if self._is_server_only(name):
+        value = getattr(self, name)
+        if self._is_server_only(name, value):
             return object.__delattr__(self, name)
 
-        value = getattr(self, name)
         try:
             value.del_element_attribute(self, name)
         except AttributeError:
@@ -142,10 +143,12 @@ class Element(Node):
         self._send_msg_to_client(msg)
         object.__delattr__(self, name)
 
-    def _is_server_only(self, name):
+    def _is_server_only(self, name, value):
         if name in self.immutable_names or (name == 'tag' and self.is_active_on_client()):
             raise ElementError('%s is immutable, and may not be modified' % (name,))
         if name[0] == '_' or name == 'tag':
+            return True
+        if isinstance(value, (types.FunctionType, types.MethodType, types.BuiltinFunctionType, types.BuiltinMethodType)):
             return True
         if not self.is_active_on_client():
             raise ElementError('Attributes, children and events may not be set or deleted until '\
