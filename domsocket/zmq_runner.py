@@ -91,10 +91,12 @@ class ZMQRunner(object):
             traceback.print_tb(ex_trace) # pragma: no cover
             reason = '%s:%s' % (ex_type, ex_message) # pragma: no cover
             print(reason) # pragma: no cover
-        for ((front, client), app_instance) in self.instances.items():
-            self.locked_send([front, client, 'shutdown', reason]) # pragma: no cover
-            app_instance.closed(code, reason) # pragma: no cover
-        self.socket.close()
+        for (client, app_instance) in self.instances.items():
+            self.app_close(client, reason)
+            app_instance.closed(code, reason)
+        with self.socket_lock:
+            self.socket.close()
+            del self.socket
         del self.instances
         return True
 
@@ -122,6 +124,12 @@ class ZMQRunner(object):
         reason = json_msg['reason']
         if client in self.instances:
             self.instances[client].closed(code, reason)
+            del self.instances[client]
+
+    def app_close(self, client, reason):
+        (front, client) = client
+        self.locked_send([front, client, 'shutdown', reason])
+        if client in self.instances:
             del self.instances[client]
 
     def get_app_name(self, client, message):

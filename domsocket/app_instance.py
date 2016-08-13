@@ -40,3 +40,6 @@ class AppInstance(object):
 
     def closed(self, code, reason):
         self.app.client_has_closed_ws(code, reason)
+        
+    def close(self, reason):
+        self.runner.app_close(self.client, reason)
