@@ -6,7 +6,6 @@
 """
 
 from subprocess import Popen
-import thread
 import time
 
 class Harness(object):

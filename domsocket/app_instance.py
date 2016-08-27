@@ -6,6 +6,7 @@
 """
 
 import json
+from domsocket.element_error import ElementError
 
 class AppInstance(object):
 
@@ -16,18 +17,22 @@ class AppInstance(object):
     2) self.appid (which equals the top level div tag for the Gui application)
     """
 
-    def __init__(self, client, runner):
+    def __init__(self, client, runner, message):
         self.client = client
         self.runner = runner
         self.create_app = runner.app_cls
+        json_msg = json.loads(message)
+        self.app_init(json_msg)
 
     def recv(self, message):
         if self.runner.verbose: print('recieving message "%s"' % (message,))
         json_msg = json.loads(message)
-        if json_msg['eventName'] == 'init':
-            self.app_init(json_msg)
-        else:
-            self.app_recv(json_msg)
+        try:
+            self.app.process_client_msg(self, json_msg)
+        except AttributeError: # pragma: no cover
+            raise  # pragma: no cover
+        except ElementError as e: # pragma: no cover
+            self.app_element_error(json_msg, e) # pragma: no cover
             
     def send(self, message, f):
         if self.runner.verbose: print('sending message "%s"' % (message,))
@@ -43,14 +48,6 @@ class AppInstance(object):
         self.appid = json_msg['nodeid']
         self.app = self.create_app()
         self.app.on_create(self.appid, self, child_index=None)
-
-    def app_recv(self, json_msg):
-        try:
-            self.app.process_client_msg(self, json_msg)
-        except AttributeError: # pragma: no cover
-            raise  # pragma: no cover
-        except ElementError as e: # pragma: no cover
-            self.app_element_error(json_msg, e) # pragma: no cover
 
     def app_element_error(self, json_msg, e):
         try: # pragma: no cover

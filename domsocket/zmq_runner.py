@@ -106,9 +106,9 @@ class ZMQRunner(object):
 
     def ws_recv(self, client, message):
         if not client in self.instances:
-            self.instances[client] = AppInstance(client, self)
-
-        self.instances[client].recv(message)
+            self.instances[client] = AppInstance(client, self, message)
+        else:
+            self.instances[client].recv(message)
             
     def ws_send(self, client, message):
         (front, client) = client

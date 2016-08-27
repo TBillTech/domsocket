@@ -10,7 +10,9 @@ def copy_is_safe():
                          'Are you sure you wish to use the '\
                          'current directory as a destination to force copy the tester '\
                          'test app? (y/N)')
-    except NameError:
+    except (NameError, SyntaxError):
+        user_key = 'n'
+    if user_key != y:
         print('User cancelled:  Not copying any files.')
         return False
     return True
