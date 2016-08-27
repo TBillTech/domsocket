@@ -80,7 +80,7 @@ class Event(object):
     }
     """
 
-    def __init__(self, client_no_bubble = True):
+    def __init__(self, client_no_bubble = False):
         self.arguments = list()
         self.observers = set()
         self.owner_node = None
