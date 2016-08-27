@@ -3,12 +3,14 @@
 import os
 
 def copy_is_safe():
-    user_key = raw_input('If you have made changes to files in this directory, they '\
+    y = 'y'
+    try:
+        user_key = input('If you have made changes to files in this directory, they '\
                          'may become overwritten, and you create a new clean directory.'\
                          'Are you sure you wish to use the '\
                          'current directory as a destination to force copy the tester '\
-                         'test app? (Y/n)')
-    if user_key != 'Y':
+                         'test app? (y/N)')
+    except NameError:
         print('User cancelled:  Not copying any files.')
         return False
     return True

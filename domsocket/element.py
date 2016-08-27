@@ -38,25 +38,25 @@ in a domsocket application.
 """
 
 import json
-from messages.attach_event_message import AttachEventMessage
-from messages.set_attribute_message import SetAttributeMessage
-from messages.remove_attribute_message import RemoveAttributeMessage
-from messages.detach_event_message import DetachEventMessage
-from messages.remove_message import RemoveMessage
-from messages.remove_child_message import RemoveChildMessage
-from messages.insert_child_message import InsertChildMessage
-from messages.focus_message import FocusMessage
-from event import Event
-from text_node import TextNode
-from node import Node
+from .messages.attach_event_message import AttachEventMessage
+from .messages.set_attribute_message import SetAttributeMessage
+from .messages.remove_attribute_message import RemoveAttributeMessage
+from .messages.detach_event_message import DetachEventMessage
+from .messages.remove_message import RemoveMessage
+from .messages.remove_child_message import RemoveChildMessage
+from .messages.insert_child_message import InsertChildMessage
+from .messages.focus_message import FocusMessage
+from .event import Event
+from .text_node import TextNode
+from .node import Node
 from operator import index
 import sys
 import traceback
 
 import logging
 import types
-from element_error import ElementError
-from messages.message_error import MessageError
+from .element_error import ElementError
+from .messages.message_error import MessageError
 
 #messageLog = open('messageLog.txt', 'w+')
 
@@ -184,7 +184,7 @@ class Element(Node):
     def _child_node_on_create(self, child_node, first_index):
         try:
             child_node.on_create(str(self._serial_no), self, first_index)
-        except AttributeError, e: # pragma: no cover
+        except AttributeError as e: # pragma: no cover
             if hasattr(child_node, 'on_create'): # pragma: no cover
                 type_, value_, traceback_ = sys.exc_info() # pragma: no cover
                 raise ElementError('%s in %s.on_create: %s' % \
@@ -269,7 +269,7 @@ class Element(Node):
             for child in self._children:
                 try:
                     return child.get_element_by_id(nodeid)
-                except ElementError, AttributeError:
+                except (ElementError, AttributeError):
                     continue
         raise ElementError('nodeid %s could not be found' % (nodeid,))
 

@@ -24,16 +24,11 @@ class AppInstance(object):
     def recv(self, message):
         if self.runner.verbose: print('recieving message "%s"' % (message,))
         json_msg = json.loads(message)
-        try:
-            self.app.process_client_msg(self, json_msg)
-        except AttributeError:
-            if json_msg['eventName'] == 'init':
-                self.appid = json_msg['nodeid']
-                self.app = self.create_app()
-                self.app.on_create(self.appid, self, child_index=None)
-            else:
-                raise  # pragma: no cover
-
+        if json_msg['eventName'] == 'init':
+            self.app_init(json_msg)
+        else:
+            self.app_recv(json_msg)
+            
     def send(self, message, f):
         if self.runner.verbose: print('sending message "%s"' % (message,))
         self.runner.ws_send(self.client, message)
@@ -42,4 +37,24 @@ class AppInstance(object):
         self.app.client_has_closed_ws(code, reason)
         
     def close(self, reason):
-        self.runner.app_close(self.client, reason)
+        self.runner.app_close(self.client, reason) # pragma: no cover
+
+    def app_init(self, json_msg):
+        self.appid = json_msg['nodeid']
+        self.app = self.create_app()
+        self.app.on_create(self.appid, self, child_index=None)
+
+    def app_recv(self, json_msg):
+        try:
+            self.app.process_client_msg(self, json_msg)
+        except AttributeError: # pragma: no cover
+            raise  # pragma: no cover
+        except ElementError as e: # pragma: no cover
+            self.app_element_error(json_msg, e) # pragma: no cover
+
+    def app_element_error(self, json_msg, e):
+        try: # pragma: no cover
+            self.app.process_element_error(json_msg, e) # pragma: no cover
+        except AttributeError: # pragma: no cover
+            print('App failed to process message "%s" due to %s', # pragma: no cover
+                  (json_msg, e)) # pragma: no cover

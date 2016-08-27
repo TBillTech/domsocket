@@ -5,9 +5,14 @@
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
 """
 
+from domsocket.basic_widgets.html_tag import HTMLTag
+from domsocket.text_node import TextNode
 from domsocket.element import Element
 
 class WidgetInitializer(object):
+    
+    tag_class = HTMLTag
+    text_node_class = TextNode
 
     def __init__(self, widget, nodeid, parentNode, index):
         self.widget = widget

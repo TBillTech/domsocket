@@ -13,7 +13,7 @@ import site
 import json
 import time
 from os.path import join, abspath
-from app_instance import AppInstance
+from .app_instance import AppInstance
 from binascii import hexlify
 from threading import Lock
 

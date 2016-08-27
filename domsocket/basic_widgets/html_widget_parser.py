@@ -10,7 +10,6 @@ from html_tag import HTMLTag
 
 import logging
 from HTMLParser import HTMLParser
-from domsocket.text_node import TextNode
 from domsocket.element import Element
 
 class HTMLImporterException(Exception):
@@ -27,6 +26,7 @@ class HTMLWidgetParser(HTMLParser):
         if html_widget.get_widget_html_id():
             self.widget_html_id = html_widget.get_widget_html_id()
         self.node_init = html_widget._node_init
+        self.tag_class = self.node_init.tag_class
         self.have_found_first_tag = False
         self.xml_parse_stack = list()
         self.feed(self.html_source)
@@ -166,7 +166,7 @@ class HTMLWidgetParser(HTMLParser):
         return self.node_init.initialize(tag)
 
     def create_sub_widget(self, tag, xml_attrs):
-        child_tag = HTMLTag(tag)
+        child_tag = self.tag_class(tag)
         id = self.get_id(xml_attrs)
         if id:
             return self.create_sub_widget_with_id(child_tag, id)
@@ -186,7 +186,7 @@ class HTMLWidgetParser(HTMLParser):
 
     def process_data(self, data):
         if self.use_child_data():
-            child_text = TextNode(data)
+            child_text = self.node_init.text_node_class(data)
             cur_parent = self.get_top_widget()
             cur_parent += [child_text]
 
