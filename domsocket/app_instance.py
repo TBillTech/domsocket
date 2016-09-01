@@ -6,6 +6,8 @@
 """
 
 import json
+import traceback
+import sys
 from domsocket.element_error import ElementError
 
 class AppInstance(object):
@@ -32,7 +34,9 @@ class AppInstance(object):
         except AttributeError: # pragma: no cover
             raise  # pragma: no cover
         except ElementError as e: # pragma: no cover
-            self.app_element_error(json_msg, e) # pragma: no cover
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            fex = traceback.format_exc().splitlines()
+            self.app_element_error(json_msg, e, fex) # pragma: no cover
             
     def send(self, message, f):
         if self.runner.verbose: print('sending message "%s"' % (message,))
@@ -49,9 +53,9 @@ class AppInstance(object):
         self.app = self.create_app()
         self.app.on_create(self.appid, self, child_index=None)
 
-    def app_element_error(self, json_msg, e):
+    def app_element_error(self, json_msg, e, fex):
         try: # pragma: no cover
             self.app.process_element_error(json_msg, e) # pragma: no cover
         except AttributeError: # pragma: no cover
-            print('App failed to process message "%s" due to %s', # pragma: no cover
-                  (json_msg, e)) # pragma: no cover
+            print('App failed to process message "%s" due to %s:\n%s' % # pragma: no cover
+                  (json_msg, e, '\n'.join(fex))) # pragma: no cover
