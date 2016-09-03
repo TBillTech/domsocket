@@ -53,12 +53,9 @@ from operator import index
 import sys
 import traceback
 
-import logging
 import types
 from .element_error import ElementError
 from .messages.message_error import MessageError
-
-#messageLog = open('messageLog.txt', 'w+')
 
 class Element(Node):
     """The Element class is the basis for all domsocket Gui elements. 
@@ -186,9 +183,8 @@ class Element(Node):
             child_node.on_create(str(self._serial_no), self, first_index)
         except AttributeError as e: # pragma: no cover
             if hasattr(child_node, 'on_create'): # pragma: no cover
-                type_, value_, traceback_ = sys.exc_info() # pragma: no cover
                 raise ElementError('%s in %s.on_create: %s' % \
-                                   (repr(e), repr(child_node), traceback.format_tb(traceback_))) # pragma: no cover
+                                   (repr(e), repr(child_node), traceback.format_exc())) # pragma: no cover
             else: # pragma: no cover
                 raise ElementError('%s does not possess on_create' % (repr(child_node),)) # pragma: no cover
 

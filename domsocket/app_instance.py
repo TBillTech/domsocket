@@ -34,7 +34,6 @@ class AppInstance(object):
         except AttributeError: # pragma: no cover
             raise  # pragma: no cover
         except ElementError as e: # pragma: no cover
-            exc_type, exc_value, exc_traceback = sys.exc_info()
             fex = traceback.format_exc().splitlines()
             self.app_element_error(json_msg, e, fex) # pragma: no cover
             
