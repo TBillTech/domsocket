@@ -80,12 +80,17 @@ class Event(object):
     }
     """
 
-    def __init__(self, client_no_bubble = False):
+    def __init__(self, client_no_bubble = False, normal_key_only_bubble = False):
+        """Constructs an Event(client_no_bubble, normal_key_only_bubble) 
+        flag client_no_bubble stops the GUI from processing the event normally
+        flag normal_key_only_bubble stops the GUI from processing F-keys, Ctrl, Meta, or Alt
+        """
         self.arguments = list()
         self.observers = set()
         self.owner_node = None
         self.name = None
         self.client_no_bubble = client_no_bubble
+        self.normal_key_only_bubble = normal_key_only_bubble
 
     def construct_argument(self, node, parameter):
         event_argument = dict()
@@ -131,7 +136,7 @@ class Event(object):
     def set_element_attribute(self, element, name):
         self.owner_node = element
         self.name = name
-        msg = AttachEventMessage(element, name, self.arguments, self.client_no_bubble)
+        msg = AttachEventMessage(element, name, self.arguments, self.client_no_bubble, self.normal_key_only_bubble)
         element._send_msg_to_client(msg)
         object.__setattr__(element, name, self)
 

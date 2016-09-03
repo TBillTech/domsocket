@@ -315,13 +315,35 @@ with(domsocket)
   HandleEvent = function(event)
   {
       var theListener = this;
+      var retVal = true;
       var msg = CreateEventMessage(theListener, event);
       if(theListener.clientNoBubble)
-          disabledEventPropagation(event);
+          retVal = disabledEventPropagation(event);
+      if(theListener.normalKeyOnlyBubble)
+          if(abnormalKey(event))
+              retVal = disabledEventPropagation(event);
       theListener.ws.sendmsg(msg);
-      return false;
+      return retVal;
   };
 
+  abnormalKey = function(event)
+  {
+      try {
+          var key = event.key;
+          if(key >= 112 && key <= 123)
+              return true;
+          if(event.altKey != false)
+              return true;
+          if(event.metaKey != false)
+              return true;
+          if(event.ctrlKey != false)
+              return true;
+      }
+      catch (e) {
+      }
+      return false;
+  };
+  
   disabledEventPropagation = function(event)
   {
       event.returnValue = false;
@@ -333,7 +355,8 @@ with(domsocket)
           window.event.cancelBubble = true;
       }
       event.preventDefault();
-  }
+      return false;
+  };
 
   var eventPropertyNames = [
   "currentTarget", "target", "timeStamp", "type", "view",
@@ -421,6 +444,10 @@ with(domsocket)
       if(msg.hasOwnProperty("clientNoBubble"))
           if(msg.clientNoBubble != false)
               theListener.clientNoBubble = true;
+      theListener.normalKeyOnlyBubble = false;
+      if(msg.hasOwnProperty("normalKeyOnlyBubble"))
+          if(msg.normalKeyOnlyBubble != false)
+              theListener.normalKeyOnlyBubble = true;
       theListener.handleEvent = HandleEvent;
       theListener.ws = ws;
       return theListener;

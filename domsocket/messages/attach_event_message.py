@@ -10,9 +10,12 @@ from message import Message
 
 class AttachEventMessage(Message):
 
-    def __init__(self, node, name, attribute_args, client_no_bubble):
+    def __init__(self, node, name, attribute_args, 
+                 client_no_bubble, normal_key_only_bubble):
         self.msg_dict = {'type': 'attachEvent', 'id': node.id, 'name': name}
         if client_no_bubble:
             self.msg_dict['clientNoBubble'] = True
+        if normal_key_only_bubble:
+            self.msg_dict['normalKeyOnlyBubble'] = True
         if attribute_args:
             self.msg_dict['attributeArgs'] = attribute_args
