@@ -7,8 +7,8 @@
 
 from os.path import abspath, join
 from domsocket.element import Element
-from widget_initializer import WidgetInitializer
-from html_widget_parser import HTMLWidgetParser
+from .widget_initializer import WidgetInitializer
+from .html_widget_parser import HTMLWidgetParser
 
 
 class HTMLWidget(Element):

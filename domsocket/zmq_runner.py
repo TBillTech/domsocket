@@ -9,6 +9,7 @@ import argparse
 import zmq
 import imp
 import os
+import sys
 import site
 import json
 import time
@@ -65,6 +66,9 @@ class ZMQRunner(object):
 
         while self.running:
             (front, client, command, message) = self.locked_recv_multipart()
+            if sys.version_info >= (3,0,0): 
+                command = command.decode('utf-8')
+                message = message.decode('utf-8')
     
             on_command = getattr(self, command, self.command_error)
             on_command((front, client), message)
@@ -91,7 +95,7 @@ class ZMQRunner(object):
             traceback.print_tb(ex_trace) # pragma: no cover
             reason = '%s:%s' % (ex_type, ex_message) # pragma: no cover
             print(reason) # pragma: no cover
-        for (client, app_instance) in self.instances.items():
+        for (client, app_instance) in list(self.instances.items()):
             self.app_close(client, reason)
             app_instance.closed(code, reason)
         with self.socket_lock:
@@ -115,8 +119,15 @@ class ZMQRunner(object):
         self.locked_send([front, client, 'ws_send', message])
 
     def locked_send(self, message_list):
+        if sys.version_info >= (3,0,0):
+            message_list = [self.encode(message) for message in message_list]
         with self.socket_lock:
             self.socket.send_multipart(message_list)
+
+    def encode(self, message):
+        if isinstance(message, str):
+            return message.encode()
+        return message
 
     def ws_close(self, client, message):
         json_msg = json.loads(message)
@@ -142,7 +153,7 @@ class ZMQRunner(object):
         (path, file_name) = json.loads(message)
         (local_path, local_file) = self.manifest[(path, file_name)]
         file_name = join(abspath(local_path),local_file)
-        with open(file_name, 'r') as read_file:
+        with open(file_name, 'rb') as read_file:
             contents = read_file.read()
         json_msg = dict()
         json_msg['blob'] = 'file_contents'

@@ -10,11 +10,11 @@ Text Nodes must be handled specially because they are not Elements.
 """
 
 import json
-from messages.insert_text_node_message import InsertTextNodeMessage
-from messages.set_text_node_message import SetTextNodeMessage
-from messages.remove_message import RemoveMessage
+from .messages.insert_text_node_message import InsertTextNodeMessage
+from .messages.set_text_node_message import SetTextNodeMessage
+from .messages.remove_message import RemoveMessage
 
-from node import Node
+from .node import Node
 
 class TextNode(Node):
 

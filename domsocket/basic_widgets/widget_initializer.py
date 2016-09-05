@@ -5,7 +5,7 @@
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
 """
 
-from domsocket.basic_widgets.html_tag import HTMLTag
+from .html_tag import HTMLTag
 from domsocket.text_node import TextNode
 from domsocket.element import Element
 

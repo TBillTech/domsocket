@@ -5,7 +5,7 @@
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
 """
 
-from html_widget import HTMLWidget
+from .html_widget import HTMLWidget
 from domsocket.messages.attach_widget_message import AttachWidgetMessage
 from domsocket.messages.detach_widget_message import DetachWidgetMessage
 from domsocket.messages.send_to_widget_message import SendToWidgetMessage

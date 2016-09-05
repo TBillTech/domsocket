@@ -18,10 +18,10 @@ in a REDOWL application.
 
 """
 
-from messages.update_event_message import UpdateEventMessage
-from messages.attach_event_message import AttachEventMessage
-from messages.detach_event_message import DetachEventMessage
-from element_error import ElementError
+from .messages.update_event_message import UpdateEventMessage
+from .messages.attach_event_message import AttachEventMessage
+from .messages.detach_event_message import DetachEventMessage
+from .element_error import ElementError
 import json
 import logging
 

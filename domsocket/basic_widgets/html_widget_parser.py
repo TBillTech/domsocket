@@ -6,10 +6,12 @@
 """
 
 import sys
-from html_tag import HTMLTag
+from .html_tag import HTMLTag
 
-import logging
-from HTMLParser import HTMLParser
+try:
+    from html.parser import HTMLParser
+except ImportError:
+    from HTMLParser import HTMLParser
 from domsocket.element import Element
 
 class HTMLImporterException(Exception):
