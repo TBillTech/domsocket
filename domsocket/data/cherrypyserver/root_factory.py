@@ -28,6 +28,7 @@ class RootFactory(object):
     def __init__(self, server_info):
         self.app_name = server_info.app_name
         self.server_ip = server_info.server_ip
+        self.web_port = server_info.web_port
         self.init_root_class()
         self.init_conf()
 
@@ -59,6 +60,6 @@ class RootFactory(object):
         return temp_conf.get_temp_conf_path()
 
     def init_conf(self):
-        temp_conf.reset_temp_conf(self.app_name, self.server_ip)
-        temp_conf.append_to_temp_conf(self.app_conf_name, self.app_name, self.server_ip)
+        temp_conf.reset_temp_conf(self.app_name, self.server_ip, self.web_port)
+        temp_conf.append_to_temp_conf(self.app_conf_name, self.app_name, self.server_ip, self.web_port)
 

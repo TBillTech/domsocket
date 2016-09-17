@@ -11,7 +11,6 @@ import zmq
 import time
 import json
 
-ZMQDOMSOCKETSERVERPORT = 5555
 IDLESLEEPTIME = 0.1
 
 def client_id(client):
@@ -24,6 +23,7 @@ class ZmqBackend(Thread):
     def __init__(self, parsed_args):
         self.parsed_args = parsed_args
         self.server_ip = parsed_args.server_ip
+        self.server_port = parsed_args.zmq_port
         self.app_websockets = dict()
         self.shutdown = False
         self.verbose = self.parsed_args.verbose
@@ -32,7 +32,7 @@ class ZmqBackend(Thread):
 
         context = zmq.Context()
         self.socket = context.socket(zmq.DEALER)
-        self.socket.bind('tcp://%s:%s' % (self.server_ip, ZMQDOMSOCKETSERVERPORT))
+        self.socket.bind('tcp://%s:%s' % (self.server_ip, self.server_port))
         
     def register(self, client):
         self.clients[client_id(client)] = client

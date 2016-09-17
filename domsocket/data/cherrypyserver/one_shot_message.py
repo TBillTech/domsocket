@@ -7,18 +7,17 @@
 import zmq
 import json
 
-ONESHOTMESSAGEPORT = 5555
-
 class OneShotMessage(object):
-    def __init__(self, multipart_message, server_ip):
+    def __init__(self, multipart_message, server_ip, zmq_port):
         self.server_ip = server_ip
+        self.server_port = zmq_port
         self.command = multipart_message[0]
         self.args = multipart_message[1:]
 
     def __enter__(self):
         context = zmq.Context()
         self.socket = context.socket(zmq.DEALER)
-        self.socket.bind('tcp://%s:%s' % (self.server_ip, ONESHOTMESSAGEPORT))
+        self.socket.bind('tcp://%s:%s' % (self.server_ip, self.server_port))
         print('about to send message: [%s,%s]' % (self.command, json.dumps(self.args)))
         self.socket.send_multipart(["0", self.command, json.dumps(self.args)])
         self.json_message = self.socket.recv()

@@ -6,11 +6,11 @@ import argparse
 def build_is_safe():
     y = 'y'
     try:
-        user_key = raw_input('If you have made changes to files in this directory, they '\
+        user_key = input('If you have made changes to files in this directory, they '\
                          'may become overwritten, and you should run ./build.sh instead of this script.\n'\
                          'Are you sure you wish to use the '\
                          'current directory as a destination to force copy the docker '\
-                         'cherrypyserver build files and start the docker image build process? (Y/n)')
+                         'cherrypyserver build files and start the docker image build process? (y/N)')
     except (NameError, SyntaxError):
         user_key = 'n'
     if user_key != y:

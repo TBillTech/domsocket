@@ -9,6 +9,7 @@ import subprocess
 import logging
 import cherrypy
 import argparse
+from string import Template
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 
 import sys
@@ -26,23 +27,44 @@ def shutdown():
     backend.stop()
     exit()
 
-def run_server():
-    os.system('./updateconfigipaddresses.sh')
+def get_default_ip():
+    os.system('./detectipaddress.sh')
+    with open('./temp/detected_ip.txt', 'r') as detected_ip_file:
+        return detected_ip_file.read().strip()
+
+def write_server_openssl_conf(server_ip):
+    with open('./server_openssl.conf.template', 'r') as conf_template_file:
+        conf_str_template = Template(conf_template_file.read())
+    conf_str = conf_str_template.safe_substitute(serverIp=server_ip)
+    with open('./server_openssl.conf', 'w+') as conf_file:
+        conf_file.write(conf_str)
+
+def config_server_openssl(server_ip):
+    write_server_openssl_conf(server_ip)
     os.system('./genkey.sh')
+
+def run_server():
+    default_ip = get_default_ip()
+    
+    parser = argparse.ArgumentParser(description='Serve a domsocket application.')
+    parser.add_argument('--server_ip','-i', dest='server_ip', default=default_ip,
+                        help='the ip address where the zmq domsocket app is listening')
+    parser.add_argument('--server_port','-p', dest='web_port', default=8443,
+                        help='the port for the web server to listen')
+    parser.add_argument('--zmq_port','-z', dest='zmq_port', default=5555,
+                        help='the port for the zmq backend to listen')
+    parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', 
+                        help='Turn on message debugging (which makes the server seem less responsive')
+
+    args = parser.parse_args()
+    app_websocket.parsed_args = args
+    config_server_openssl(args.server_ip)
 
     WebSocketPlugin(cherrypy.engine).subscribe()
     cherrypy.tools.websocket = WebSocketTool()
 
     cherrypy.engine.subscribe('stop', shutdown)
 
-    parser = argparse.ArgumentParser(description='Serve a domsocket application.')
-    parser.add_argument('--server_ip','-i', dest='server_ip', default='*',
-                        help='the ip address where the zmq domsocket app is listening')
-    parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', 
-                        help='Turn on message debugging (which makes the server seem less responsive')
-
-    args = parser.parse_args()
-    app_websocket.parsed_args = args
     server_info = ServerInfo(args)
     backend = init_backend(args)
     backend.start()
