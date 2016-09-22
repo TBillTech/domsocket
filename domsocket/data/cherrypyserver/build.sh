@@ -1,1 +1,1 @@
-sudo docker build -t cherrypyserver . 
+sudo docker build -t tbilltechrep/cherrypyserver . 

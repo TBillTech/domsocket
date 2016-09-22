@@ -47,7 +47,9 @@ def run_server():
     default_ip = get_default_ip()
     
     parser = argparse.ArgumentParser(description='Serve a domsocket application.')
-    parser.add_argument('--server_ip','-i', dest='server_ip', default=default_ip,
+    parser.add_argument('--server_ip','-s', dest='server_ip', default=default_ip,
+                        help='the ip address where the zmq domsocket app is listening')
+    parser.add_argument('--zmq_bind_ip','-i', dest='zmq_bind_ip', default='127.0.0.1',
                         help='the ip address where the zmq domsocket app is listening')
     parser.add_argument('--server_port','-p', dest='web_port', default=8443,
                         help='the port for the web server to listen')

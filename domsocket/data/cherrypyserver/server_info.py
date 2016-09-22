@@ -14,6 +14,7 @@ from one_shot_message import OneShotMessage
 class ServerInfo(object):
     def __init__(self, args):
         self.server_ip = args.server_ip
+        self.zmq_bind_ip = args.zmq_bind_ip
         self.zmq_port = args.zmq_port
         self.web_port = args.web_port
         self.setup_server()
@@ -29,16 +30,16 @@ class ServerInfo(object):
         self.copy_directory('toolkits')
 
     def get_app_name(self):
-        with OneShotMessage(['get_app_name', 'None'], self.server_ip, self.zmq_port) as message:
+        with OneShotMessage(['get_app_name', 'None'], self.zmq_bind_ip, self.zmq_port) as message:
             self.app_name = message.app_name
             print('message.app_name is %s' % message.app_name)
 
     def read_file(self, path, file_name):
-        with OneShotMessage(['read_file', path, file_name], self.server_ip, self.zmq_port) as message:
+        with OneShotMessage(['read_file', path, file_name], self.zmq_bind_ip, self.zmq_port) as message:
             return message.file_contents
 
     def list_directory(self, path):
-        with OneShotMessage(['list_directory', path], self.server_ip, self.zmq_port) as message:
+        with OneShotMessage(['list_directory', path], self.zmq_bind_ip, self.zmq_port) as message:
             return message.directory_listing
 
     def copy_file(self, path, file_name):

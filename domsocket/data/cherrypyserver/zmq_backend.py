@@ -22,7 +22,7 @@ class ZmqBackend(Thread):
     
     def __init__(self, parsed_args):
         self.parsed_args = parsed_args
-        self.server_ip = parsed_args.server_ip
+        self.zmq_bind_ip = parsed_args.zmq_bind_ip
         self.server_port = parsed_args.zmq_port
         self.app_websockets = dict()
         self.shutdown = False
@@ -32,7 +32,7 @@ class ZmqBackend(Thread):
 
         context = zmq.Context()
         self.socket = context.socket(zmq.DEALER)
-        self.socket.bind('tcp://%s:%s' % (self.server_ip, self.server_port))
+        self.socket.bind('tcp://%s:%s' % (self.zmq_bind_ip, self.server_port))
         
     def register(self, client):
         self.clients[client_id(client)] = client
