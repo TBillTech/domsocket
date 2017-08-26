@@ -2,13 +2,15 @@ FROM alpine:3.3
 LABEL Description="This image runs a simple websocket server with a domsocket app back end."
 EXPOSE 80 443 8443 8444 8445 8446 8080 8081 8082 8083 5555 5556 5557 5558
 RUN apk add --update \
-    python \
     openssl \
  && apk add --update \
+    --repository http://dl-4.alpinelinux.org/alpine/edge/main \
     --repository http://dl-4.alpinelinux.org/alpine/edge/community \
     --repository http://dl-4.alpinelinux.org/alpine/edge/testing \
+    python2 \
+    py2-six \
     py2-zmq \
-    py-cherrypy \
+    py2-cherrypy \
  && rm -rf /var/cache/apk/* \
  && mkdir /opt \
  && mkdir /opt/server \
