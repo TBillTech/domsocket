@@ -26,4 +26,15 @@ class WidgetInitializer(object):
         return self.widget
 
     def add_helper_property(self, id, sub_node):
-        setattr(self.widget, '_' + id, sub_node)
+        key = '_' + id
+        if hasattr(self.widget, key):
+            prior = getattr(self.widget, key)
+            try:
+                _ = prior.tag
+                setattr(self.widget, key, [prior, sub_node])
+            except AttributeError:
+                prior += [sub_node]
+        else:
+            setattr(self.widget, key, sub_node)
+                
+        

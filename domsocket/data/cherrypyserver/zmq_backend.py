@@ -32,7 +32,12 @@ class ZmqBackend(Thread):
 
         context = zmq.Context()
         self.socket = context.socket(zmq.DEALER)
-        self.socket.bind('tcp://%s:%s' % (self.zmq_bind_ip, self.server_port))
+        self.socket.bind('tcp://%s:%s' % (self.get_zmq_bind_ip(), self.server_port))
+        
+    def get_zmq_bind_ip(self):
+        if self.zmq_bind_ip != '*' and self.zmq_bind_ip != '"*"':
+            return socket.gethostbyname(self.zmq_bind_ip)
+        return '*'
         
     def register(self, client):
         self.clients[client_id(client)] = client

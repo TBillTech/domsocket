@@ -15,13 +15,15 @@ class HTMLWidget(Element):
 
     def __init__(self):
         super(HTMLWidget, self).__init__()
+        self._node_init = None
 
     def on_create(self, name, parentNode, index):
         if self.is_active_on_client():
             raise AttributeError() # pragma: no cover
 
         self._set_parent(parentNode)
-        self._node_init = WidgetInitializer(self, name, parentNode, index)
+        if self._node_init is None:
+            self._node_init = WidgetInitializer(self, name, parentNode, index)
         HTMLWidgetParser(self)
         return self
         
