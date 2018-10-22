@@ -6,6 +6,7 @@
 """
 import zmq
 import json
+import socket
 
 class OneShotMessage(object):
     def __init__(self, multipart_message, server_ip, zmq_port):
@@ -14,10 +15,15 @@ class OneShotMessage(object):
         self.command = multipart_message[0]
         self.args = multipart_message[1:]
 
+    def get_hostname(self):
+        if self.server_ip != '*' and self.server_ip != '"*"':
+            return socket.gethostbyname(self.server_ip)
+        return '*'
+
     def __enter__(self):
         context = zmq.Context()
         self.socket = context.socket(zmq.DEALER)
-        self.socket.bind('tcp://%s:%s' % (self.server_ip, self.server_port))
+        self.socket.bind('tcp://%s:%s' % (self.get_hostname(), self.server_port))
         print('about to send message: [%s,%s]' % (self.command, json.dumps(self.args)))
         self.socket.send_multipart(["0", self.command, json.dumps(self.args)])
         self.json_message = self.socket.recv()

@@ -13,6 +13,7 @@ import sys
 import site
 import json
 import time
+import socket
 from os.path import join, abspath
 from .app_instance import AppInstance
 from binascii import hexlify
@@ -56,12 +57,20 @@ class ZMQRunner(object):
     def __enter__(self):
         return self
 
+    def gethostbyname(self):
+        for i in range(10):
+            try:
+                return socket.gethostbyname(self.ip_addr)
+            except socket.gaierror:
+                time.sleep(1.0)
+
     def run(self):
         print('Running %s service to location %s:%s' % (self.app_name(), self.ip_addr, self.port))
 
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.ROUTER)
-        self.socket.connect("tcp://%s:%s" % (self.ip_addr, self.port))
+        self.socket.connect("tcp://%s:%s" % (self.gethostbyname(), self.port))
+        print("Socket connected to tcp://%s:%s" % (self.gethostbyname(), self.port))
         self.running = True
 
         while self.running:
@@ -72,6 +81,9 @@ class ZMQRunner(object):
     
             on_command = getattr(self, command, self.command_error)
             on_command((front, client), message)
+
+    def heartbeat(self, client, message):
+        pass
 
     def locked_recv_multipart(self):
         while self.running:

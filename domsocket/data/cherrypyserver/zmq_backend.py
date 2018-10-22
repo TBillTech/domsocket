@@ -32,7 +32,12 @@ class ZmqBackend(Thread):
 
         context = zmq.Context()
         self.socket = context.socket(zmq.DEALER)
-        self.socket.bind('tcp://%s:%s' % (self.zmq_bind_ip, self.server_port))
+        self.socket.bind('tcp://%s:%s' % (self.get_zmq_bind_ip(), self.server_port))
+        
+    def get_zmq_bind_ip(self):
+        if self.zmq_bind_ip != '*' and self.zmq_bind_ip != '"*"':
+            return socket.gethostbyname(self.zmq_bind_ip)
+        return '*'
         
     def register(self, client):
         self.clients[client_id(client)] = client
@@ -46,11 +51,15 @@ class ZmqBackend(Thread):
             del self.clients[client_id(client)]
         
     def run(self):
+        heartbeat_time = time.time() + 300.0
         while not self.shutdown:
             try:
                 self.message_to_client()
             except zmq.Again:
                 time.sleep(IDLESLEEPTIME)
+                if heartbeat_time > time.time():
+                    self.socket.send_multipart(['None', 'heartbeat', ''])
+                    heartbeat_time = time.time() + 300.0
 
     def stop(self):
         self.shutdown = True
