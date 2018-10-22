@@ -51,11 +51,15 @@ class ZmqBackend(Thread):
             del self.clients[client_id(client)]
         
     def run(self):
+        heartbeat_time = time.time() + 300.0
         while not self.shutdown:
             try:
                 self.message_to_client()
             except zmq.Again:
                 time.sleep(IDLESLEEPTIME)
+                if heartbeat_time > time.time():
+                    self.socket.send_multipart(['None', 'heartbeat', ''])
+                    heartbeat_time = time.time() + 300.0
 
     def stop(self):
         self.shutdown = True

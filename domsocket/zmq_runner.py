@@ -82,6 +82,9 @@ class ZMQRunner(object):
             on_command = getattr(self, command, self.command_error)
             on_command((front, client), message)
 
+    def heartbeat(self, client, message):
+        pass
+
     def locked_recv_multipart(self):
         while self.running:
             with self.socket_lock:
