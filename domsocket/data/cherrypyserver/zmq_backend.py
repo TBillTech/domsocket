@@ -10,6 +10,7 @@ from binascii import hexlify
 import zmq
 import time
 import json
+import socket
 
 IDLESLEEPTIME = 0.1
 
