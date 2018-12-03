@@ -317,7 +317,7 @@ class Element(Node):
 
     def find_parent_handler(self, handler_name):
         if self.parentNode is None or not hasattr(self.parentNode, 'find_parent_handler'):
-            raise ElementError('No parent Node of class %s found' % (repr(cls))) #pragma: no cover
+            raise ElementError('No handler with name %s found' % (handler_name,)) #pragma: no cover
         if hasattr(self.parentNode, handler_name):
             return getattr(self.parentNode, handler_name)
         return self.parentNode.find_parent_handler(handler_name)
