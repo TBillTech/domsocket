@@ -144,7 +144,7 @@ class HTMLWidgetParser(HTMLParser):
 
     def set_top_widget_attribute(self, attr_name, attr_value):
         widget = self.get_top_widget()
-        setattr(widget, attr_name, attr_value)
+        setattr(widget, attr_name, attr_value if attr_value else '')
 
     def get_end_tag(self):
         return self.get_top_widget().tag
